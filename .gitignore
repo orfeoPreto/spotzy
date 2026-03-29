@@ -1,11 +1,31 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 .next/
 out/
 dist/
 cdk.out/
+
+# Source maps & declarations
 *.js.map
 *.d.ts
+
+# Environment
 .env
 .env.local
+.env.*.local
+
+# CDK
 cdk-outputs.json
+
+# OS
+.DS_Store
+~$*
+
+# Archives
 *.zip
+
+# Coverage
+coverage/
+*.lcov
