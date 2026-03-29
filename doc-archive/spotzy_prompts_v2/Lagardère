@@ -1,0 +1,43 @@
+Lagardère
+International Duty Free socièté Belge repris par le groupe Lagardère en 2019.
+L'intégration dans l'écosystème de Lagardère à été complétée récemment.
+Leur marché est le retail de luxe dans le duty free.
+Ils ont plusieurs magasins à Bxl Zaventem, à Charleroi et à Bruxelles Midi. Ils ont également des magasin aux Pays Bas.
+Les magasins en Belgique provide de taxes reduites classiques (dutyfree).
+Les magasins aux Pays Bas se situe au sein de l'ONU et du (ministère de défense?) dans des institution militaires.
+La réduction s'appliquant à ses ventes est lié au statut diplamatique des client (réduction VIP).
+
+
+
+Le parque applicative chez Lagardère Belgium est composé comme suit.
+
+Application de caisse
+Technoligie: .NET / Windows 
+Fournisseur: Suisse/Italien
+Cette application fourni les fonctionnalités de caisse classiques mais aussi du self-checkout.
+Elle est utilisé dans tt ou pluspart de leurs magasin.
+
+Il y a une plateforme de BI basé sur SAP BW. Il y a un projet de migrer cette application vers ...
+
+Des nouvelles fonctionnalité seront /sont mis en places:
+Un système de marge (arrière?) qui gère les réductions sur base du volume d'achât. Effectue un calcul des mouvement de stock.
+Un système de "concédants" - Un concédant est une société opérant les aéroports et les gares 
+Aux Pays Bas il s'agit de l'OPCW au sein de l'ONU et des bases militaires.
+L'application reçoit les numéros de badge et gère les réductions faites au personnel.
+Technologie: .NET
+
+Les Interfaces côté groupe:
+intégration avec système SAP de Lagardère int 
+effectue un calcul des réductions comémentaires
+Il s'agit d'une intégration du système legacy local avec le back-office SAP
+
+On outre, il y a un tas de petites applications.
+
+Il y a le webgui de SAP (Fiori) supportant des fonctionnalités ciblées comme l'impréssion de tickets de caisses et d'autres fonctions logistiques.
+
+Il y a une application de Lagardèr Grp pour la gestion de tickets éléctroniques.
+Fonctionne avec un dongle sur un point d'accès.
+Il y a une partie d'un module SAP sur le cloud.
+
+En générale il faut une approche horizontale et une polyvalance.
+Volonté de mener à bien le processus de résolution d'incident.

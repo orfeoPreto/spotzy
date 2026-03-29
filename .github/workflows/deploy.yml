@@ -1,0 +1,208 @@
+name: Spotzy CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  AWS_REGION: eu-west-1
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package.json
+      - run: npm ci
+        working-directory: backend
+      - run: npm test -- --coverage
+        working-directory: backend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run test
+        working-directory: frontend
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    if: github.event_name == 'push' || github.event_name == 'release'
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports: ['8000:8000']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package.json
+      - run: npm ci && npm run test:integration
+        working-directory: backend
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:8000
+
+  deploy-test:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: infrastructure/package.json
+      - run: npm ci && npx cdk deploy --all --require-approval never -c environment=test
+        working-directory: infrastructure
+      - name: Build and deploy frontend (test)
+        run: npm ci && npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.TEST_API_URL }}
+          NEXT_PUBLIC_WS_URL: ${{ secrets.TEST_WS_URL }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY_TEST }}
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.TEST_COGNITO_USER_POOL_ID }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.TEST_COGNITO_CLIENT_ID }}
+      - name: Sync frontend to S3 (test)
+        run: |
+          aws s3 sync frontend/out/ s3://spotzy-frontend-test/ --delete
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.TEST_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  api-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: api-tests/package.json
+      - run: npm ci && npm test
+        working-directory: api-tests
+        env:
+          TEST_API_URL: ${{ secrets.TEST_API_URL }}
+          TEST_HOST_PASSWORD: ${{ secrets.TEST_HOST_PASSWORD }}
+          TEST_SPOTTER_PASSWORD: ${{ secrets.TEST_SPOTTER_PASSWORD }}
+          TEST_SPOTTER_2_PASSWORD: ${{ secrets.TEST_SPOTTER_2_PASSWORD }}
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: api-tests
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: infrastructure/package.json
+      - run: npm ci && npx cdk deploy --all --require-approval never -c environment=staging
+        working-directory: infrastructure
+      - name: Build and deploy frontend (staging)
+        run: npm ci && npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.STAGING_API_URL }}
+          NEXT_PUBLIC_WS_URL: ${{ secrets.STAGING_WS_URL }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY_TEST }}
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.STAGING_COGNITO_CLIENT_ID }}
+      - name: Sync frontend to S3 (staging)
+        run: |
+          aws s3 sync frontend/out/ s3://spotzy-frontend-staging/ --delete
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: e2e/package.json
+      - run: npx playwright install --with-deps chromium
+      - run: npm ci && npx playwright test
+        working-directory: e2e
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+          TEST_SPOTTER_PASSWORD: ${{ secrets.TEST_SPOTTER_PASSWORD }}
+          TEST_HOST_PASSWORD: ${{ secrets.TEST_HOST_PASSWORD }}
+          TEST_SPOTTER_2_PASSWORD: ${{ secrets.TEST_SPOTTER_2_PASSWORD }}
+          COMPLETED_BOOKING_ID: ${{ secrets.COMPLETED_BOOKING_ID }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    environment: production   # Requires manual approval in GitHub Environments
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: infrastructure/package.json
+      - run: npm ci && npx cdk deploy --all --require-approval never -c environment=prod
+        working-directory: infrastructure
+      - name: Build frontend (production)
+        run: npm ci && npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.PROD_API_URL }}
+          NEXT_PUBLIC_WS_URL: ${{ secrets.PROD_WS_URL }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY_PROD }}
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.PROD_COGNITO_USER_POOL_ID }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.PROD_COGNITO_CLIENT_ID }}
+      - name: Sync frontend to S3 (production)
+        run: |
+          aws s3 sync frontend/out/ s3://spotzy-frontend/ --delete
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.PROD_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+      - name: Record deployment
+        run: echo "Version ${{ github.ref_name }} deployed to production at $(date -u +%Y-%m-%dT%H:%M:%SZ)"

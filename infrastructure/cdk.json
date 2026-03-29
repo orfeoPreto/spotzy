@@ -1,0 +1,6 @@
+{
+  "app": "npx ts-node bin/spotzy.ts",
+  "context": {
+    "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true
+  }
+}

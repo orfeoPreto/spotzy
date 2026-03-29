@@ -1,0 +1,36 @@
+{
+  "name": "spotzy-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:integration": "jest --config jest.integration.config.js",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.0.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1014.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-eventbridge": "^3.0.0",
+    "@aws-sdk/client-rekognition": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "@aws-sdk/client-ses": "^3.0.0",
+    "@aws-sdk/client-sns": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "ngeohash": "^0.6.3",
+    "stripe": "^14.0.0",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.0",
+    "@types/jest": "^29.0.0",
+    "@types/ngeohash": "^0.6.3",
+    "@types/node": "^20.0.0",
+    "aws-sdk-client-mock": "^3.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}

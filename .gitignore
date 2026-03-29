@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+dist/
+cdk.out/
+*.js.map
+*.d.ts
+.env
+.env.local
+cdk-outputs.json
+*.zip
