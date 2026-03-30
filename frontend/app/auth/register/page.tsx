@@ -8,12 +8,22 @@ import { useAuth } from '../../../hooks/useAuth';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 const ROLES = [
-  { value: 'SPOTTER', label: 'Spotter', description: 'Find and book parking spots', icon: '🚗', disabled: false },
-  { value: 'HOST', label: 'Host', description: 'List your parking spot', icon: '🏠', disabled: false },
-  { value: 'SPOT_MANAGER', label: 'Spot Manager', description: 'Manage multiple properties', icon: '🏢', disabled: true },
+  { value: 'SPOTTER', label: 'Spotter', description: 'Find and book parking spots', icon: '\u{1F697}', disabled: false },
+  { value: 'HOST', label: 'Host', description: 'List your parking spot', icon: '\u{1F3E0}', disabled: false },
+  { value: 'SPOT_MANAGER', label: 'Spot Manager', description: 'Manage multiple properties', icon: '\u{1F3E2}', disabled: true },
 ];
 
-type Step = 'persona' | 'stripe-gate' | 'profile';
+const COUNTRY_CODES = [
+  { value: '+32', label: '\u{1F1E7}\u{1F1EA} +32' },
+  { value: '+33', label: '\u{1F1EB}\u{1F1F7} +33' },
+  { value: '+31', label: '\u{1F1F3}\u{1F1F1} +31' },
+  { value: '+49', label: '\u{1F1E9}\u{1F1EA} +49' },
+  { value: '+44', label: '\u{1F1EC}\u{1F1E7} +44' },
+  { value: '+352', label: '\u{1F1F1}\u{1F1FA} +352' },
+  { value: '+1', label: '\u{1F1FA}\u{1F1F8} +1' },
+];
+
+type Step = 'persona' | 'stripe-gate' | 'invoicing' | 'profile';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,19 +35,25 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+32');
+  const [phoneLocal, setPhoneLocal] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [stripeCompleted, setStripeCompleted] = useState(false);
-  const [stripeLoading, setStripeLoading] = useState(false);
+
+  // Invoicing fields (host only)
+  const [vatNumber, setVatNumber] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [billingAddress, setBillingAddress] = useState('');
+  const [billingEmail, setBillingEmail] = useState('');
 
   // Pre-select Host role when coming from "List your spot" CTA
   useEffect(() => {
     if (searchParams.get('intent') === 'host') {
       setSelectedRole('HOST');
     }
-    // Handle Stripe return
+    // Handle Stripe return — no longer used, but keep for backwards compat
     if (searchParams.get('stripe') === 'success') {
       setSelectedRole('HOST');
       setStripeCompleted(true);
@@ -51,39 +67,35 @@ export default function RegisterPage() {
   }, []);
 
   const validatePassword = (pw: string) => {
-    if (pw.length > 0 && pw.length < 8) return 'Password is too short — at least 8 characters required';
+    if (pw.length > 0 && pw.length < 8) return 'Password is too short \u2014 at least 8 characters required';
     return '';
   };
 
   const handleContinue = () => {
-    if (selectedRole === 'HOST' && !stripeCompleted) {
+    if (selectedRole === 'HOST') {
       setStep('stripe-gate');
     } else {
       setStep('profile');
     }
   };
 
-  const handleStripeSetup = async () => {
-    setStripeLoading(true);
-    try {
-      // We need email first to create Stripe account. For now, prompt email in the gate.
-      // Or use a temp approach: redirect to Stripe, then come back.
-      // Since we don't have auth yet, we'll use the payout-setup flow adapted for registration.
-      const res = await fetch(`${API_URL}/api/v1/users/me/payout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // No auth token — this will fail. We need to adapt.
-      });
-      if (res.ok) {
-        const data = await res.json() as { onboardingUrl: string };
-        window.location.href = data.onboardingUrl;
-      }
-    } catch {
-      // Fallback: skip Stripe for now, proceed to profile
-      setStep('profile');
-    } finally {
-      setStripeLoading(false);
-    }
+  const handleStripeGateContinue = () => {
+    // Store intent to set up Stripe after account creation + OTP
+    sessionStorage.setItem('spotzy_stripe_setup_pending', 'true');
+    // Proceed to invoicing step (stripeCompleted stays false; will redirect to /become-host after OTP)
+    setStep('invoicing');
+  };
+
+  const handleStripeGateSkip = () => {
+    setStep('invoicing');
+  };
+
+  const handleInvoicingContinue = () => {
+    setStep('profile');
+  };
+
+  const handleInvoicingSkip = () => {
+    setStep('profile');
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -93,6 +105,10 @@ export default function RegisterPage() {
     if (err) { setPasswordError(err); return; }
     setSubmitLoading(true);
     setSubmitError('');
+
+    // Concatenate country code + local number (strip leading zero)
+    const fullPhone = countryCode + phoneLocal.replace(/^0/, '');
+
     try {
       await signUp({
         username: email.trim(),
@@ -102,11 +118,22 @@ export default function RegisterPage() {
             email: email.trim(),
             given_name: firstName.trim(),
             family_name: lastName.trim(),
-            phone_number: phone.trim(),
+            phone_number: fullPhone,
             'custom:role': selectedRole,
           },
         },
       });
+
+      // Store invoicing details for later use after account creation
+      if (selectedRole === 'HOST' && (vatNumber || companyName || billingAddress || billingEmail)) {
+        sessionStorage.setItem('spotzy_invoicing', JSON.stringify({
+          vatNumber: vatNumber.trim(),
+          companyName: companyName.trim(),
+          billingAddress: billingAddress.trim(),
+          billingEmail: billingEmail.trim() || email.trim(),
+        }));
+      }
+
       // Pass role and stripe status to confirm page
       const params = new URLSearchParams({
         email: email.trim(),
@@ -183,7 +210,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      {/* Step 1.5: Stripe gate (HOST only) */}
+      {/* Step 1.5: Stripe gate (HOST only) — informational only */}
       {step === 'stripe-gate' && (
         <div className="text-center space-y-6">
           <div
@@ -197,21 +224,29 @@ export default function RegisterPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-[#004526] mb-2">Set up your payout account</h2>
-            <p className="text-sm text-[#4B6354]">Required to list your space and receive earnings.</p>
+            <p className="text-sm text-[#4B6354]">To receive earnings from your parking spot, you will need to connect a Stripe payout account.</p>
+          </div>
+
+          <div className="rounded-lg bg-[#F0F7F3] p-4 text-left space-y-2">
+            <p className="text-sm font-medium text-[#004526]">What happens next:</p>
+            <ul className="text-sm text-[#4B6354] space-y-1">
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">1.</span> Complete your account registration</li>
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">2.</span> Verify your email address</li>
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">3.</span> Set up Stripe Connect for payouts</li>
+            </ul>
           </div>
 
           <button
             type="button"
-            onClick={handleStripeSetup}
-            disabled={stripeLoading}
-            className="w-full rounded-lg bg-[#004526] py-3 text-sm font-semibold text-white hover:bg-[#003a1f] disabled:opacity-50 transition-colors"
+            onClick={handleStripeGateContinue}
+            className="w-full rounded-lg bg-[#004526] py-3 text-sm font-semibold text-white hover:bg-[#003a1f] transition-colors"
           >
-            {stripeLoading ? 'Opening Stripe…' : 'Continue to Stripe'}
+            Continue to Stripe
           </button>
 
           <button
             type="button"
-            onClick={() => setStep('profile')}
+            onClick={handleStripeGateSkip}
             className="text-sm text-[#4B6354] hover:text-[#004526] hover:underline"
           >
             Skip for now — set up later
@@ -221,6 +256,91 @@ export default function RegisterPage() {
             Powered by Stripe Connect — Spotzy never stores your banking details.
           </p>
           <style>{`@keyframes spin360 { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
+        </div>
+      )}
+
+      {/* Step 1.75: Invoicing details (HOST only) */}
+      {step === 'invoicing' && (
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-xl font-bold text-[#004526] mb-1">Billing & invoicing details</h2>
+            <p className="text-sm text-[#4B6354]">
+              These details will appear on invoices sent to spotters. You can update them later from your profile.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="companyName" className="mb-1 block text-sm font-medium text-gray-700">
+              Company name <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="companyName"
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="e.g. Parking Solutions BVBA"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="vatNumber" className="mb-1 block text-sm font-medium text-gray-700">
+              VAT number <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="vatNumber"
+              type="text"
+              value={vatNumber}
+              onChange={(e) => setVatNumber(e.target.value)}
+              placeholder="e.g. BE0123456789"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="billingAddress" className="mb-1 block text-sm font-medium text-gray-700">
+              Billing address <span className="text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              id="billingAddress"
+              rows={2}
+              value={billingAddress}
+              onChange={(e) => setBillingAddress(e.target.value)}
+              placeholder="Street, city, postal code, country"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="billingEmail" className="mb-1 block text-sm font-medium text-gray-700">
+              Billing email <span className="text-gray-400">(optional — defaults to account email)</span>
+            </label>
+            <input
+              id="billingEmail"
+              type="email"
+              value={billingEmail}
+              onChange={(e) => setBillingEmail(e.target.value)}
+              placeholder="billing@example.com"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleInvoicingSkip}
+              className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Skip for now
+            </button>
+            <button
+              type="button"
+              onClick={handleInvoicingContinue}
+              className="flex-1 rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526]"
+            >
+              Continue
+            </button>
+          </div>
         </div>
       )}
 
@@ -237,7 +357,7 @@ export default function RegisterPage() {
           {selectedRole === 'HOST' && !stripeCompleted && (
             <div data-testid="payout-incomplete-banner" className="border border-[#E8B4A4] bg-[#F5E6E1] rounded-lg px-4 py-3 flex items-center gap-3 mb-2">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#AD3614" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <p className="text-sm text-[#AD3614]">Payout setup incomplete — you can complete it later from your profile.</p>
+              <p className="text-sm text-[#AD3614]">Payout setup incomplete — you&apos;ll complete Stripe setup after verifying your email.</p>
             </div>
           )}
 
@@ -263,23 +383,16 @@ export default function RegisterPage() {
             <div className="flex gap-2">
               <select
                 data-testid="country-code-select"
-                value={phone.match(/^\+\d+/)?.[0] ?? '+32'}
-                onChange={(e) => {
-                  const local = phone.replace(/^\+\d+\s*/, '');
-                  setPhone(e.target.value + local);
-                }}
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
                 className="w-24 rounded-lg border border-gray-300 px-2 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
               >
-                <option value="+32">🇧🇪 +32</option>
-                <option value="+33">🇫🇷 +33</option>
-                <option value="+31">🇳🇱 +31</option>
-                <option value="+49">🇩🇪 +49</option>
-                <option value="+44">🇬🇧 +44</option>
-                <option value="+352">🇱🇺 +352</option>
-                <option value="+1">🇺🇸 +1</option>
+                {COUNTRY_CODES.map((cc) => (
+                  <option key={cc.value} value={cc.value}>{cc.label}</option>
+                ))}
               </select>
-              <input id="reg-phone" type="tel" value={phone} placeholder="+32471234567"
-                onChange={(e) => setPhone(e.target.value)}
+              <input id="reg-phone" type="tel" value={phoneLocal} placeholder="471234567"
+                onChange={(e) => setPhoneLocal(e.target.value)}
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" required />
             </div>
           </div>
@@ -305,17 +418,17 @@ export default function RegisterPage() {
           {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
           {submitError && <p className="text-sm text-red-600">{submitError}</p>}
           <div className="flex gap-3">
-            <button type="button" onClick={() => setStep('persona')}
+            <button type="button" onClick={() => setStep(selectedRole === 'HOST' ? 'invoicing' : 'persona')}
               className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
               Back
             </button>
             <button
               type="submit"
               data-testid="create-account-btn"
-              disabled={submitLoading || !firstName || !lastName || !email || !phone || !password || !confirmPassword}
+              disabled={submitLoading || !firstName || !lastName || !email || !phoneLocal || !password || !confirmPassword}
               className="flex-1 rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40"
             >
-              {submitLoading ? 'Creating account…' : 'Create account'}
+              {submitLoading ? 'Creating account\u2026' : 'Create account'}
             </button>
           </div>
         </form>

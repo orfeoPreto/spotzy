@@ -67,6 +67,7 @@ export const LAMBDA_NAMES = {
   messagesUnread: 'messages-unread',
   bookingStatusTransition: 'booking-status-transition',
   userInvoicing: 'user-invoicing',
+  disputeGet: 'dispute-get',
 } as const;
 
 export class ApiStack extends cdk.Stack {
@@ -190,6 +191,7 @@ export class ApiStack extends cdk.Stack {
         'review-create': 'reviews/create',
         'review-aggregate': 'reviews/aggregate',
         'dispute-create': 'disputes/create',
+        'dispute-get': 'disputes/get',
         'dispute-message': 'disputes/message',
         'dispute-escalate': 'disputes/escalate',
         'user-get': 'users/get',
@@ -319,6 +321,7 @@ export class ApiStack extends cdk.Stack {
     mkFn(LAMBDA_NAMES.reviewAggregate);
 
     const disputeCreateFn  = mkFn(LAMBDA_NAMES.disputeCreate);
+    const disputeGetFn     = mkFn(LAMBDA_NAMES.disputeGet);
     const disputeMessageFn = mkFn(LAMBDA_NAMES.disputeMessage);
     mkFn(LAMBDA_NAMES.disputeEscalate);
 
@@ -538,6 +541,7 @@ export class ApiStack extends cdk.Stack {
 
     // /api/v1/disputes
     const disputes = v1.addResource('disputes');
+    disputes.addMethod('GET', integ(disputeGetFn), authOpts);
     disputes.addMethod('POST', integ(disputeCreateFn), authOpts);
     disputes.addResource('{id}').addResource('message').addMethod('POST', integ(disputeMessageFn), authOpts);
 

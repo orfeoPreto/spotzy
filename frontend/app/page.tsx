@@ -268,7 +268,7 @@ function CallToAction() {
           </Link>
           <Link
             href="/auth/register"
-            className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#004526] hover:text-white"
+            className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]"
           >
             Create account
           </Link>
@@ -278,41 +278,16 @@ function CallToAction() {
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-
-function Footer() {
-  return (
-    <footer className="border-t border-[#F0F7F3] bg-white px-6 py-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <span className="text-lg font-bold text-[#004526]">Spotzy</span>
-          <nav className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
-            <Link href="/search" className="hover:text-[#004526]">Find parking</Link>
-            <Link href="/listings/new" className="hover:text-[#004526]">List a spot</Link>
-            <Link href="/dashboard/spotter" className="hover:text-[#004526]">Bookings</Link>
-            <Link href="/dashboard/host" className="hover:text-[#004526]">Host dashboard</Link>
-            <Link href="/auth/login" className="hover:text-[#004526]">Sign in</Link>
-          </nav>
-          <span className="text-xs text-gray-400">© {new Date().getFullYear()} Spotzy</span>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <>
-      <main>
-        <Hero />
-        <HowItWorks />
-        <Features />
-        <QuickLinks />
-        <CallToAction />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <Hero />
+      <HowItWorks />
+      <Features />
+      <QuickLinks />
+      <CallToAction />
+    </main>
   );
 }

@@ -124,6 +124,17 @@ export const reviewsApi = {
 // Disputes
 // -------------------------------------------------------------------------
 export const disputesApi = {
+  getByBooking: (bookingId: string, token: string) =>
+    request<{
+      disputeId: string;
+      bookingId: string;
+      status: string;
+      referenceNumber: string;
+      reason: string;
+      createdAt: string;
+      messages: Array<{ messageId: string; role: 'AI' | 'USER'; text: string; contentType?: string; requestsEvidence?: boolean }>;
+    }>(`/api/v1/disputes?bookingId=${encodeURIComponent(bookingId)}`, {}, token),
+
   create: (body: unknown, token: string) =>
     request<unknown>('/api/v1/disputes', { method: 'POST', body: JSON.stringify(body) }, token),
 

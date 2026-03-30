@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import { useChat } from '../../../hooks/useChat';
 import ChatBubble from '../../../components/ChatBubble';
@@ -10,6 +10,10 @@ interface BookingContext {
   bookingId: string;
   address: string;
   reference: string;
+  spotterId?: string;
+  hostId?: string;
+  spotterName?: string;
+  hostName?: string;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
@@ -17,8 +21,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 export default function ChatPage() {
   const _pathname = usePathname();
   const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
+  const router = useRouter();
   const { user } = useAuth();
   const [booking, setBooking] = useState<BookingContext | null>(null);
+  const [otherPartyName, setOtherPartyName] = useState<string | null>(null);
+  const [otherPartyId, setOtherPartyId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [pendingImage, setPendingImage] = useState<{ file: File; preview: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +43,27 @@ export default function ChatPage() {
       headers: { Authorization: `Bearer ${user.token}` },
     })
       .then((r) => r.json())
-      .then((d) => setBooking(d as BookingContext));
+      .then((d) => {
+        const data = d as BookingContext;
+        setBooking(data);
+        // Determine the other party (if I'm the spotter, show host; if I'm the host, show spotter)
+        const isSpotter = user?.userId === data.spotterId;
+        const name = isSpotter ? data.hostName : data.spotterName;
+        const id = isSpotter ? data.hostId : data.spotterId;
+        setOtherPartyName(name ?? null);
+        setOtherPartyId(id ?? null);
+        // If name not embedded, fetch profile
+        if (!name && id) {
+          fetch(`${API_URL}/api/v1/users/${id}/profile`, {
+            headers: { Authorization: `Bearer ${user!.token}` },
+          })
+            .then((r) => r.ok ? r.json() : null)
+            .then((profile) => {
+              if (profile?.name) setOtherPartyName(profile.name);
+            })
+            .catch(() => {});
+        }
+      });
   }, [bookingId, user?.userId]);
 
   useEffect(() => {
@@ -78,14 +105,19 @@ export default function ChatPage() {
       {/* Header with back button and booking context */}
       <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
         <div className="flex items-center gap-3">
-          <a href="/dashboard/spotter" className="text-[#004526] hover:text-[#006B3C]" aria-label="Back to bookings">
+          <button type="button" onClick={() => router.back()} className="text-[#004526] hover:text-[#006B3C]" aria-label="Back to bookings">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
-          </a>
+          </button>
           <div className="min-w-0 flex-1">
             {booking && (
               <>
+                {otherPartyName && (
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    <a href={`/profile/${otherPartyId}`} className="hover:underline">{otherPartyName}</a>
+                  </p>
+                )}
                 <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>
                 <p className="text-xs text-gray-500">Booking {booking.reference}</p>
               </>
@@ -95,7 +127,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4" style={{ maxHeight: '80vh', minHeight: '20vh' }}>
+      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4" style={{ maxHeight: '60vh', minHeight: '20vh' }}>
         {messages.length === 0 ? (
           <p className="text-center text-sm text-gray-400">No messages yet — start the conversation</p>
         ) : (

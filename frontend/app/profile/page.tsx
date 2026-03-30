@@ -10,6 +10,7 @@ interface UserProfile {
   userId: string;
   name: string;
   email: string;
+  phone?: string;
   listingCount?: number;
   bookingCount?: number;
 }
@@ -29,6 +30,10 @@ export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState('');
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailValue, setEmailValue] = useState('');
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phoneValue, setPhoneValue] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -44,6 +49,8 @@ export default function ProfilePage() {
         const metrics = await metricsRes.json() as { liveListings?: number; activeBookings?: number };
         setUser({ ...profile, listingCount: metrics.liveListings ?? 0, bookingCount: metrics.activeBookings ?? 0 });
         setNameValue(profile.name ?? '');
+        setEmailValue(profile.email ?? '');
+        setPhoneValue(profile.phone ?? '');
       } catch {
         // ignore — show empty state
       }
@@ -63,6 +70,40 @@ export default function ProfilePage() {
       });
       setUser((u) => u ? { ...u, name: nameValue.trim() } : u);
       setEditingName(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    if (!emailValue.trim() || !user) return;
+    setSaving(true);
+    try {
+      const token = await getAuthToken();
+      await fetch(`${API_URL}/api/v1/users/me`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue.trim() }),
+      });
+      setUser((u) => u ? { ...u, email: emailValue.trim() } : u);
+      setEditingEmail(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePhone = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const token = await getAuthToken();
+      await fetch(`${API_URL}/api/v1/users/me`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneValue.trim() }),
+      });
+      setUser((u) => u ? { ...u, phone: phoneValue.trim() } : u);
+      setEditingPhone(false);
     } finally {
       setSaving(false);
     }
@@ -153,6 +194,97 @@ export default function ProfilePage() {
               Spotter
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Contact info */}
+      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-[#004526]">Contact info</h3>
+
+        {/* Email */}
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-600">Email</label>
+          {editingEmail ? (
+            <div className="flex items-center gap-2">
+              <input
+                aria-label="email"
+                type="email"
+                value={emailValue}
+                onChange={(e) => setEmailValue(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleSaveEmail}
+                disabled={saving}
+                className="btn-gold rounded-lg px-3 py-1 text-xs"
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button type="button" onClick={() => setEditingEmail(false)} className="text-xs text-gray-400">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-900">{user.email || 'Not set'}</p>
+              <button
+                type="button"
+                data-testid="edit-email"
+                onClick={() => setEditingEmail(true)}
+                aria-label="Edit email"
+                className="text-gray-400 hover:text-[#004526]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-600">Phone</label>
+          {editingPhone ? (
+            <div className="flex items-center gap-2">
+              <input
+                aria-label="phone"
+                type="tel"
+                value={phoneValue}
+                onChange={(e) => setPhoneValue(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleSavePhone}
+                disabled={saving}
+                className="btn-gold rounded-lg px-3 py-1 text-xs"
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button type="button" onClick={() => setEditingPhone(false)} className="text-xs text-gray-400">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-900">{user.phone || 'Not set'}</p>
+              <button
+                type="button"
+                data-testid="edit-phone"
+                onClick={() => setEditingPhone(true)}
+                aria-label="Edit phone"
+                className="text-gray-400 hover:text-[#004526]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

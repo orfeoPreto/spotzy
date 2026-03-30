@@ -73,7 +73,7 @@ function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: numb
     : '';
 
   return `
-    <div style="min-width:200px;max-width:260px;font-family:system-ui,sans-serif;">
+    <div style="min-width:140px;max-width:min(220px,60vw);font-family:system-ui,sans-serif;">
       ${photoUrl ? `<img src="${photoUrl}" alt="" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />` : ''}
       <div style="padding:8px 10px;">
         <p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#1C2B1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${spot.address}</p>
@@ -219,8 +219,7 @@ export default function SpotMap({
           closeButton: true,
           closeOnClick: false,
           offset: [0, -20],
-          maxWidth: '280px',
-          anchor: 'bottom',
+          maxWidth: 'min(220px,60vw)',
         })
           .setLngLat([spot.addressLng, spot.addressLat])
           .setHTML(buildPopupHtml(spot, destCoordsRef.current))

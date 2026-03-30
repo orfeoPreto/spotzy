@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import AvailabilityGrid, { SaveAvailabilityPayload } from '../../../components/AvailabilityGrid';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
@@ -54,6 +56,38 @@ export default function ListingWizardPage() {
   const [availabilitySaving, setAvailabilitySaving] = useState(false);
   const [availabilityError, setAvailabilityError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+
+  // Render / update mini-map when coordinates change
+  useEffect(() => {
+    if (!state.lat || !state.lng || !mapContainerRef.current) return;
+    if (!MAPBOX_TOKEN) return;
+
+    if (!mapInstanceRef.current) {
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [state.lng, state.lat],
+        zoom: 15,
+        interactive: false,
+      });
+      mapInstanceRef.current = map;
+      const marker = new mapboxgl.Marker({ color: '#006B3C' })
+        .setLngLat([state.lng, state.lat])
+        .addTo(map);
+      markerRef.current = marker;
+    } else {
+      mapInstanceRef.current.setCenter([state.lng, state.lat]);
+      markerRef.current?.setLngLat([state.lng, state.lat]);
+    }
+
+    return () => {
+      // Cleanup only when component unmounts (handled by React)
+    };
+  }, [state.lat, state.lng]);
 
   // Fetch address suggestions
   useEffect(() => {
@@ -330,8 +364,11 @@ export default function ListingWizardPage() {
             )}
           </div>
           {state.lat && (
-            <div className="mt-3 h-32 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-400">
-              📍 {state.lat.toFixed(4)}, {state.lng?.toFixed(4)}
+            <div className="mt-3 overflow-hidden rounded-lg border border-gray-200">
+              <div ref={mapContainerRef} className="h-48 w-full" />
+              <p className="bg-gray-50 px-3 py-1.5 text-xs text-gray-500">
+                {state.lat.toFixed(4)}, {state.lng?.toFixed(4)}
+              </p>
             </div>
           )}
         </section>

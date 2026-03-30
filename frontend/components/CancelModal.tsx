@@ -9,6 +9,7 @@ interface CancelBooking {
   startTime?: string;
   endTime?: string;
   totalPrice: number;
+  status?: string;
 }
 
 interface CancelModalProps {
@@ -25,6 +26,13 @@ function hoursUntil(iso: string): number {
   return (new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60);
 }
 
+/** Refund tiers: >24h = 100%, 12-24h = 50%, <12h = 0% */
+function calculateRefund(totalPrice: number, hoursLeft: number): number {
+  if (hoursLeft > 24) return totalPrice;
+  if (hoursLeft >= 12) return parseFloat((totalPrice * 0.5).toFixed(2));
+  return 0;
+}
+
 async function getAuthToken(): Promise<string> {
   try {
     // Dynamically import Amplify Auth to avoid SSR issues
@@ -36,11 +44,23 @@ async function getAuthToken(): Promise<string> {
   }
 }
 
-export default function CancelModal({ booking, refundAmount, onClose, onCancelled }: CancelModalProps) {
+export default function CancelModal({ booking, refundAmount: _refundAmountProp, onClose, onCancelled }: CancelModalProps) {
   const startDate = booking.startDate ?? booking.startTime ?? '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hoursLeft, setHoursLeft] = useState(() => hoursUntil(startDate));
+
+  const isActive = booking.status === 'ACTIVE';
+
+  // Calculate refund based on tiered policy (>24h=100%, 12-24h=50%, <12h=0%)
+  const refundAmount = calculateRefund(booking.totalPrice, hoursLeft);
+
+  // Determine refund tier label
+  const refundTierLabel = hoursLeft > 24
+    ? 'More than 24h before start — full refund'
+    : hoursLeft >= 12
+      ? '12–24h before start — 50% refund'
+      : 'Less than 12h before start — no refund';
 
   const withinDeadline = new Date(startDate).getTime() - Date.now() < WITHIN_48H_MS &&
     new Date(startDate).getTime() > Date.now();
@@ -87,16 +107,23 @@ export default function CancelModal({ booking, refundAmount, onClose, onCancelle
           </p>
         )}
 
-        {refundAmount > 0 ? (
+        {isActive ? (
+          <div className="mb-4 rounded-xl bg-red-50 p-4 text-center">
+            <p className="text-sm font-medium text-red-700">Cannot cancel an active booking</p>
+            <p className="text-xs text-gray-500 mt-1">This booking is currently in progress.</p>
+          </div>
+        ) : refundAmount > 0 ? (
           <div className="mb-4 rounded-xl bg-green-50 p-4 text-center">
             <p className="text-xs text-gray-500">You will receive</p>
             <p className="text-2xl font-bold text-green-700">€{refundAmount.toFixed(2)}</p>
             <p className="text-xs text-gray-500">refund</p>
+            <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
           </div>
         ) : (
           <div className="mb-4 rounded-xl bg-gray-100 p-4 text-center">
             <p className="text-sm text-gray-500">No refund applies</p>
             <p className="text-xl font-bold text-gray-400">€0.00</p>
+            <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
           </div>
         )}
 
@@ -126,7 +153,7 @@ export default function CancelModal({ booking, refundAmount, onClose, onCancelle
           <button
             type="button"
             aria-label="Yes, cancel"
-            disabled={loading}
+            disabled={loading || isActive}
             onClick={handleCancel}
             className="flex-1 rounded-lg bg-[#C0392B] py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >

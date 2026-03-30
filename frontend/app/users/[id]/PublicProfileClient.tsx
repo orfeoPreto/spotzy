@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
+import { spotTypeDisplay } from '../../../lib/spotTypeDisplay';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
 
 interface PublicListing {
   listingId: string;
@@ -149,14 +151,14 @@ export default function PublicProfilePage() {
               >
                 {l.photos[0] && (
                   <img
-                    src={l.photos[0]}
+                    src={l.photos[0].startsWith('http') ? l.photos[0] : `${MEDIA_URL}${l.photos[0]}`}
                     alt={l.address}
                     className="h-14 w-14 flex-shrink-0 rounded-lg border border-[#004526]/20 object-cover"
                   />
                 )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-gray-900">{l.address}</p>
-                  <p className="text-xs text-gray-500">{l.spotType}</p>
+                  <p className="text-xs text-gray-500">{spotTypeDisplay(l.spotType)}</p>
                   <p className="text-sm font-bold text-[#004526]">from €{l.pricePerHour.toFixed(2)}/hr</p>
                 </div>
               </a>

@@ -10,6 +10,7 @@ interface ModifyBooking {
   endTime?: string;
   totalPrice: number;
   pricePerHour: number;
+  status?: string;
 }
 
 interface ModifyModalProps {
@@ -54,6 +55,10 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
   const bEndDate = booking.endDate ?? booking.endTime ?? '';
   const originalHours = calcHours(bStartDate, bEndDate);
 
+  // Disable start time changes if the booking has already started
+  const startInPast = toMs(bStartDate) <= Date.now();
+  const isActive = booking.status === 'ACTIVE';
+
   let priceDiff = 0;
   if (newValue && changeType) {
     const newStart = changeType === 'start' ? newValue : bStartDate;
@@ -94,8 +99,9 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
         <div className="mb-4 flex gap-3">
           <button
             type="button"
+            disabled={startInPast}
             onClick={() => { setChangeType('start'); setNewValue(toInputValue(bStartDate)); }}
-            className={`flex-1 rounded-lg border py-2 text-sm font-medium ${changeType === 'start' ? 'border-[#AD3614] bg-amber-50 text-[#AD3614]' : 'border-gray-300 text-gray-600'}`}
+            className={`flex-1 rounded-lg border py-2 text-sm font-medium ${startInPast ? 'border-gray-200 text-gray-300 cursor-not-allowed' : changeType === 'start' ? 'border-[#AD3614] bg-amber-50 text-[#AD3614]' : 'border-gray-300 text-gray-600'}`}
           >
             Change start time
           </button>

@@ -15,6 +15,7 @@ export interface Listing {
   addressLng: number;
   covered: boolean;
   accessible?: boolean;
+  evCharging?: boolean;
   avgRating?: number;
   reviewCount?: number;
   description?: string;

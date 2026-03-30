@@ -96,6 +96,7 @@ export default function SearchBar({
           placeholder="Where are you going?"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onBlur={() => setSuggestions([])}
           className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004526]"
         />
         {suggestions.length > 0 && (
@@ -104,7 +105,10 @@ export default function SearchBar({
               <li
                 key={s.place_name}
                 className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-50"
-                onClick={() => handleSelectSuggestion(s)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelectSuggestion(s);
+                }}
               >
                 {s.place_name}
               </li>

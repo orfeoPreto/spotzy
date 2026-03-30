@@ -82,7 +82,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       </div>
 
       {/* Info */}
-      <div data-testid="listing-info" className="flex flex-col gap-2 p-3">
+      <div data-testid="listing-info" className="flex flex-col gap-3 p-3">
         <p className="truncate text-sm font-medium text-gray-900">{spot.address}</p>
         <div className="flex items-center gap-2">
           <span data-testid="spot-type" className="text-xs text-[#4B6354]">{spotTypeDisplay(spot.spotType)}</span>

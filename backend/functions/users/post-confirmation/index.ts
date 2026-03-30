@@ -8,9 +8,9 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
 export const handler: PostConfirmationTriggerHandler = async (event) => {
-  const { sub, email, name } = event.request.userAttributes;
+  const { sub, email, name, phone_number, given_name, family_name, 'custom:role': customRole } = event.request.userAttributes;
   const log = createLogger('user-post-confirmation', sub ?? 'unknown');
-  log.info('post confirmation trigger', { email });
+  log.info('post confirmation trigger', { email, phone_number: phone_number ?? '<missing>', customRole: customRole ?? '<missing>' });
   const now = new Date().toISOString();
 
   try {
@@ -20,8 +20,12 @@ export const handler: PostConfirmationTriggerHandler = async (event) => {
         ...emailLookupKey(email, sub),
         userId: sub,
         email,
-        name: name ?? email.split('@')[0],
-        role: 'SPOTTER',
+        name: name ?? (given_name && family_name ? `${given_name} ${family_name}` : email.split('@')[0]),
+        firstName: given_name ?? '',
+        lastName: family_name ?? '',
+        phone: phone_number ?? '',
+        phone_number: phone_number ?? '',
+        role: customRole ?? 'SPOTTER',
         stripeConnectEnabled: false,
         vehicles: [],
         createdAt: now,

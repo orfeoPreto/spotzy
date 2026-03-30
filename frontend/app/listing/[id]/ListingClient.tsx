@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useListing } from '../../../hooks/useListing';
 import { useAuth } from '../../../hooks/useAuth';
 import { useBookingIntent } from '../../../hooks/useBookingIntent';
+import { spotTypeDisplay } from '../../../lib/spotTypeDisplay';
 
 function calcPrice(pricePerHour: number, startDate: string, endDate: string): number {
   if (!startDate || !endDate) return 0;
@@ -14,13 +15,6 @@ function calcPrice(pricePerHour: number, startDate: string, endDate: string): nu
   const hours = (end - start) / (1000 * 60 * 60);
   return Math.ceil(hours) * pricePerHour;
 }
-
-const SPOT_TYPE_LABELS: Record<string, string> = {
-  COVERED_GARAGE: 'Covered garage',
-  OPEN_LOT: 'Open lot',
-  STREET: 'Street',
-  PRIVATE_DRIVEWAY: 'Private driveway',
-};
 
 export default function ListingPage() {
   const pathname = usePathname();
@@ -117,13 +111,19 @@ export default function ListingPage() {
             <h1 className="text-2xl font-bold text-gray-900">{listing.address}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="text-sm text-gray-600">
-                {listing.spotTypeLabel ?? SPOT_TYPE_LABELS[listing.spotType] ?? listing.spotType}
+                {listing.spotTypeLabel ?? spotTypeDisplay(listing.spotType)}
               </span>
               {listing.covered && (
                 <span className="rounded-full bg-[#004526] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">Covered</span>
               )}
               {listing.accessible && (
                 <span className="rounded-full bg-[#006B3C] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">Accessible</span>
+              )}
+              {listing.evCharging && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-[#059669] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
+                  EV Charging
+                </span>
               )}
               {listing.avgRating !== undefined && (
                 <span className="flex items-center gap-1 text-sm text-gray-700">

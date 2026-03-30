@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import BookingCard, { type Booking } from '../../../components/BookingCard';
 import StatusBadge from '../../../components/StatusBadge';
 import { useAuth } from '../../../hooks/useAuth';
@@ -20,10 +21,21 @@ function MetricCard({ label, value }: { label: string; value: string | number })
   );
 }
 
-function statusBadgeClass(status: string) {
-  if (status === 'LIVE') return 'bg-[#006B3C] text-white';
-  if (status === 'UNDER_REVIEW') return 'bg-[#006B3C] text-white';
-  return 'bg-[#B0BEC5] text-white';
+/** Derive the correct display status for bookings that may be stale (Issue #1/#2).
+ *  The booking-status-transition Lambda should set ACTIVE/COMPLETED, but bookings
+ *  created before the scheduler was deployed may still be CONFIRMED. We compute
+ *  the expected status client-side so the badge is always accurate. */
+function deriveBookingStatus(booking: Booking): string {
+  const now = Date.now();
+  const start = booking.startDate ?? booking.startTime;
+  const end = booking.endDate ?? booking.endTime;
+  if (booking.status === 'CONFIRMED' && start && end) {
+    const startMs = new Date(start).getTime();
+    const endMs = new Date(end).getTime();
+    if (now >= endMs) return 'COMPLETED';
+    if (now >= startMs) return 'ACTIVE';
+  }
+  return booking.status;
 }
 
 export default function HostDashboardPage() {
@@ -49,10 +61,41 @@ export default function HostDashboardPage() {
 
     fetch(`${API_URL}/api/v1/users/me/bookings`, { headers })
       .then((r) => r.json())
-      .then((d) => {
+      .then(async (d) => {
         const all = (d as { bookings: Booking[] }).bookings;
         // Only show bookings where others booked the user's listings (exclude own spotter bookings)
-        setBookings(all.filter((b) => b.spotterId !== user?.userId));
+        const hostBookings = all.filter((b) => b.spotterId !== user?.userId);
+
+        // Issue #1/#2: Derive correct status for stale CONFIRMED bookings
+        const enrichedBookings = hostBookings.map((b) => ({
+          ...b,
+          status: deriveBookingStatus(b),
+        }));
+
+        // Issue #3: Enrich with spotterName if missing by fetching public profiles
+        const needNames = enrichedBookings.filter((b) => !b.spotterName && b.spotterId);
+        const uniqueSpotterIds = [...new Set(needNames.map((b) => b.spotterId!))];
+
+        if (uniqueSpotterIds.length > 0) {
+          const profileMap = new Map<string, string>();
+          await Promise.allSettled(
+            uniqueSpotterIds.map((id) =>
+              fetch(`${API_URL}/api/v1/users/${id}/public`, { headers })
+                .then((r) => r.json())
+                .then((p: any) => {
+                  const name = p.displayName ?? p.name ?? p.firstName ?? '';
+                  if (name) profileMap.set(id, name);
+                }),
+            ),
+          );
+          for (const b of enrichedBookings) {
+            if (!b.spotterName && b.spotterId && profileMap.has(b.spotterId)) {
+              b.spotterName = profileMap.get(b.spotterId);
+            }
+          }
+        }
+
+        setBookings(enrichedBookings);
       });
   }, [user?.userId]);
 
@@ -101,20 +144,27 @@ export default function HostDashboardPage() {
             {listings.map((l) => (
               <div key={l.listingId} className="grow flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
                 <div>
-                  <p className="font-medium text-gray-900">{l.address}</p>
+                  {/* Issue #24: Link listing address to public listing page */}
+                  <Link href={`/listing/${l.listingId}`} className="font-medium text-[#004526] hover:underline">
+                    {l.address}
+                  </Link>
                   <p className="text-xs text-gray-500">{l.bookingCount} bookings</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/listing/${l.listingId}/availability`)}
+                  {/* Issue #23: Add edit listing button */}
+                  <Link
+                    href={`/listing/${l.listingId}/edit`}
+                    className="text-xs text-[#004526] hover:underline"
+                  >
+                    Edit listing
+                  </Link>
+                  <Link
+                    href={`/listing/${l.listingId}/availability`}
                     className="text-xs text-[#004526] hover:underline"
                   >
                     Edit availability
-                  </button>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusBadgeClass(l.status)}`}>
-                    {l.status === 'UNDER_REVIEW' ? 'Under review' : l.status.toLowerCase().replace(/_/g, ' ')}
-                  </span>
+                  </Link>
+                  <StatusBadge status={l.status} />
                 </div>
               </div>
             ))}

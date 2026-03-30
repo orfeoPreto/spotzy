@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { confirmSignUp, resendSignUpCode, signIn } from 'aws-amplify/auth';
+import { confirmSignUp, resendSignUpCode, signIn, fetchAuthSession } from 'aws-amplify/auth';
 import { useBookingIntent } from '../../../hooks/useBookingIntent';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 function ConfirmForm() {
   const router = useRouter();
@@ -51,6 +53,26 @@ function ConfirmForm() {
       if (password) {
         const { isSignedIn } = await signIn({ username: email, password });
         if (isSignedIn) {
+          // Send stored invoicing data if present (host onboarding)
+          try {
+            const invoicingRaw = sessionStorage.getItem('spotzy_invoicing');
+            if (invoicingRaw) {
+              const invoicing = JSON.parse(invoicingRaw) as Record<string, string>;
+              const session = await fetchAuthSession();
+              const token = session.tokens?.idToken?.toString();
+              if (token) {
+                await fetch(`${API_URL}/api/v1/users/me/invoicing`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                  body: JSON.stringify(invoicing),
+                });
+                sessionStorage.removeItem('spotzy_invoicing');
+              }
+            }
+          } catch {
+            // Non-blocking — invoicing can be updated later from profile
+          }
+
           // Check for booking intent first
           const intent = readIntent();
           if (intent) {
