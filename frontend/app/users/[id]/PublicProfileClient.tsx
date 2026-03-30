@@ -27,6 +27,8 @@ interface PublicReview {
 interface PublicProfile {
   userId: string;
   name: string;
+  photoUrl?: string | null;
+  bio?: string | null;
   memberSince: string;
   listings: PublicListing[];
   reviews: PublicReview[];
@@ -105,16 +107,25 @@ export default function PublicProfilePage() {
     );
   }
 
-  const { name, memberSince, listings, reviews, reviewCount, averageRating, completedBookings, responseRate } = profile;
+  const { name, photoUrl, bio, memberSince, listings, reviews, reviewCount, averageRating, completedBookings, responseRate } = profile;
   const joinYear = memberSince ? new Date(memberSince).getFullYear() : null;
+  const avatarSrc = photoUrl ? (photoUrl.startsWith('http') ? photoUrl : `${MEDIA_URL}${photoUrl}`) : null;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#004526] text-2xl font-bold text-white">
-          {name.charAt(0).toUpperCase()}
-        </div>
+        {avatarSrc ? (
+          <img
+            src={avatarSrc}
+            alt={name}
+            className="h-16 w-16 rounded-full object-cover border border-[#004526]/20"
+          />
+        ) : (
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#004526] text-2xl font-bold text-white">
+            {name.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div>
           <h1 className="text-2xl font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
             {name}
@@ -137,6 +148,13 @@ export default function PublicProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Bio */}
+      {bio && (
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+          <p className="text-sm text-gray-700">{bio}</p>
+        </div>
+      )}
 
       {/* Active listings (host only) */}
       {listings.length > 0 && (

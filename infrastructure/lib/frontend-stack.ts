@@ -125,10 +125,32 @@ export class FrontendStack extends cdk.Stack {
 function handler(event) {
   var request = event.request;
   var uri = request.uri;
+
+  // Rewrite dynamic Next.js routes to their placeholder paths
+  // e.g. /listing/abc123/edit/ -> /listing/_/edit/
+  var dynamicRoutes = [
+    { pattern: /^\\/listing\\/([^\\/]+)\\/edit(\\/|$)/, rewrite: '/listing/_/edit/' },
+    { pattern: /^\\/listing\\/([^\\/]+)\\/availability(\\/|$)/, rewrite: '/listing/_/availability/' },
+    { pattern: /^\\/listing\\/([^\\/]+)(\\/?)$/, rewrite: '/listing/_/' },
+    { pattern: /^\\/listings\\/([^\\/]+)\\/photos(\\/|$)/, rewrite: '/listings/_/photos/' },
+    { pattern: /^\\/book\\/([^\\/]+)(\\/?)$/, rewrite: '/book/_/' },
+    { pattern: /^\\/users\\/([^\\/]+)(\\/?)$/, rewrite: '/users/_/' },
+    { pattern: /^\\/chat\\/([^\\/]+)(\\/?)$/, rewrite: '/chat/_/' },
+    { pattern: /^\\/dispute\\/([^\\/]+)(\\/?)$/, rewrite: '/dispute/_/' }
+  ];
+  for (var i = 0; i < dynamicRoutes.length; i++) {
+    if (dynamicRoutes[i].pattern.test(uri)) {
+      uri = dynamicRoutes[i].rewrite;
+      break;
+    }
+  }
+
   if (uri.endsWith('/')) {
-    request.uri += 'index.html';
+    request.uri = uri + 'index.html';
   } else if (!uri.split('/').pop().includes('.')) {
-    request.uri += '/index.html';
+    request.uri = uri + '/index.html';
+  } else {
+    request.uri = uri;
   }
   return request;
 }

@@ -35,6 +35,10 @@ export default function ProfilePage() {
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
   const [saving, setSaving] = useState(false);
+  const [vatNumber, setVatNumber] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [billingAddress, setBillingAddress] = useState('');
+  const [invoicingSaved, setInvoicingSaved] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +55,19 @@ export default function ProfilePage() {
         setNameValue(profile.name ?? '');
         setEmailValue(profile.email ?? '');
         setPhoneValue(profile.phone ?? '');
+        // Load invoicing details
+        try {
+          const invoicingRes = await fetch(`${API_URL}/api/v1/users/me/invoicing`, { headers: { Authorization: `Bearer ${token}` } });
+          if (invoicingRes.ok) {
+            const inv = await invoicingRes.json() as Record<string, string>;
+            setVatNumber(inv.vatNumber ?? '');
+            setCompanyName(inv.companyName ?? '');
+            const addrParts = [inv.billingStreet, inv.billingCity, inv.billingPostcode].filter(Boolean);
+            setBillingAddress(addrParts.join(', '));
+          }
+        } catch {
+          // non-blocking
+        }
       } catch {
         // ignore — show empty state
       }
@@ -104,6 +121,30 @@ export default function ProfilePage() {
       });
       setUser((u) => u ? { ...u, phone: phoneValue.trim() } : u);
       setEditingPhone(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveInvoicing = async () => {
+    setSaving(true);
+    setInvoicingSaved(false);
+    try {
+      const token = await getAuthToken();
+      // Parse billing address into parts (street, city, postcode)
+      const parts = billingAddress.split(',').map((p) => p.trim());
+      await fetch(`${API_URL}/api/v1/users/me/invoicing`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vatNumber: vatNumber.trim() || null,
+          companyName: companyName.trim() || null,
+          billingStreet: parts[0] || null,
+          billingCity: parts[1] || null,
+          billingPostcode: parts[2] || null,
+        }),
+      });
+      setInvoicingSaved(true);
     } finally {
       setSaving(false);
     }
@@ -331,23 +372,29 @@ export default function ProfilePage() {
         <div className="space-y-3">
           <div>
             <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-gray-600">VAT number</label>
-            <input id="vatNumber" type="text" placeholder="BE0123456789"
+            <input id="vatNumber" type="text" placeholder="BE0123456789" value={vatNumber}
+              onChange={(e) => setVatNumber(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
           <div>
             <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-gray-600">Company name</label>
-            <input id="companyName" type="text" placeholder="Company name"
+            <input id="companyName" type="text" placeholder="Company name" value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
           <div>
             <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-gray-600">Billing address</label>
-            <input id="billingAddress" type="text" placeholder="Street, City, Postcode"
+            <input id="billingAddress" type="text" placeholder="Street, City, Postcode" value={billingAddress}
+              onChange={(e) => setBillingAddress(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
           <button type="button"
-            className="w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526]">
-            Save invoicing details
+            onClick={() => void handleSaveInvoicing()}
+            disabled={saving}
+            className="w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40">
+            {saving ? 'Saving...' : 'Save invoicing details'}
           </button>
+          {invoicingSaved && <p className="text-center text-xs text-green-600">Invoicing details saved</p>}
         </div>
       </div>
 

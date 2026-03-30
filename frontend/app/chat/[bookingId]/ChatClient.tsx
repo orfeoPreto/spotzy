@@ -115,7 +115,7 @@ export default function ChatPage() {
               <>
                 {otherPartyName && (
                   <p className="text-sm font-semibold text-gray-900 truncate">
-                    <a href={`/profile/${otherPartyId}`} className="hover:underline">{otherPartyName}</a>
+                    <a href={`/users/${otherPartyId}`} className="hover:underline">{otherPartyName}</a>
                   </p>
                 )}
                 <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>

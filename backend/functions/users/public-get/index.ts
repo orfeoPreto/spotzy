@@ -113,6 +113,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const publicProfile = {
     userId,
     name: publicName,
+    photoUrl: (user.photoUrl as string) ?? (user.avatarUrl as string) ?? null,
+    bio: (user.bio as string) ?? null,
     memberSince: user.createdAt,
     listings,
     reviews,
