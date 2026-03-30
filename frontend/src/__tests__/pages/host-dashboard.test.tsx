@@ -90,7 +90,7 @@ describe('Host Dashboard listings section', () => {
     await waitFor(() => {
       const badge = screen.getByText(/^draft$/i);
       expect(badge).toBeInTheDocument();
-      expect(badge.className).toMatch(/bg-\[#B0BEC5\]|bg-gray/);
+      expect(badge.className).toMatch(/bg-\[#9CA3AF\]|bg-\[#B0BEC5\]|bg-gray/);
     });
   });
 

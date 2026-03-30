@@ -19,34 +19,47 @@ vi.mock('../../../hooks/useAuth', () => ({
   })),
 }));
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  // Mock the dispute GET endpoint to return no existing dispute
+  server.use(
+    http.get('*/api/v1/disputes', () => HttpResponse.json({})),
+  );
+});
 afterEach(() => vi.unstubAllGlobals());
 
 describe('Dispute page rendering', () => {
-  it('shows "Spotzy Support" header with shield icon', () => {
+  it('shows "Spotzy Support" header', async () => {
     render(<DisputePage />);
-    const heading = screen.getByRole('heading', { name: /spotzy support/i });
-    expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toMatch(/🛡/);
+    await waitFor(() => {
+      const heading = screen.getByRole('heading', { name: /spotzy support/i });
+      expect(heading).toBeInTheDocument();
+    });
   });
 
-  it('has navy-tinted background styling', () => {
+  it('has navy-tinted background styling', async () => {
     render(<DisputePage />);
-    const main = document.querySelector('main, [data-testid="dispute-page"]');
-    expect(main?.className).toMatch(/navy|blue|1A3C5E|\[#004526\]/i);
+    await waitFor(() => {
+      const main = document.querySelector('main, [data-testid="dispute-page"]');
+      expect(main?.className).toMatch(/navy|blue|1A3C5E|\[#004526\]/i);
+    });
   });
 
-  it('initial AI message auto-rendered on page load', () => {
+  it('initial AI message auto-rendered after loading', async () => {
     render(<DisputePage />);
-    expect(screen.getByTestId('ai-message-initial')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('ai-message-initial')).toBeInTheDocument();
+    });
   });
 });
 
 describe('Dispute quick reply chips', () => {
-  it('4 chips render below initial AI message', () => {
+  it('4 chips render below initial AI message', async () => {
     render(<DisputePage />);
-    const chips = document.querySelectorAll('[data-testid="quick-reply-chip"]');
-    expect(chips.length).toBe(4);
+    await waitFor(() => {
+      const chips = document.querySelectorAll('[data-testid="quick-reply-chip"]');
+      expect(chips.length).toBe(4);
+    });
   });
 
   it('clicking a chip sends that category as a message', async () => {

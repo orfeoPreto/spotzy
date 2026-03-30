@@ -8,8 +8,8 @@ const mockOnCancelled = vi.fn();
 
 const baseBooking = {
   bookingId: 'bk1',
-  startDate: '2025-08-01T10:00:00Z', // far in future → full refund
-  endDate: '2025-08-01T12:00:00Z',
+  startDate: '2027-08-01T10:00:00Z', // far in future → full refund
+  endDate: '2027-08-01T12:00:00Z',
   totalPrice: 7.00,
 };
 
@@ -33,9 +33,13 @@ describe('CancelModal rendering', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('shows "€0.00 refund" messaging when no refund applies', () => {
+  it('shows "No refund applies" when <12h before start', () => {
+    const soonBooking = {
+      ...baseBooking,
+      startDate: new Date(Date.now() + 6 * 3600 * 1000).toISOString(), // 6h from now → 0%
+    };
     render(
-      <CancelModal booking={baseBooking} refundAmount={0} onClose={mockOnClose} onCancelled={mockOnCancelled} />,
+      <CancelModal booking={soonBooking} refundAmount={0} onClose={mockOnClose} onCancelled={mockOnCancelled} />,
     );
     expect(screen.getByText('No refund applies')).toBeInTheDocument();
   });
@@ -107,13 +111,21 @@ describe('CancelModal refund display accuracy', () => {
     expect(screen.getByText(/€7\.00/)).toBeInTheDocument();
   });
 
-  it('shows €3.50 refund when refundAmount=3.50', () => {
-    render(<CancelModal booking={baseBooking} refundAmount={3.50} onClose={mockOnClose} onCancelled={mockOnCancelled} />);
+  it('shows 50% refund (€3.50) when 12-24h before start', () => {
+    const soonBooking = {
+      ...baseBooking,
+      startDate: new Date(Date.now() + 18 * 3600 * 1000).toISOString(), // 18h from now → 50%
+    };
+    render(<CancelModal booking={soonBooking} refundAmount={3.50} onClose={mockOnClose} onCancelled={mockOnCancelled} />);
     expect(screen.getByText(/€3\.50/)).toBeInTheDocument();
   });
 
-  it('shows "No refund applies" when refundAmount=0', () => {
-    render(<CancelModal booking={baseBooking} refundAmount={0} onClose={mockOnClose} onCancelled={mockOnCancelled} />);
+  it('shows "No refund applies" when <12h before start', () => {
+    const imminentBooking = {
+      ...baseBooking,
+      startDate: new Date(Date.now() + 4 * 3600 * 1000).toISOString(), // 4h from now → 0%
+    };
+    render(<CancelModal booking={imminentBooking} refundAmount={0} onClose={mockOnClose} onCancelled={mockOnCancelled} />);
     expect(screen.getByText(/no refund applies/i)).toBeInTheDocument();
   });
 });
