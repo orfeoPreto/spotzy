@@ -8,6 +8,8 @@ import DisputePage from '../../../app/dispute/[bookingId]/DisputeClient';
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
   useParams: () => ({ bookingId: 'bk1' }),
+  usePathname: () => '/dispute/bk1',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock('../../../hooks/useAuth', () => ({
@@ -47,13 +49,15 @@ describe('Dispute quick reply chips', () => {
     expect(chips.length).toBe(4);
   });
 
-  it('clicking a chip pre-fills text input with that category', async () => {
+  it('clicking a chip sends that category as a message', async () => {
     const user = userEvent.setup();
     render(<DisputePage />);
     const chips = document.querySelectorAll('[data-testid="quick-reply-chip"]');
     await user.click(chips[0] as HTMLElement);
-    const input = screen.getByRole('textbox');
-    expect((input as HTMLInputElement).value).toBeTruthy();
+    // Chips call sendMessage directly, so the message should appear in the chat
+    await waitFor(() => {
+      expect(screen.getByText('Damage to my vehicle')).toBeInTheDocument();
+    });
   });
 
   it('chips disappear after first message is sent', async () => {
@@ -123,42 +127,13 @@ describe('Dispute photo upload', () => {
   });
 });
 
-describe('Dispute summary card', () => {
-  beforeEach(() => {
-    server.use(
-      http.post('/api/v1/disputes/message', () =>
-        HttpResponse.json({
-          messageId: 'ai-summary',
-          contentType: 'SUMMARY',
-          summary: { category: 'Damage', description: 'Scratched bumper', photoCount: 2 },
-        }),
-      ),
-    );
-  });
-
-  it('AI SUMMARY card shows category, description, photo count and confirm button', async () => {
-    const user = userEvent.setup();
-    render(<DisputePage />);
-
-    const input = screen.getByRole('textbox');
-    await user.type(input, 'ready for summary');
-    await user.keyboard('{Enter}');
-
-    await waitFor(() => {
-      expect(screen.getByTestId('dispute-summary-card')).toBeInTheDocument();
-      expect(screen.getByText(/Damage/)).toBeInTheDocument();
-      expect(screen.getByText(/Scratched bumper/)).toBeInTheDocument();
-      expect(screen.getByText(/2 photo/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /confirm and submit/i })).toBeInTheDocument();
-    });
-  });
-
-  it('"Confirm and submit" → POST /api/v1/disputes called', async () => {
+describe('Dispute message flow', () => {
+  it('first message creates dispute via POST /api/v1/disputes', async () => {
     let disputePosted = false;
     server.use(
       http.post('/api/v1/disputes', () => {
         disputePosted = true;
-        return HttpResponse.json({ disputeId: 'd1', reference: 'DIS-001' }, { status: 201 });
+        return HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 });
       }),
     );
 
@@ -166,55 +141,50 @@ describe('Dispute summary card', () => {
     render(<DisputePage />);
 
     const input = screen.getByRole('textbox');
-    await user.type(input, 'ready for summary');
+    await user.type(input, 'There is damage to my car');
     await user.keyboard('{Enter}');
-
-    await waitFor(() => screen.getByRole('button', { name: /confirm and submit/i }));
-    await user.click(screen.getByRole('button', { name: /confirm and submit/i }));
 
     await waitFor(() => expect(disputePosted).toBe(true));
   });
-});
 
-describe('Dispute escalation', () => {
-  beforeEach(() => {
+  it('after creating dispute, AI confirmation message appears with reference', async () => {
     server.use(
-      http.post('/api/v1/disputes/message', () =>
-        HttpResponse.json({
-          messageId: 'ai-esc',
-          contentType: 'ESCALATED',
-          reference: 'ESC-001',
-        }),
+      http.post('/api/v1/disputes', () =>
+        HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 }),
       ),
     );
-  });
 
-  it('ESCALATED response shows "Transferring to agent" spinner', async () => {
     const user = userEvent.setup();
     render(<DisputePage />);
 
     const input = screen.getByRole('textbox');
-    await user.type(input, 'escalate this');
+    await user.type(input, 'There is damage');
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(screen.getByText(/transferring to agent/i)).toBeInTheDocument();
+      expect(screen.getByText(/DIS-001/)).toBeInTheDocument();
     });
   });
+});
 
-  it('then shows "Agent connected" and reference in monospace badge', async () => {
+describe('Dispute evidence upload', () => {
+  it('sends message and enables evidence upload', async () => {
+    server.use(
+      http.post('/api/v1/disputes', () =>
+        HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 }),
+      ),
+    );
+
     const user = userEvent.setup();
     render(<DisputePage />);
 
     const input = screen.getByRole('textbox');
-    await user.type(input, 'escalate this');
+    await user.type(input, 'There is damage');
     await user.keyboard('{Enter}');
 
+    // After first message, AI response with requestsEvidence enables upload
     await waitFor(() => {
-      expect(screen.getByText(/agent connected/i)).toBeInTheDocument();
-      const badge = screen.getByTestId('escalation-reference');
-      expect(badge).toHaveClass('font-mono');
-      expect(badge).toHaveTextContent('ESC-001');
-    }, { timeout: 3000 });
+      expect(screen.getByRole('button', { name: /add photos/i })).toBeInTheDocument();
+    });
   });
 });

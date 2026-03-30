@@ -13,7 +13,7 @@ function Hero() {
   const { destination: listSpotDest } = useListYourSpotDestination();
 
   return (
-    <section className="bg-[#F0F7F3] px-6 py-20 text-center md:py-32">
+    <section data-testid="hero-section" className="bg-[#F0F7F3] px-6 py-20 text-center md:py-32">
       <div className="mx-auto max-w-3xl">
         <span className="mb-4 inline-block rounded-full bg-[#F0F7F3] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#004526]">
           Private parking, on demand
@@ -32,13 +32,6 @@ function Hero() {
             className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#005A30]"
           >
             Search parking spots
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push(listSpotDest)}
-            className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#F0F7F3]"
-          >
-            List your spot
           </button>
         </div>
       </div>

@@ -1,13 +1,15 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import ChatPage from '../../../app/chat/[bookingId]/page';
+import ChatPage from '../../../app/chat/[bookingId]/ChatClient';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
   useParams: () => ({ bookingId: 'bk1' }),
+  usePathname: () => '/chat/bk1',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock('../../../hooks/useAuth', () => ({
@@ -17,31 +19,8 @@ vi.mock('../../../hooks/useAuth', () => ({
   })),
 }));
 
-const mockWsSend = vi.fn();
-let mockWsInstance: {
-  send: typeof mockWsSend;
-  close: ReturnType<typeof vi.fn>;
-  readyState: number;
-  onmessage: ((e: { data: string }) => void) | null;
-  onerror: ((e: Event) => void) | null;
-  onclose: ((e: CloseEvent) => void) | null;
-};
-
 beforeEach(() => {
   vi.clearAllMocks();
-  mockWsInstance = {
-    send: mockWsSend,
-    close: vi.fn(),
-    readyState: 1,
-    onmessage: null,
-    onerror: null,
-    onclose: null,
-  };
-  vi.stubGlobal('WebSocket', vi.fn(() => mockWsInstance));
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
 });
 
 describe('Chat page rendering', () => {
@@ -64,7 +43,7 @@ describe('Chat page rendering', () => {
 describe('Chat message bubbles', () => {
   beforeEach(() => {
     server.use(
-      http.get('/api/v1/chat/bk1/messages', () =>
+      http.get('/api/v1/chat/bk1', () =>
         HttpResponse.json({
           messages: [
             { messageId: 'm1', senderId: 'u2', contentType: 'TEXT', text: 'Hello there', createdAt: '2025-07-10T10:00:00Z' },
@@ -111,56 +90,86 @@ describe('Chat message bubbles', () => {
   });
 });
 
-describe('Chat WebSocket', () => {
-  it('new message via onmessage appears in message list', async () => {
-    render(<ChatPage />);
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalled());
-
-    act(() => {
-      if (mockWsInstance.onmessage) {
-        mockWsInstance.onmessage({
-          data: JSON.stringify({
-            messageId: 'm-live', senderId: 'h1', contentType: 'TEXT',
-            text: 'Live message!', createdAt: new Date().toISOString(),
-          }),
+describe('Chat sending messages', () => {
+  beforeEach(() => {
+    // Default: return empty messages, then return the sent one on poll
+    let messagesSent = false;
+    server.use(
+      http.get('/api/v1/chat/bk1', () => {
+        if (messagesSent) {
+          return HttpResponse.json({
+            messages: [
+              { messageId: 'm-sent', senderId: 'u2', contentType: 'TEXT', text: 'Hello', createdAt: new Date().toISOString() },
+            ],
+          });
+        }
+        return HttpResponse.json({ messages: [] });
+      }),
+      http.post('/api/v1/chat/bk1', async ({ request }) => {
+        messagesSent = true;
+        const body = await request.json() as Record<string, unknown>;
+        return HttpResponse.json({
+          messageId: 'm-sent',
+          senderId: 'u2',
+          contentType: body.type ?? 'TEXT',
+          text: body.content as string,
+          createdAt: new Date().toISOString(),
         });
-      }
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Live message!')).toBeInTheDocument();
-    });
+      }),
+    );
   });
 
-  it('submit → ws.send called with correct payload', async () => {
+  it('submit sends message via REST', async () => {
     const user = userEvent.setup();
     render(<ChatPage />);
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalled());
 
     const input = screen.getByPlaceholderText(/message|type here/i);
     await user.type(input, 'Hello');
     await user.keyboard('{Enter}');
 
-    expect(mockWsSend).toHaveBeenCalledWith(
-      expect.stringContaining('Hello'),
-    );
+    // Optimistic update should show the message immediately
+    await waitFor(() => {
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+    });
+  });
+
+  it('new message appears in message list after send', async () => {
+    const user = userEvent.setup();
+    render(<ChatPage />);
+
+    const input = screen.getByPlaceholderText(/message|type here/i);
+    await user.type(input, 'Hello');
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+    });
   });
 });
 
 describe('Chat emoji stripping', () => {
+  beforeEach(() => {
+    server.use(
+      http.get('/api/v1/chat/bk1', () => HttpResponse.json({ messages: [] })),
+      http.post('/api/v1/chat/bk1', () => HttpResponse.json({ ok: true })),
+    );
+  });
+
   it('emoji removed before message is sent', async () => {
     const user = userEvent.setup();
     render(<ChatPage />);
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalled());
 
     const input = screen.getByPlaceholderText(/message|type here/i);
     await user.type(input, 'Great! ');
     await user.keyboard('{Enter}');
 
-    expect(mockWsSend).toHaveBeenCalled();
-    const payload = JSON.parse(mockWsSend.mock.calls[0][0] as string);
-    expect(payload.text).toMatch(/Great!/);
-    expect(payload.text).not.toMatch(/[\u{1F600}-\u{1F64F}]/u);
+    // Optimistic message should have emoji stripped
+    await waitFor(() => {
+      const msgs = document.querySelectorAll('[data-testid="chat-bubble"]');
+      expect(msgs.length).toBeGreaterThan(0);
+    });
+    // The text should be "Great!" without emoji
+    expect(screen.getByText('Great!')).toBeInTheDocument();
   });
 });
 
@@ -172,10 +181,14 @@ describe('Chat image upload', () => {
       readAsDataURL(_: File) { if (this.onload) this.onload({ target: { result: this.result } }); }
     }
     vi.stubGlobal('FileReader', MockFileReader);
-    // Intercept the S3 PUT via MSW so we don't need to override global.fetch
     server.use(
+      http.get('/api/v1/chat/bk1', () => HttpResponse.json({ messages: [] })),
       http.put('https://s3.example.com/upload', () => new HttpResponse(null, { status: 200 })),
     );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('file selected → thumbnail preview in input area', async () => {
@@ -191,10 +204,23 @@ describe('Chat image upload', () => {
     });
   });
 
-  it('confirm send → pre-signed URL fetched and ws.send called with imageUrl', async () => {
+  it('confirm send → sends image via REST', async () => {
+    let postCalled = false;
+    server.use(
+      http.post('/api/v1/chat/bk1/upload-url', () =>
+        HttpResponse.json({
+          uploadUrl: 'https://s3.example.com/upload',
+          imageUrl: 'https://s3.example.com/photo.jpg',
+        }),
+      ),
+      http.post('/api/v1/chat/bk1', async () => {
+        postCalled = true;
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
     const user = userEvent.setup();
     render(<ChatPage />);
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalled());
 
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['img'], 'photo.png', { type: 'image/png' });
@@ -206,9 +232,7 @@ describe('Chat image upload', () => {
     await user.click(sendBtn);
 
     await waitFor(() => {
-      expect(mockWsSend).toHaveBeenCalledWith(
-        expect.stringContaining('imageUrl'),
-      );
+      expect(postCalled).toBe(true);
     });
   });
 });

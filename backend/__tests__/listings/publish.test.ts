@@ -20,7 +20,7 @@ const publishableListing = {
   status: 'draft',
 };
 
-const availabilityWindows = [{ Items: [{ PK: `LISTING#${TEST_LISTING_ID}`, SK: 'AVAIL#2025-01-01' }] }];
+const availabilityWindows = [{ Count: 1, Items: [{ PK: `LISTING#${TEST_LISTING_ID}`, SK: 'AVAIL_RULE#r1' }] }];
 
 beforeEach(() => {
   ddbMock.reset();
@@ -47,19 +47,13 @@ describe('listing-publish', () => {
     expect(call.args[0].input.Entries![0].DetailType).toBe('listing.published');
   });
 
-  it('no description → failedChecks includes "description"', async () => {
-    const { description: _d, ...noDesc } = publishableListing;
-    ddbMock.on(GetCommand).resolves({ Item: noDesc });
+  it('no photos with PASS validation → failedChecks includes "photoValidation"', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...publishableListing, photos: [
+      { key: 'p1.jpg', validationStatus: 'PENDING' },
+    ] } });
     const res = await handler(makeEvent(), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(JSON.parse(res!.body).failedChecks).toContain('description');
-  });
-
-  it('fewer than 2 photos → failedChecks includes "photos"', async () => {
-    ddbMock.on(GetCommand).resolves({ Item: { ...publishableListing, photos: [{ key: 'p.jpg', validationStatus: 'PASS' }] } });
-    const res = await handler(makeEvent(), {} as any, () => {});
-    expect(res!.statusCode).toBe(400);
-    expect(JSON.parse(res!.body).failedChecks).toContain('photos');
+    expect(JSON.parse(res!.body).failedChecks).toContain('photoValidation');
   });
 
   it('no photos with validationStatus=PASS → failedChecks includes "photoValidation"', async () => {
@@ -88,25 +82,23 @@ describe('listing-publish', () => {
   });
 
   it('multiple missing fields → all in failedChecks in one response', async () => {
-    const { description: _d, pricePerHour: _p, ...stripped } = publishableListing;
+    const { pricePerHour: _p, ...stripped } = publishableListing;
     ddbMock.on(GetCommand).resolves({ Item: { ...stripped, photos: [] } });
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     const res = await handler(makeEvent(), {} as any, () => {});
     const { failedChecks } = JSON.parse(res!.body);
-    expect(failedChecks).toContain('description');
-    expect(failedChecks).toContain('photos');
+    expect(failedChecks).toContain('photoValidation');
     expect(failedChecks).toContain('availability');
     expect(failedChecks).toContain('price');
   });
 
-  it('photo with validationStatus=REVIEW → 400 "Photos are under manual review"', async () => {
+  it('photo with validationStatus=REVIEW but one PASS → 200 (allowed to publish)', async () => {
     ddbMock.on(GetCommand).resolves({ Item: { ...publishableListing, photos: [
       { key: 'p1.jpg', validationStatus: 'PASS' },
       { key: 'p2.jpg', validationStatus: 'REVIEW' },
     ] } });
     const res = await handler(makeEvent(), {} as any, () => {});
-    expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('Photos are under manual review');
+    expect(res!.statusCode).toBe(200);
   });
 
   it('not the host → 403', async () => {

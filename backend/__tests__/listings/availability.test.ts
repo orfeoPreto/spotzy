@@ -141,8 +141,9 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
   test('WEEKLY type — saves multiple rules correctly', async () => {
     ddbMock.on(GetCommand).resolves({ Item: makeListing() });
     ddbMock.on(QueryCommand)
-      .resolvesOnce({ Items: [] }) // no existing rules
-      .resolvesOnce({ Items: [makeWeeklyRule()] });
+      .resolvesOnce({ Items: [] })           // booking conflict check (live listing)
+      .resolvesOnce({ Items: [] })           // fetchRules in replaceRules (existing rules to delete)
+      .resolvesOnce({ Items: [makeWeeklyRule()] }); // fetchRules at end (return new rules)
     ddbMock.on(BatchWriteCommand).resolves({});
     ddbMock.on(UpdateCommand).resolves({});
 
@@ -175,7 +176,8 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    expect(body.code).toBe('OVERLAPPING_RULES');
+    const inner = JSON.parse(body.error);
+    expect(inner.code).toBe('OVERLAPPING_RULES');
   });
 
   test('endTime before startTime → 400 INVALID_TIME_RANGE', async () => {
@@ -191,7 +193,8 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    expect(body.code).toBe('INVALID_TIME_RANGE');
+    const inner = JSON.parse(body.error);
+    expect(inner.code).toBe('INVALID_TIME_RANGE');
   });
 
   test('no rules provided with WEEKLY type → 400 NO_RULES_PROVIDED', async () => {
@@ -204,7 +207,8 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    expect(body.code).toBe('NO_RULES_PROVIDED');
+    const inner = JSON.parse(body.error);
+    expect(inner.code).toBe('NO_RULES_PROVIDED');
   });
 
   test('more than 14 rules → 400 TOO_MANY_RULES', async () => {
@@ -220,7 +224,8 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    expect(body.code).toBe('TOO_MANY_RULES');
+    const inner = JSON.parse(body.error);
+    expect(inner.code).toBe('TOO_MANY_RULES');
   });
 
   test('not the listing owner → 403', async () => {
@@ -267,8 +272,7 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
 
     ddbMock.on(GetCommand).resolves({ Item: makeListing({ status: 'live' }) });
     ddbMock.on(QueryCommand)
-      .resolvesOnce({ Items: [] }) // existing rules (not needed for booking conflict check)
-      .resolvesOnce({ Items: [futureBooking] }); // active bookings
+      .resolvesOnce({ Items: [futureBooking] }); // booking conflict check (active bookings)
 
     const res = await putHandler(
       makePutEvent(LISTING_ID, HOST_ID, {

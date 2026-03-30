@@ -1,5 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { SchedulerClient, CreateScheduleCommand } from '@aws-sdk/client-scheduler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/payments/webhook/index';
 import { buildBooking } from '../factories/booking.factory';
@@ -23,6 +25,8 @@ jest.mock('@aws-sdk/client-secrets-manager', () => ({
 }));
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
+const ebMock = mockClient(EventBridgeClient);
+const schedulerMock = mockClient(SchedulerClient);
 
 const BOOKING_ID = 'booking-webhook-test';
 const booking = {
@@ -39,6 +43,10 @@ const makeStripeEvent = (type: string, data: object) => ({
 
 beforeEach(() => {
   ddbMock.reset();
+  ebMock.reset();
+  schedulerMock.reset();
+  ebMock.on(PutEventsCommand).resolves({});
+  schedulerMock.on(CreateScheduleCommand).resolves({});
   ddbMock.on(GetCommand).resolves({ Item: booking });
   ddbMock.on(UpdateCommand).resolves({});
   mockConstructEvent.mockReturnValue(makeStripeEvent('payment_intent.succeeded', {

@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/listings/get/index';
-import { mockAuthContext, TEST_USER_ID, TEST_LISTING_ID } from '../setup';
+import { TEST_USER_ID, TEST_LISTING_ID } from '../setup';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
@@ -19,8 +19,19 @@ beforeEach(() => {
   ddbMock.on(GetCommand).resolves({ Item: liveListing });
 });
 
-const makeEvent = (id: string, auth?: any): APIGatewayProxyEvent =>
-  ({ requestContext: {}, ...(auth || {}), body: null, pathParameters: { id }, queryStringParameters: null, headers: {}, multiValueHeaders: {}, httpMethod: 'GET', isBase64Encoded: false, path: `/listings/${id}`, multiValueQueryStringParameters: null, resource: '', stageVariables: null } as unknown as APIGatewayProxyEvent);
+const makeJwt = (sub: string) => {
+  const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub, email: 'test@spotzy.com' })).toString('base64url');
+  return `${header}.${payload}.fakesig`;
+};
+
+const makeEvent = (id: string, auth?: any): APIGatewayProxyEvent => {
+  const headers: Record<string, string> = {};
+  if (auth?.userId) {
+    headers['Authorization'] = `Bearer ${makeJwt(auth.userId)}`;
+  }
+  return { requestContext: {}, body: null, pathParameters: { id }, queryStringParameters: null, headers, multiValueHeaders: {}, httpMethod: 'GET', isBase64Encoded: false, path: `/listings/${id}`, multiValueQueryStringParameters: null, resource: '', stageVariables: null } as unknown as APIGatewayProxyEvent;
+};
 
 describe('listing-get', () => {
   it('live listing → 200 with full listing', async () => {
@@ -31,7 +42,7 @@ describe('listing-get', () => {
 
   it('owner requesting draft → 200', async () => {
     ddbMock.on(GetCommand).resolves({ Item: draftListing });
-    const res = await handler(makeEvent(TEST_LISTING_ID, mockAuthContext(TEST_USER_ID)), {} as any, () => {});
+    const res = await handler(makeEvent(TEST_LISTING_ID, { userId: TEST_USER_ID }), {} as any, () => {});
     expect(res!.statusCode).toBe(200);
   });
 
@@ -43,7 +54,7 @@ describe('listing-get', () => {
 
   it('draft listing, requester not host → 404', async () => {
     ddbMock.on(GetCommand).resolves({ Item: draftListing });
-    const res = await handler(makeEvent(TEST_LISTING_ID, mockAuthContext('other_user')), {} as any, () => {});
+    const res = await handler(makeEvent(TEST_LISTING_ID, { userId: 'other_user' }), {} as any, () => {});
     expect(res!.statusCode).toBe(404);
   });
 

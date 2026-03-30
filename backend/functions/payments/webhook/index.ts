@@ -1,6 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { SchedulerClient, CreateScheduleCommand } from '@aws-sdk/client-scheduler';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import Stripe from 'stripe';
 import { ok, badRequest } from '../../../shared/utils/response';
 import { bookingMetadataKey } from '../../../shared/db/keys';
@@ -9,7 +11,12 @@ import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-sec
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const scheduler = new SchedulerClient({});
+const eb = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
+const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
+const SCHEDULER_ROLE_ARN = process.env.SCHEDULER_ROLE_ARN ?? '';
+const STATUS_TRANSITION_LAMBDA_ARN = process.env.STATUS_TRANSITION_LAMBDA_ARN ?? '';
 
 let _webhookSecret: string | undefined;
 const getWebhookSecret = async (): Promise<string> => {
@@ -58,6 +65,57 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ExpressionAttributeNames: { '#status': 'status' },
         ExpressionAttributeValues: { ':s': 'CONFIRMED', ':now': now, ':cid': chargeId },
       }));
+
+      // Emit booking.confirmed event for notifications
+      await eb.send(new PutEventsCommand({
+        Entries: [{
+          Source: 'spotzy',
+          DetailType: 'booking.confirmed',
+          EventBusName: BUS,
+          Detail: JSON.stringify({
+            bookingId,
+            listingId: booking.listingId,
+            spotterId: booking.spotterId,
+            hostId: booking.hostId,
+          }),
+        }],
+      }));
+
+      // Create Scheduler schedules for ACTIVE and COMPLETED transitions
+      if (SCHEDULER_ROLE_ARN && STATUS_TRANSITION_LAMBDA_ARN && booking.startTime && booking.endTime) {
+        try {
+          const startIso = new Date(booking.startTime as string).toISOString().replace(/\.\d{3}Z$/, '');
+          const endIso = new Date(booking.endTime as string).toISOString().replace(/\.\d{3}Z$/, '');
+
+          await scheduler.send(new CreateScheduleCommand({
+            Name: `booking-active-${bookingId}`,
+            ScheduleExpression: `at(${startIso})`,
+            Target: {
+              Arn: STATUS_TRANSITION_LAMBDA_ARN,
+              RoleArn: SCHEDULER_ROLE_ARN,
+              Input: JSON.stringify({ bookingId, targetStatus: 'ACTIVE' }),
+            },
+            FlexibleTimeWindow: { Mode: 'OFF' },
+            ActionAfterCompletion: 'DELETE',
+          }));
+
+          await scheduler.send(new CreateScheduleCommand({
+            Name: `booking-completed-${bookingId}`,
+            ScheduleExpression: `at(${endIso})`,
+            Target: {
+              Arn: STATUS_TRANSITION_LAMBDA_ARN,
+              RoleArn: SCHEDULER_ROLE_ARN,
+              Input: JSON.stringify({ bookingId, targetStatus: 'COMPLETED' }),
+            },
+            FlexibleTimeWindow: { Mode: 'OFF' },
+            ActionAfterCompletion: 'DELETE',
+          }));
+
+          log.info('scheduler schedules created', { bookingId });
+        } catch (schedErr) {
+          log.error('failed to create scheduler schedules', schedErr, { bookingId });
+        }
+      }
       break;
     }
 

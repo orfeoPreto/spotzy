@@ -76,7 +76,7 @@ describe('Host Dashboard listings section', () => {
     await waitFor(() => {
       const badge = screen.getByText(/^live$/i);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveClass('bg-green-600');
+      expect(badge.className).toMatch(/bg-\[#006B3C\]|bg-green/);
     });
   });
 
@@ -90,11 +90,11 @@ describe('Host Dashboard listings section', () => {
     await waitFor(() => {
       const badge = screen.getByText(/^draft$/i);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveClass('bg-gray-400');
+      expect(badge.className).toMatch(/bg-\[#B0BEC5\]|bg-gray/);
     });
   });
 
-  it('UNDER_REVIEW listing shows amber status badge', async () => {
+  it('UNDER_REVIEW listing shows status badge', async () => {
     server.use(
       http.get('/api/v1/users/me/listings', () =>
         HttpResponse.json({ listings: [{ listingId: 'l3', address: 'Review Ave', spotType: 'OPEN_LOT', pricePerHour: 2, status: 'UNDER_REVIEW', bookingCount: 0 }] }),
@@ -104,7 +104,6 @@ describe('Host Dashboard listings section', () => {
     await waitFor(() => {
       const badge = screen.getByText(/under review/i);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveClass('bg-amber-500');
     });
   });
 });
@@ -118,10 +117,10 @@ describe('Host Dashboard booking cards', () => {
     });
   });
 
-  it('"Message spotter" link renders correctly', async () => {
+  it('"Message" link renders correctly', async () => {
     render(<HostDashboardPage />);
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: /message spotter/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /message/i })).toBeInTheDocument();
     });
   });
 

@@ -84,13 +84,14 @@ describe('isWithinAvailabilityRules', () => {
       expect(result.covered).toBe(false);
     });
 
-    test('period spanning Mon–Wed is covered (all days covered by rule)', () => {
+    test('period spanning Mon–Wed is NOT fully covered (overnight gaps)', () => {
       const result = isWithinAvailabilityRules(
         [weekdayRule],
         new Date('2026-04-13T09:00:00Z'),  // Monday
         new Date('2026-04-15T17:00:00Z'),  // Wednesday
       );
-      expect(result.covered).toBe(true);
+      expect(result.covered).toBe(false);
+      expect(result.uncoveredPeriods.length).toBeGreaterThan(0);
     });
 
     test('period spanning Fri–Mon is NOT fully covered (weekend not covered)', () => {
@@ -215,7 +216,7 @@ describe('computeFreeSlots', () => {
     const slots = computeFreeSlots(
       [alwaysRule], [],
       new Date('2026-04-14T00:00:00Z'),
-      new Date('2026-04-14T23:59:59Z'),
+      new Date('2026-04-15T00:00:00Z'),
       1,
     );
     expect(slots.length).toBe(24);

@@ -26,6 +26,7 @@ interface WizardState {
   lng: number | null;
   spotType: string;
   pricePerHour: number | '';
+  evCharging: boolean;
   description: string;
   photos: [PhotoSlot, PhotoSlot];
   availability: Record<string, boolean>;
@@ -38,7 +39,7 @@ export default function ListingWizardPage() {
   const [listingId, setListingId] = useState<string | null>(null);
   const [state, setState] = useState<WizardState>({
     address: '', lat: null, lng: null,
-    spotType: '', pricePerHour: '',
+    spotType: '', pricePerHour: '', evCharging: false,
     description: '',
     photos: [{ file: null, status: 'idle' }, { file: null, status: 'idle' }],
     availability: {},
@@ -96,6 +97,7 @@ export default function ListingWizardPage() {
           body: JSON.stringify({
             address: state.address, addressLat: state.lat, addressLng: state.lng,
             spotType: state.spotType, pricePerHour: Number(state.pricePerHour),
+            evCharging: state.evCharging,
             description: state.description || undefined,
             dimensions: {},
           }),
@@ -366,6 +368,25 @@ export default function ListingWizardPage() {
               placeholder="e.g. 3.50"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
+          </div>
+          <div data-testid="ev-charging-toggle">
+            <label className="mb-1 block text-sm font-medium text-gray-700">EV charging available?</label>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setState((p) => ({ ...p, evCharging: true }))}
+                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${state.evCharging ? 'border-[#059669] bg-[#EBF7F1] text-[#059669]' : 'border-gray-300 text-gray-600'}`}>
+                Yes
+              </button>
+              <button type="button" onClick={() => setState((p) => ({ ...p, evCharging: false }))}
+                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${!state.evCharging ? 'border-gray-400 bg-gray-50 text-gray-700' : 'border-gray-300 text-gray-600'}`}>
+                No
+              </button>
+            </div>
+            {state.evCharging && (
+              <div data-testid="ev-confirmed-icon" className="mt-2 flex items-center gap-1.5 text-sm text-[#059669]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
+                EV charging confirmed
+              </div>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Description <span className="text-gray-400">(optional)</span></label>

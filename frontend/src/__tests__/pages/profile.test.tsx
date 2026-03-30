@@ -23,22 +23,20 @@ vi.mock('aws-amplify/auth', () => ({
   signOut: mockSignOut,
 }));
 
-// Mock fetch
-global.fetch = vi.fn();
+import { http, HttpResponse } from 'msw';
+import { server } from '../mocks/server';
 
 import ProfilePage from '../../../app/profile/page';
 
 const mockUserProfile = { userId: 'u1', name: 'Jean Dupont', email: 'jean@spotzy.com' };
-const mockMetrics = { listingCount: 2, bookingCount: 5 };
+const mockMetrics = { listingCount: 2, bookingCount: 5, liveListings: 2, activeBookings: 5 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
-    if (url.includes('/me/metrics')) {
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(mockMetrics) });
-    }
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(mockUserProfile) });
-  });
+  server.use(
+    http.get('/api/v1/users/me/metrics', () => HttpResponse.json(mockMetrics)),
+    http.get('/api/v1/users/me', () => HttpResponse.json(mockUserProfile)),
+  );
 });
 
 describe('<ProfilePage />', () => {
@@ -53,12 +51,9 @@ describe('<ProfilePage />', () => {
   });
 
   test('hides Host badge when user has no listings', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
-      if (url.includes('/me/metrics')) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ listingCount: 0, bookingCount: 0 }) });
-      }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(mockUserProfile) });
-    });
+    server.use(
+      http.get('/api/v1/users/me/metrics', () => HttpResponse.json({ listingCount: 0, bookingCount: 0, liveListings: 0, activeBookings: 0 })),
+    );
     render(<ProfilePage />);
     await waitFor(() => {
       expect(screen.queryByTestId('host-badge')).not.toBeInTheDocument();
@@ -90,6 +85,6 @@ describe('<ProfilePage />', () => {
     await waitFor(() => expect(screen.getByTestId('edit-name')).toBeInTheDocument());
 
     fireEvent.click(screen.getByTestId('edit-name'));
-    expect(screen.getByRole('textbox', { name: /name/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'name' })).toBeInTheDocument();
   });
 });

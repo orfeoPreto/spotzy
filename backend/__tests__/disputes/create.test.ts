@@ -62,8 +62,8 @@ describe('dispute-create', () => {
     expect(res!.statusCode).toBe(201);
   });
 
-  it('COMPLETED > 48h ago → 400 DISPUTE_WINDOW_EXPIRED', async () => {
-    ddbMock.on(GetCommand).resolves({ Item: { ...recentlyCompleted, completedAt: new Date(Date.now() - 49 * 3600000).toISOString() } });
+  it('COMPLETED > 7 days ago → 400 DISPUTE_WINDOW_EXPIRED', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...recentlyCompleted, completedAt: new Date(Date.now() - 8 * 24 * 3600000).toISOString() } });
     const res = await handler(makeEvent({ reason: 'car scratched' }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
     expect(res!.body).toContain('DISPUTE_WINDOW_EXPIRED');

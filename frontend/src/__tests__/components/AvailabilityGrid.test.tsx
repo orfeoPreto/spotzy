@@ -41,9 +41,9 @@ describe('<AvailabilityGrid /> — edit mode (host)', () => {
     ]} />);
     const mondayToggle = screen.getByLabelText('Monday');
     fireEvent.click(mondayToggle);
-    // After clicking Monday, start time for that rule should be enabled
-    const startInputs = screen.getAllByRole('textbox', { hidden: true });
-    expect(startInputs.length).toBeGreaterThan(0);
+    // After clicking Monday, start time inputs should be present
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    expect(timeInputs.length).toBeGreaterThan(0);
   });
 
   test('overlapping rules on same day shows inline error and disables save', () => {
@@ -73,7 +73,7 @@ describe('<AvailabilityGrid /> — edit mode (host)', () => {
     render(<AvailabilityGrid mode="edit" onSave={mockOnSave} saving={true} />);
     const toggle = screen.getByLabelText('Always available');
     fireEvent.click(toggle); // no validation errors
-    const saveBtn = screen.getByRole('button', { name: /saving/i });
+    const saveBtn = screen.getByRole('button', { name: /save/i });
     expect(saveBtn).toBeDisabled();
   });
 });
@@ -110,8 +110,8 @@ describe('<AvailabilityGrid /> — display mode (spotter)', () => {
 
   test('shows legend with Available, Booked, Unavailable', () => {
     render(<AvailabilityGrid mode="display" rules={[alwaysRule]} />);
-    expect(screen.getByText(/available/i)).toBeInTheDocument();
-    expect(screen.getByText(/booked/i)).toBeInTheDocument();
-    expect(screen.getByText(/unavailable/i)).toBeInTheDocument();
+    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('Booked')).toBeInTheDocument();
+    expect(screen.getByText('Unavailable')).toBeInTheDocument();
   });
 });

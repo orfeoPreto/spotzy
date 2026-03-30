@@ -34,7 +34,7 @@ describe('SpotSummaryCard rendering', () => {
 
   it('shows covered badge when covered is true', () => {
     render(<SpotSummaryCard spot={spot} />);
-    expect(screen.getByText(/covered/i)).toBeInTheDocument();
+    expect(screen.getByText('Covered')).toBeInTheDocument();
   });
 
   it('does not show covered badge when covered is false', () => {

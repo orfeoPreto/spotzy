@@ -75,16 +75,27 @@ export default function ChatPage() {
   return (
     <main className="flex h-screen flex-col bg-gray-50 py-6">
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      {/* Booking context banner */}
-      {booking && (
-        <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
-          <p className="text-sm font-medium text-gray-900">{booking.address}</p>
-          <p className="text-xs text-gray-500">Booking {booking.reference}</p>
+      {/* Header with back button and booking context */}
+      <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
+        <div className="flex items-center gap-3">
+          <a href="/dashboard/spotter" className="text-[#004526] hover:text-[#006B3C]" aria-label="Back to bookings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+          </a>
+          <div className="min-w-0 flex-1">
+            {booking && (
+              <>
+                <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>
+                <p className="text-xs text-gray-500">Booking {booking.reference}</p>
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4" style={{ maxHeight: '80vh', minHeight: '20vh' }}>
         {messages.length === 0 ? (
           <p className="text-center text-sm text-gray-400">No messages yet — start the conversation</p>
         ) : (

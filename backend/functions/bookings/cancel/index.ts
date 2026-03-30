@@ -2,6 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { SchedulerClient, DeleteScheduleCommand } from '@aws-sdk/client-scheduler';
 import { extractClaims } from '../../../shared/utils/auth';
 import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
 import { bookingMetadataKey } from '../../../shared/db/keys';
@@ -10,6 +11,7 @@ import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const eb = new EventBridgeClient({});
+const scheduler = new SchedulerClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
@@ -31,6 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const booking = result.Item;
 
+  if (booking.status === 'ACTIVE') return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'BOOKING_ALREADY_ACTIVE', message: 'Cannot cancel an active booking' }) };
   if (booking.status === 'COMPLETED') return badRequest(JSON.stringify({ code: 'CANNOT_CANCEL_COMPLETED', message: 'Cannot cancel a completed booking' }));
   if (booking.status === 'CANCELLED') return badRequest(JSON.stringify({ code: 'ALREADY_CANCELLED', message: 'Booking is already cancelled' }));
 
@@ -69,6 +72,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Detail: JSON.stringify({ bookingId, listingId: booking.listingId, spotterId: booking.spotterId, hostId: booking.hostId, cancelledBy, refundAmount, refundPercent }),
     }],
   }));
+
+  // Delete Scheduler schedules (best-effort)
+  try {
+    await Promise.all([
+      scheduler.send(new DeleteScheduleCommand({ Name: `booking-active-${bookingId}` })),
+      scheduler.send(new DeleteScheduleCommand({ Name: `booking-completed-${bookingId}` })),
+    ]);
+  } catch {
+    // Schedules may not exist or already deleted
+  }
 
   log.info('booking cancelled', { bookingId, cancelledBy, refundAmount, refundPercent });
   return ok({ bookingId, status: 'CANCELLED', cancelledBy, refundAmount, refundPercent });

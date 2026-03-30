@@ -193,6 +193,32 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Invoicing details */}
+      <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+        <h3 className="mb-3 text-sm font-semibold text-[#004526]">Invoicing details</h3>
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-gray-600">VAT number</label>
+            <input id="vatNumber" type="text" placeholder="BE0123456789"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+          </div>
+          <div>
+            <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-gray-600">Company name</label>
+            <input id="companyName" type="text" placeholder="Company name"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+          </div>
+          <div>
+            <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-gray-600">Billing address</label>
+            <input id="billingAddress" type="text" placeholder="Street, City, Postcode"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+          </div>
+          <button type="button"
+            className="w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526]">
+            Save invoicing details
+          </button>
+        </div>
+      </div>
+
       {/* Sign out */}
       <button
         type="button"

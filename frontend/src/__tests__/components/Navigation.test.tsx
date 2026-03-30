@@ -16,7 +16,7 @@ vi.mock('next/link', () => ({
 import Navigation from '../../../components/Navigation';
 
 const mockUser = { userId: 'u1', name: 'Jean Dupont', hasListings: false };
-const mockHost = { userId: 'u2', name: 'Marie Durand', hasListings: true };
+const mockHost = { userId: 'u2', name: 'Marie Durand', hasListings: true, isHost: true };
 
 describe('<Navigation />', () => {
   test('renders top nav with white background on desktop', () => {

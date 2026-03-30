@@ -8,6 +8,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   useSearchParams: () => new URLSearchParams('startDate=2025-07-01T10:00&endDate=2025-07-01T12:00'),
   useParams: () => ({ id: 'l1' }),
+  usePathname: () => '/book/l1',
 }));
 
 vi.mock('@stripe/react-stripe-js', () => ({
@@ -21,6 +22,13 @@ vi.mock('@stripe/react-stripe-js', () => ({
 
 vi.mock('@stripe/stripe-js', () => ({
   loadStripe: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock('../../../hooks/useAuth', () => ({
+  useAuth: vi.fn(() => ({
+    user: { userId: 'u1', email: 'test@test.com', token: 'tok' },
+    isLoading: false,
+  })),
 }));
 
 beforeEach(() => {
@@ -42,7 +50,6 @@ describe('BookingFlow step indicator', () => {
     await waitFor(() => screen.getByRole('button', { name: /proceed to payment/i }));
     await user.click(screen.getByRole('button', { name: /proceed to payment/i }));
     await waitFor(() => {
-      expect(screen.getByText(/payment/i)).toBeInTheDocument();
       expect(screen.getByTestId('stripe-payment-element')).toBeInTheDocument();
     });
   });

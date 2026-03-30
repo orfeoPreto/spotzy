@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { spotTypeDisplay } from '../lib/spotTypeDisplay';
 
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
 
@@ -17,6 +18,7 @@ export interface SpotListing {
   hostFirstName?: string;
   hostLastName?: string;
   hostPhotoUrl?: string;
+  evCharging?: boolean;
 }
 
 interface SpotSummaryCardProps {
@@ -80,8 +82,17 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       </div>
 
       {/* Info */}
-      <div className="flex flex-col gap-1.5 p-3">
+      <div data-testid="listing-info" className="flex flex-col gap-2 p-3">
         <p className="truncate text-sm font-medium text-gray-900">{spot.address}</p>
+        <div className="flex items-center gap-2">
+          <span data-testid="spot-type" className="text-xs text-[#4B6354]">{spotTypeDisplay(spot.spotType)}</span>
+          {spot.evCharging && (
+            <span data-testid="ev-badge" className="inline-flex items-center gap-0.5 rounded-full bg-[#059669] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
+              EV
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center gap-3 text-sm">
           <span className="font-semibold text-[#004526]">€{spot.pricePerHour.toFixed(2)}/hr</span>

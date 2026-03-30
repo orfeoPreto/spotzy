@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { SchedulerClient, DeleteScheduleCommand } from '@aws-sdk/client-scheduler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/bookings/cancel/index';
 import { calculateRefund } from '../../functions/bookings/shared/refund-calculator';
@@ -9,6 +10,7 @@ import { buildBooking } from '../factories/booking.factory';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const ebMock = mockClient(EventBridgeClient);
+const schedulerMock = mockClient(SchedulerClient);
 
 const BOOKING_ID = 'booking-cancel-test';
 const SPOTTER_ID = 'spotter-cancel-1';
@@ -21,12 +23,14 @@ const futureBooking = buildBooking({
   startTime: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days from now
   totalPrice: 10.00,
   status: 'CONFIRMED',
-  cancellationPolicy: { gt48h: 100, between24and48h: 50, lt24h: 0 },
+  cancellationPolicy: { gt24h: 100, between12and24h: 50, lt12h: 0 },
 });
 
 beforeEach(() => {
   ddbMock.reset();
   ebMock.reset();
+  schedulerMock.reset();
+  schedulerMock.on(DeleteScheduleCommand).resolves({});
   ddbMock.on(GetCommand).resolves({ Item: { ...futureBooking, PK: `BOOKING#${BOOKING_ID}`, SK: 'METADATA' } });
   ddbMock.on(UpdateCommand).resolves({});
   ebMock.on(PutEventsCommand).resolves({});
@@ -36,24 +40,24 @@ const makeEvent = (auth = mockAuthContext(SPOTTER_ID)): APIGatewayProxyEvent =>
   ({ ...auth, body: null, pathParameters: { id: BOOKING_ID }, queryStringParameters: null, headers: {}, multiValueHeaders: {}, httpMethod: 'POST', isBase64Encoded: false, path: `/bookings/${BOOKING_ID}/cancel`, multiValueQueryStringParameters: null, resource: '', stageVariables: null } as unknown as APIGatewayProxyEvent);
 
 describe('calculateRefund helper', () => {
-  const policy = { gt48h: 100, between24and48h: 50, lt24h: 0 };
+  const policy = { gt24h: 100, between12and24h: 50, lt12h: 0 };
 
-  it('>48h before start → refundPercent=100', () => {
+  it('>24h before start → refundPercent=100', () => {
     const start = new Date(Date.now() + 86400000 * 3).toISOString();
     const result = calculateRefund(10.00, start, policy, 'spotter');
     expect(result.refundPercent).toBe(100);
     expect(result.refundAmount).toBe(10.00);
   });
 
-  it('36h before start → refundPercent=50', () => {
-    const start = new Date(Date.now() + 36 * 3600000).toISOString();
+  it('18h before start → refundPercent=50', () => {
+    const start = new Date(Date.now() + 18 * 3600000).toISOString();
     const result = calculateRefund(10.00, start, policy, 'spotter');
     expect(result.refundPercent).toBe(50);
     expect(result.refundAmount).toBe(5.00);
   });
 
-  it('12h before start → refundPercent=0', () => {
-    const start = new Date(Date.now() + 12 * 3600000).toISOString();
+  it('6h before start → refundPercent=0', () => {
+    const start = new Date(Date.now() + 6 * 3600000).toISOString();
     const result = calculateRefund(10.00, start, policy, 'spotter');
     expect(result.refundPercent).toBe(0);
     expect(result.refundAmount).toBe(0);

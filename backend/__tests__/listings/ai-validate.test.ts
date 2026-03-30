@@ -1,6 +1,6 @@
 import { S3Event } from 'aws-lambda';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { S3Client, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, CopyObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { RekognitionClient, DetectLabelsCommand, DetectModerationLabelsCommand } from '@aws-sdk/client-rekognition';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/listings/ai-validate/index';
@@ -12,12 +12,18 @@ const rekMock = mockClient(RekognitionClient);
 const makeEvent = (key = 'listings/listing_01/photos/0.jpg'): S3Event =>
   ({ Records: [{ s3: { bucket: { name: 'spotzy-media-uploads' }, object: { key } } }] } as unknown as S3Event);
 
+// Valid JPEG magic bytes: ff d8 ff e0
+const jpegBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]);
+
 beforeEach(() => {
   ddbMock.reset();
   s3Mock.reset();
   rekMock.reset();
   ddbMock.on(UpdateCommand).resolves({});
   s3Mock.on(CopyObjectCommand).resolves({});
+  s3Mock.on(GetObjectCommand).resolves({
+    Body: { transformToByteArray: () => Promise.resolve(jpegBytes) } as any,
+  });
 });
 
 describe('listing-ai-validate', () => {

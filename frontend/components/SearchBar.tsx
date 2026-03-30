@@ -64,6 +64,7 @@ export default function SearchBar({
     setQuery(s.place_name);
     setSuggestions([]);
     onDestinationSelect({ label: s.place_name, lat: s.center[1], lng: s.center[0] });
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   };
 
   const handleStartChange = (val: string) => {

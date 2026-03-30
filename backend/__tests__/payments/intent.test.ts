@@ -98,10 +98,10 @@ describe('payment-intent', () => {
     );
   });
 
-  it('capture_method = manual', async () => {
+  it('capture_method = automatic', async () => {
     await handler(makeEvent(), {} as any, () => {});
     expect(mockPaymentIntentCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ capture_method: 'manual' })
+      expect.objectContaining({ capture_method: 'automatic' })
     );
   });
 

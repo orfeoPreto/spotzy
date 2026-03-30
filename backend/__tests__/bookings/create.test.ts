@@ -26,13 +26,24 @@ const validBody = {
 const makeEvent = (body: object, auth = mockAuthContext()): APIGatewayProxyEvent =>
   ({ ...auth, body: JSON.stringify(body), pathParameters: null, queryStringParameters: null, headers: {}, multiValueHeaders: {}, httpMethod: 'POST', isBase64Encoded: false, path: '/bookings', multiValueQueryStringParameters: null, resource: '', stageVariables: null } as unknown as APIGatewayProxyEvent);
 
+const alwaysRule = {
+  PK: `LISTING#${LISTING_ID}`, SK: 'AVAIL_RULE#r1',
+  ruleId: 'r1', listingId: LISTING_ID, type: 'ALWAYS',
+  daysOfWeek: [], startTime: '', endTime: '',
+  createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+};
+
 beforeEach(() => {
   ddbMock.reset();
   ebMock.reset();
   // listing fetch
   ddbMock.on(GetCommand).resolves({ Item: { ...listing, PK: `LISTING#${LISTING_ID}`, SK: 'METADATA' } });
-  // no existing bookings (availability)
-  ddbMock.on(QueryCommand).resolves({ Items: [] });
+  // queries: idempotency (empty), availability rules (ALWAYS), blocks (empty), legacy bookings (empty)
+  ddbMock.on(QueryCommand)
+    .resolvesOnce({ Items: [] })           // idempotency check
+    .resolvesOnce({ Items: [alwaysRule] }) // availability rules
+    .resolvesOnce({ Items: [] })           // blocks
+    .resolvesOnce({ Items: [] });          // legacy bookings
   ddbMock.on(PutCommand).resolves({});
   ebMock.on(PutEventsCommand).resolves({});
 });
@@ -86,35 +97,48 @@ describe('booking-create', () => {
   it('same idempotencyKey twice → second returns 200 with existing booking', async () => {
     const existingBooking = buildBooking({ idempotencyKey: validBody.idempotencyKey, spotterId: TEST_USER_ID });
     ddbMock.on(QueryCommand)
-      .resolvesOnce({ Items: [{ ...existingBooking, PK: `BOOKING#${existingBooking.bookingId}`, SK: 'METADATA' }] }) // idempotency check
-      .resolves({ Items: [] });
+      .resolvesOnce({ Items: [{ ...existingBooking, PK: `BOOKING#${existingBooking.bookingId}`, SK: 'METADATA', idempotencyKey: validBody.idempotencyKey }] }); // idempotency check matches
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     expect(res!.statusCode).toBe(200);
   });
 
   it('CONFIRMED booking overlapping → 409 SPOT_UNAVAILABLE', async () => {
-    ddbMock.on(QueryCommand).resolves({ Items: [buildBooking({ status: 'CONFIRMED', startTime: validBody.startTime, endTime: validBody.endTime })] });
+    ddbMock.on(QueryCommand)
+      .resolvesOnce({ Items: [] })           // idempotency
+      .resolvesOnce({ Items: [alwaysRule] }) // rules
+      .resolvesOnce({ Items: [] })           // blocks
+      .resolvesOnce({ Items: [buildBooking({ status: 'CONFIRMED', startTime: validBody.startTime, endTime: validBody.endTime })] }); // legacy bookings
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
     expect(res!.body).toContain('SPOT_UNAVAILABLE');
   });
 
   it('ACTIVE booking overlapping → 409', async () => {
-    ddbMock.on(QueryCommand).resolves({ Items: [buildBooking({ status: 'ACTIVE', startTime: validBody.startTime, endTime: validBody.endTime })] });
+    ddbMock.on(QueryCommand)
+      .resolvesOnce({ Items: [] })           // idempotency
+      .resolvesOnce({ Items: [alwaysRule] }) // rules
+      .resolvesOnce({ Items: [] })           // blocks
+      .resolvesOnce({ Items: [buildBooking({ status: 'ACTIVE', startTime: validBody.startTime, endTime: validBody.endTime })] }); // legacy bookings
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
   });
 
   it('CANCELLED booking overlapping → allowed (201)', async () => {
     ddbMock.on(QueryCommand)
-      .resolvesOnce({ Items: [] }) // idempotency check returns nothing
-      .resolvesOnce({ Items: [buildBooking({ status: 'CANCELLED' })] }); // availability check
+      .resolvesOnce({ Items: [] })           // idempotency check
+      .resolvesOnce({ Items: [alwaysRule] }) // rules
+      .resolvesOnce({ Items: [] })           // blocks
+      .resolvesOnce({ Items: [buildBooking({ status: 'CANCELLED' })] }); // legacy bookings (CANCELLED is not blocking)
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     expect(res!.statusCode).toBe(201);
   });
 
   it('PENDING_PAYMENT booking overlapping → 409', async () => {
-    ddbMock.on(QueryCommand).resolves({ Items: [buildBooking({ status: 'PENDING_PAYMENT', startTime: validBody.startTime, endTime: validBody.endTime })] });
+    ddbMock.on(QueryCommand)
+      .resolvesOnce({ Items: [] })           // idempotency
+      .resolvesOnce({ Items: [alwaysRule] }) // rules
+      .resolvesOnce({ Items: [] })           // blocks
+      .resolvesOnce({ Items: [buildBooking({ status: 'PENDING_PAYMENT', startTime: validBody.startTime, endTime: validBody.endTime })] }); // legacy bookings
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
   });

@@ -36,13 +36,15 @@ describe('Spotter Dashboard tabs', () => {
           bookings: [
             { bookingId: 'bk-past', listingId: 'l1', address: 'Past Street 1',
               status: 'COMPLETED', startDate: '2025-01-01T10:00:00Z', endDate: '2025-01-01T12:00:00Z',
-              totalPrice: 7, reference: 'REF-PAST', hasReview: false },
+              totalPrice: 7, reference: 'REF-PAST', hasReview: false, spotterId: 'u2' },
           ],
         }),
       ),
     );
     const user = userEvent.setup();
     render(<SpotterDashboardPage />);
+    // Wait for data to load first
+    await waitFor(() => expect(screen.queryByText(/no upcoming bookings/i)).toBeInTheDocument());
     await user.click(screen.getByRole('tab', { name: /past/i }));
     await waitFor(() => {
       expect(screen.getByText(/Past Street 1/i)).toBeInTheDocument();
@@ -76,13 +78,15 @@ describe('Spotter Dashboard booking card', () => {
           bookings: [
             { bookingId: 'bk-done', listingId: 'l1', address: 'Completed Ave',
               status: 'COMPLETED', startDate: '2025-01-01T10:00:00Z', endDate: '2025-01-01T12:00:00Z',
-              totalPrice: 7, reference: 'REF-DONE', hasReview: false },
+              totalPrice: 7, reference: 'REF-DONE', hasReview: false, spotterId: 'u2' },
           ],
         }),
       ),
     );
     const user = userEvent.setup();
     render(<SpotterDashboardPage />);
+    // Wait for data to load (no upcoming bookings from the COMPLETED-only mock)
+    await waitFor(() => expect(screen.getByText(/no upcoming bookings/i)).toBeInTheDocument());
     await user.click(screen.getByRole('tab', { name: /past/i }));
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /leave a review/i })).toBeInTheDocument();
@@ -98,13 +102,14 @@ describe('Spotter Dashboard rating modal', () => {
           bookings: [
             { bookingId: 'bk-done', listingId: 'l1', address: 'Completed Ave',
               status: 'COMPLETED', startDate: '2025-01-01T10:00:00Z', endDate: '2025-01-01T12:00:00Z',
-              totalPrice: 7, reference: 'REF-DONE', hasReview: false },
+              totalPrice: 7, reference: 'REF-DONE', hasReview: false, spotterId: 'u2' },
           ],
         }),
       ),
     );
     const user = userEvent.setup();
     render(<SpotterDashboardPage />);
+    await waitFor(() => expect(screen.getByText(/no upcoming bookings/i)).toBeInTheDocument());
     await user.click(screen.getByRole('tab', { name: /past/i }));
     await waitFor(() => screen.getByRole('button', { name: /leave a review/i }));
     await user.click(screen.getByRole('button', { name: /leave a review/i }));
@@ -122,13 +127,14 @@ describe('Spotter Dashboard rating modal', () => {
           bookings: [
             { bookingId: 'bk-done', listingId: 'l1', address: 'Completed Ave',
               status: 'COMPLETED', startDate: '2025-01-01T10:00:00Z', endDate: '2025-01-01T12:00:00Z',
-              totalPrice: 7, reference: 'REF-DONE', hasReview: false },
+              totalPrice: 7, reference: 'REF-DONE', hasReview: false, spotterId: 'u2' },
           ],
         }),
       ),
     );
     const user = userEvent.setup();
     render(<SpotterDashboardPage />);
+    await waitFor(() => expect(screen.getByText(/no upcoming bookings/i)).toBeInTheDocument());
     await user.click(screen.getByRole('tab', { name: /past/i }));
     await waitFor(() => screen.getByRole('button', { name: /leave a review/i }));
     await user.click(screen.getByRole('button', { name: /leave a review/i }));

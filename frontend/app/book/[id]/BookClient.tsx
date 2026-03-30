@@ -156,12 +156,6 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
         </a>
         <button
           type="button"
-          className="w-full rounded-lg bg-gray-100 py-2.5 text-sm font-medium text-gray-700"
-        >
-          Get directions
-        </button>
-        <button
-          type="button"
           onClick={() => router.push('/dashboard/spotter')}
           className="w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white"
         >

@@ -7,10 +7,12 @@ import ListingPage from '../../../app/listing/[id]/ListingClient';
 
 const mockPush = vi.fn();
 const mockParamsId = { id: 'l1' };
+const mockPathname = { value: '/listing/l1' };
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   useSearchParams: () => new URLSearchParams(),
   useParams: () => mockParamsId,
+  usePathname: () => mockPathname.value,
 }));
 
 // Default: logged-in user for booking widget tests
@@ -157,17 +159,19 @@ describe('ListingPage not logged in', () => {
     render(<ListingPage />);
     await waitFor(() => screen.getByText('Rue Neuve 1, Brussels'));
     await user.click(screen.getByRole('button', { name: /sign in to book/i }));
-    expect(mockPush).toHaveBeenCalledWith('/auth/login');
+    expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('/auth/login'));
   });
 });
 
 describe('ListingPage error states', () => {
   it('shows not-found message when listing returns 404', async () => {
     mockParamsId.id = 'not-found';
+    mockPathname.value = '/listing/not-found';
     render(<ListingPage />);
     await waitFor(() => {
       expect(screen.getByText(/no longer available/i)).toBeInTheDocument();
     });
     mockParamsId.id = 'l1';
+    mockPathname.value = '/listing/l1';
   });
 });

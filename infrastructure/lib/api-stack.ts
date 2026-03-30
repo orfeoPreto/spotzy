@@ -65,6 +65,8 @@ export const LAMBDA_NAMES = {
   preferenceLearn: 'preference-learn',
   messagesList: 'messages-list',
   messagesUnread: 'messages-unread',
+  bookingStatusTransition: 'booking-status-transition',
+  userInvoicing: 'user-invoicing',
 } as const;
 
 export class ApiStack extends cdk.Stack {
@@ -200,6 +202,8 @@ export class ApiStack extends cdk.Stack {
         'user-become-host': 'users/become-host',
         'messages-list': 'messages/list',
         'messages-unread': 'messages/unread',
+        'booking-status-transition': 'bookings/status-transition',
+        'user-invoicing': 'users/invoicing',
         'availability-block': 'availability/block',
         'availability-release': 'availability/release',
         'notify-sms': 'notifications/sms',
@@ -329,8 +333,50 @@ export class ApiStack extends cdk.Stack {
     });
     const userBecomeHostFn = mkFn(LAMBDA_NAMES.userBecomeHost);
 
+    const userInvoicingFn  = mkFn(LAMBDA_NAMES.userInvoicing);
     const messagesListFn   = mkFn(LAMBDA_NAMES.messagesList);
     const messagesUnreadFn = mkFn(LAMBDA_NAMES.messagesUnread);
+
+    const bookingStatusTransitionFn = mkFn(LAMBDA_NAMES.bookingStatusTransition, {
+      EVENT_BUS_NAME: eventBus.eventBusName,
+    });
+
+    // Grant booking-create and booking-cancel Lambdas permission to create/delete Scheduler schedules
+    const schedulerPolicy = new iam.PolicyStatement({
+      actions: [
+        'scheduler:CreateSchedule',
+        'scheduler:DeleteSchedule',
+        'scheduler:GetSchedule',
+      ],
+      resources: [`arn:aws:scheduler:${this.region}:${this.account}:schedule/default/*`],
+    });
+    const schedulerPassRolePolicy = new iam.PolicyStatement({
+      actions: ['iam:PassRole'],
+      resources: ['*'],
+      conditions: {
+        StringEquals: { 'iam:PassedToService': 'scheduler.amazonaws.com' },
+      },
+    });
+    bookingCreateFn.addToRolePolicy(schedulerPolicy);
+    bookingCreateFn.addToRolePolicy(schedulerPassRolePolicy);
+    bookingCancelFn.addToRolePolicy(schedulerPolicy);
+    bookingCancelFn.addToRolePolicy(schedulerPassRolePolicy);
+    paymentWebhookFn.addToRolePolicy(schedulerPolicy);
+    paymentWebhookFn.addToRolePolicy(schedulerPassRolePolicy);
+
+    // Scheduler needs a role to invoke the status-transition Lambda
+    const schedulerRole = new iam.Role(this, 'BookingSchedulerRole', {
+      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+    });
+    bookingStatusTransitionFn.grantInvoke(schedulerRole);
+
+    // Pass scheduler role ARN and target Lambda ARN to booking-create/cancel
+    bookingCreateFn.addEnvironment('SCHEDULER_ROLE_ARN', schedulerRole.roleArn);
+    bookingCreateFn.addEnvironment('STATUS_TRANSITION_LAMBDA_ARN', bookingStatusTransitionFn.functionArn);
+    bookingCancelFn.addEnvironment('SCHEDULER_ROLE_ARN', schedulerRole.roleArn);
+    bookingCancelFn.addEnvironment('STATUS_TRANSITION_LAMBDA_ARN', bookingStatusTransitionFn.functionArn);
+    paymentWebhookFn.addEnvironment('SCHEDULER_ROLE_ARN', schedulerRole.roleArn);
+    paymentWebhookFn.addEnvironment('STATUS_TRANSITION_LAMBDA_ARN', bookingStatusTransitionFn.functionArn);
 
     mkFn(LAMBDA_NAMES.availabilityBlock);
     mkFn(LAMBDA_NAMES.availabilityRelease);
@@ -506,6 +552,9 @@ export class ApiStack extends cdk.Stack {
     usersMe.addResource('metrics').addMethod('GET', integ(userMeMetricsFn), authOpts);
     usersMe.addResource('payout').addMethod('POST', integ(payoutSetupFn), authOpts);
     usersMe.addResource('become-host').addMethod('POST', integ(userBecomeHostFn), authOpts);
+    const invoicingResource = usersMe.addResource('invoicing');
+    invoicingResource.addMethod('GET', integ(userInvoicingFn), authOpts);
+    invoicingResource.addMethod('PUT', integ(userInvoicingFn), authOpts);
 
     // /api/v1/messages
     const messages = v1.addResource('messages');

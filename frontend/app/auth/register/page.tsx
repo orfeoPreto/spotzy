@@ -260,10 +260,28 @@ export default function RegisterPage() {
           </div>
           <div>
             <label htmlFor="reg-phone" className="mb-1 block text-sm font-medium text-gray-700">Phone number</label>
-            <input id="reg-phone" type="tel" value={phone} placeholder="+32471234567"
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" required />
-            <p className="mt-0.5 text-xs text-gray-400">Include country code, e.g. +32471234567</p>
+            <div className="flex gap-2">
+              <select
+                data-testid="country-code-select"
+                value={phone.match(/^\+\d+/)?.[0] ?? '+32'}
+                onChange={(e) => {
+                  const local = phone.replace(/^\+\d+\s*/, '');
+                  setPhone(e.target.value + local);
+                }}
+                className="w-24 rounded-lg border border-gray-300 px-2 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
+              >
+                <option value="+32">🇧🇪 +32</option>
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+31">🇳🇱 +31</option>
+                <option value="+49">🇩🇪 +49</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+352">🇱🇺 +352</option>
+                <option value="+1">🇺🇸 +1</option>
+              </select>
+              <input id="reg-phone" type="tel" value={phone} placeholder="+32471234567"
+                onChange={(e) => setPhone(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" required />
+            </div>
           </div>
           <div>
             <label htmlFor="reg-password" className="mb-1 block text-sm font-medium text-gray-700">Password</label>

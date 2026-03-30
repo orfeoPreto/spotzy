@@ -5,6 +5,7 @@ jest.mock('@aws-sdk/client-s3');
 jest.mock('@aws-sdk/client-rekognition');
 jest.mock('@aws-sdk/client-eventbridge');
 jest.mock('@aws-sdk/s3-request-presigner');
+jest.mock('@aws-sdk/client-scheduler');
 
 // Test constants
 export const TEST_USER_ID = 'user_01HX1234';

@@ -67,6 +67,20 @@ export class IntegrationStack extends cdk.Stack {
       ],
     });
 
+    // booking.confirmed → notify-sms, notify-email (after payment)
+    new events.Rule(this, 'BookingConfirmedRule', {
+      ruleName: `spotzy-booking-confirmed${suffix}`,
+      eventBus,
+      eventPattern: {
+        source: ['spotzy'],
+        detailType: ['booking.confirmed'],
+      },
+      targets: [
+        new targets.LambdaFunction(fn('notify-sms')),
+        new targets.LambdaFunction(fn('notify-email')),
+      ],
+    });
+
     // booking.modified → availability-block, availability-release, notify-sms, notify-email
     new events.Rule(this, 'BookingModifiedRule', {
       ruleName: `spotzy-booking-modified${suffix}`,

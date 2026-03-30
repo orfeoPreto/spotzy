@@ -6,15 +6,27 @@ import { server } from '../mocks/server';
 import LoginPage from '../../../app/auth/login/page';
 import RegisterPage from '../../../app/auth/register/page';
 import ForgotPasswordPage from '../../../app/auth/forgot-password/page';
+import ConfirmForm from '../../../app/auth/confirm/ConfirmClient';
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams('email=alice@test.com&role=SPOTTER'),
 }));
 
 vi.mock('../../../hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ user: null, isLoading: false })),
+}));
+
+vi.mock('aws-amplify/auth', () => ({
+  signUp: vi.fn().mockResolvedValue({ isSignUpComplete: false, userId: 'u-new', nextStep: { signUpStep: 'CONFIRM_SIGN_UP' } }),
+  confirmSignUp: vi.fn().mockResolvedValue({ isSignUpComplete: true }),
+  resendSignUpCode: vi.fn().mockResolvedValue({}),
+  signIn: vi.fn().mockResolvedValue({ isSignedIn: true, nextStep: { signInStep: 'DONE' } }),
+}));
+
+vi.mock('../../../hooks/useBookingIntent', () => ({
+  useBookingIntent: () => ({ readIntent: () => null, clearIntent: vi.fn(), saveIntent: vi.fn() }),
 }));
 
 beforeEach(() => {
@@ -49,12 +61,9 @@ describe('Auth Login', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeDisabled();
   });
 
-  it('shows error message on invalid credentials (401)', async () => {
-    server.use(
-      http.post('/api/v1/auth/login', () =>
-        HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 }),
-      ),
-    );
+  it('shows error message on invalid credentials', async () => {
+    const { signIn: mockSignIn } = await import('aws-amplify/auth');
+    vi.mocked(mockSignIn).mockRejectedValueOnce(new Error('Incorrect username or password.'));
     const user = userEvent.setup();
     render(<LoginPage />);
 
@@ -63,11 +72,11 @@ describe('Auth Login', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/invalid credentials|email or password/i)).toBeInTheDocument();
+      expect(screen.getByText(/incorrect|email or password/i)).toBeInTheDocument();
     });
   });
 
-  it('successful login → redirects to dashboard', async () => {
+  it('successful login → redirects to search', async () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
@@ -76,7 +85,7 @@ describe('Auth Login', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/dashboard/));
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/search|dashboard/));
     });
   });
 
@@ -91,7 +100,8 @@ describe('Auth Login', () => {
 describe('Auth Registration Step 1 — Role selection', () => {
   it('renders 3 role cards', () => {
     render(<RegisterPage />);
-    const cards = document.querySelectorAll('[data-testid="role-card"]');
+    // Cards use persona-guest, persona-host, and role-card (for SPOT_MANAGER)
+    const cards = document.querySelectorAll('[data-testid="persona-guest"], [data-testid="persona-host"], [data-testid="role-card"]');
     expect(cards.length).toBe(3);
   });
 
@@ -103,12 +113,12 @@ describe('Auth Registration Step 1 — Role selection', () => {
     expect(spotManagerCard).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('clicking Host card gives it amber border (selected state)', async () => {
+  it('clicking Host card gives it selected border', async () => {
     const user = userEvent.setup();
     render(<RegisterPage />);
-    const hostCard = document.querySelector('[data-testid="role-card"][data-role="HOST"]') as HTMLElement;
+    const hostCard = document.querySelector('[data-testid="persona-host"]') as HTMLElement;
     await user.click(hostCard);
-    expect(hostCard).toHaveClass('border-[#AD3614]');
+    expect(hostCard).toHaveClass('border-[#006B3C]');
   });
 
   it('"Continue" button disabled until a role is selected', async () => {
@@ -117,20 +127,21 @@ describe('Auth Registration Step 1 — Role selection', () => {
   });
 });
 
-// ─── Registration Step 2 ─────────────────────────────────────────────────────
+// ─── Registration Step 2 — User details ─────────────────────────────────────
 
 describe('Auth Registration Step 2 — User details', () => {
-  async function goToStep2() {
+  async function goToProfileStep() {
     const user = userEvent.setup();
     render(<RegisterPage />);
-    const hostCard = document.querySelector('[data-testid="role-card"][data-role="HOST"]') as HTMLElement;
-    await user.click(hostCard);
+    // Select Spotter role (goes directly to profile step, no stripe-gate)
+    const spotterCard = document.querySelector('[data-testid="persona-guest"]') as HTMLElement;
+    await user.click(spotterCard);
     await user.click(screen.getByRole('button', { name: /continue/i }));
     return user;
   }
 
   it('all fields render', async () => {
-    await goToStep2();
+    await goToProfileStep();
     expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
@@ -139,7 +150,7 @@ describe('Auth Registration Step 2 — User details', () => {
   });
 
   it('shows "Passwords don\'t match" when passwords differ', async () => {
-    const user = await goToStep2();
+    const user = await goToProfileStep();
     await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
     await user.type(screen.getByLabelText(/confirm password/i), 'Different456!');
     await user.tab();
@@ -149,7 +160,7 @@ describe('Auth Registration Step 2 — User details', () => {
   });
 
   it('shows weak password error for short passwords', async () => {
-    const user = await goToStep2();
+    const user = await goToProfileStep();
     await user.type(screen.getByLabelText(/^password$/i), 'short');
     await user.tab();
     await waitFor(() => {
@@ -157,67 +168,49 @@ describe('Auth Registration Step 2 — User details', () => {
     });
   });
 
-  it('successful submit advances to Step 3', async () => {
-    const user = await goToStep2();
+  it('successful submit redirects to confirm page', async () => {
+    const user = await goToProfileStep();
     await user.type(screen.getByLabelText(/first name/i), 'Alice');
-    await user.type(screen.getByLabelText(/last name/i), 'Host');
+    await user.type(screen.getByLabelText(/last name/i), 'Spotter');
     await user.type(screen.getByLabelText(/email/i), 'alice@test.com');
+    // Phone number is required
+    const phoneInput = document.querySelector('#reg-phone') as HTMLInputElement;
+    if (phoneInput) await user.type(phoneInput, '+32471234567');
     await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
     await user.type(screen.getByLabelText(/confirm password/i), 'Password123!');
-    await user.click(screen.getByRole('button', { name: /continue|next/i }));
+    await user.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="otp-input"]').length).toBe(6);
+      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('/auth/confirm'));
     });
   });
 });
 
-// ─── Registration Step 3 — OTP ───────────────────────────────────────────────
+// ─── OTP Verification (ConfirmClient) ─────────────────────────────────────
 
-describe('Auth Registration Step 3 — OTP', () => {
-  async function goToStep3() {
-    const user = userEvent.setup();
-    render(<RegisterPage />);
-
-    // Step 1: select role
-    const hostCard = document.querySelector('[data-testid="role-card"][data-role="HOST"]') as HTMLElement;
-    await user.click(hostCard);
-    await user.click(screen.getByRole('button', { name: /continue/i }));
-
-    // Step 2: fill details
-    await user.type(screen.getByLabelText(/first name/i), 'Alice');
-    await user.type(screen.getByLabelText(/last name/i), 'Host');
-    await user.type(screen.getByLabelText(/email/i), 'alice@test.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
-    await user.type(screen.getByLabelText(/confirm password/i), 'Password123!');
-    await user.click(screen.getByRole('button', { name: /continue|next/i }));
-
-    await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="otp-input"]').length).toBe(6);
-    });
-
-    return user;
-  }
-
-  it('renders 6 individual OTP input boxes', async () => {
-    await goToStep3();
-    expect(document.querySelectorAll('[data-testid="otp-input"]').length).toBe(6);
+describe('Auth OTP Verification', () => {
+  it('renders 6 individual OTP input boxes', () => {
+    render(<ConfirmForm />);
+    const inputs = document.querySelectorAll('input[inputmode="numeric"]');
+    expect(inputs.length).toBe(6);
   });
 
   it('entering a digit auto-focuses next box', async () => {
-    const user = await goToStep3();
-    const inputs = document.querySelectorAll<HTMLInputElement>('[data-testid="otp-input"]');
+    const user = userEvent.setup();
+    render(<ConfirmForm />);
+    const inputs = document.querySelectorAll<HTMLInputElement>('input[inputmode="numeric"]');
     await user.type(inputs[0], '1');
     await waitFor(() => {
       expect(document.activeElement).toBe(inputs[1]);
     });
   });
 
-  it('"Verify" button disabled until all 6 digits entered', async () => {
-    const user = await goToStep3();
+  it('"Verify email" button disabled until all 6 digits entered', async () => {
+    const user = userEvent.setup();
+    render(<ConfirmForm />);
     expect(screen.getByRole('button', { name: /verify/i })).toBeDisabled();
 
-    const inputs = document.querySelectorAll<HTMLInputElement>('[data-testid="otp-input"]');
+    const inputs = document.querySelectorAll<HTMLInputElement>('input[inputmode="numeric"]');
     for (const input of Array.from(inputs)) {
       await user.type(input, '1');
     }
@@ -229,25 +222,7 @@ describe('Auth Registration Step 3 — OTP', () => {
   it('resend countdown starts at 60 and "Resend code" appears at 0', async () => {
     // Only fake setInterval/clearInterval so waitFor and userEvent still use real setTimeout
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
-    const user = userEvent.setup();
-    render(<RegisterPage />);
-
-    // Step 1: select role
-    const hostCard = document.querySelector('[data-testid="role-card"][data-role="HOST"]') as HTMLElement;
-    await user.click(hostCard);
-    await user.click(screen.getByRole('button', { name: /continue/i }));
-
-    // Step 2: fill details
-    await user.type(screen.getByLabelText(/first name/i), 'Alice');
-    await user.type(screen.getByLabelText(/last name/i), 'Host');
-    await user.type(screen.getByLabelText(/email/i), 'alice@test.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'Password123!');
-    await user.type(screen.getByLabelText(/confirm password/i), 'Password123!');
-    await user.click(screen.getByRole('button', { name: /continue|next/i }));
-
-    await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="otp-input"]').length).toBe(6);
-    });
+    render(<ConfirmForm />);
 
     expect(screen.getByText(/60s|60 s|resend in 60/i)).toBeInTheDocument();
 

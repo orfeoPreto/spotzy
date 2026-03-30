@@ -33,12 +33,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const isHost = claims.userId === booking.hostId;
   if (!isSpotter && !isHost) return forbidden();
 
-  // Time window check
+  // Time window check — allow CONFIRMED, ACTIVE unconditionally; COMPLETED within 7 days
+  const ALLOWED_DISPUTE_STATUSES = new Set(['CONFIRMED', 'ACTIVE']);
   if (booking.status === 'COMPLETED') {
-    const hoursSinceCompletion = (Date.now() - new Date(booking.completedAt).getTime()) / 3600000;
-    if (hoursSinceCompletion > 48) return badRequest(JSON.stringify({ code: 'DISPUTE_WINDOW_EXPIRED', message: 'Dispute window is 48h after booking completion' }));
-  } else if (booking.status !== 'ACTIVE') {
-    return badRequest('Cannot open dispute for this booking');
+    const endTime = booking.completedAt ?? booking.endTime;
+    const daysSinceEnd = (Date.now() - new Date(endTime).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceEnd > 7) return badRequest(JSON.stringify({ code: 'DISPUTE_WINDOW_EXPIRED', message: 'The dispute window has closed. Disputes must be opened within 7 days of booking completion.' }));
+  } else if (!ALLOWED_DISPUTE_STATUSES.has(booking.status as string)) {
+    return badRequest(JSON.stringify({ code: 'INVALID_BOOKING_STATUS', message: 'Disputes can only be opened for confirmed, active, or recently completed bookings.' }));
   }
 
   // Check for existing open dispute
