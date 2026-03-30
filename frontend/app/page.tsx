@@ -252,6 +252,10 @@ function QuickLinks() {
 // ─── Final CTA ────────────────────────────────────────────────────────────────
 
 function CallToAction() {
+  const { user } = useAuth();
+
+  if (user) return null;
+
   return (
     <section className="bg-[#F0F7F3] px-6 py-20 text-center border-t border-[#006B3C]/10">
       <div className="mx-auto max-w-2xl">

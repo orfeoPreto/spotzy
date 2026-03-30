@@ -30,6 +30,8 @@ export const handler: EventBridgeHandler<string, Detail, void> = async (event) =
   try {
     if (dt === 'booking.created') {
       await sendSms(d.hostId as string, `New booking at ${d.listingAddress}: ${new Date(d.startTime as string).toLocaleDateString()} - €${d.totalPrice}`);
+    } else if (dt === 'booking.confirmed') {
+      await sendSms(d.spotterId as string, `Your booking at ${d.listingAddress} is confirmed: ${new Date(d.startTime as string).toLocaleDateString()} - €${d.totalPrice}`);
     } else if (dt === 'booking.cancelled') {
       const msg = `Booking at ${d.listingAddress} cancelled. Refund: €${d.refundAmount ?? 0}`;
       await Promise.all([sendSms(d.hostId as string, msg), sendSms(d.spotterId as string, msg)]);

@@ -89,7 +89,7 @@ export default function SpotterDashboardPage() {
 
       {modifyTarget && (
         <ModifyModal
-          booking={{ ...modifyTarget, pricePerHour: 3.5 }}
+          booking={{ ...modifyTarget, status: modifyTarget.status, pricePerHour: modifyTarget.totalPrice && modifyTarget.startDate && modifyTarget.endDate ? modifyTarget.totalPrice / Math.max(1, (new Date(modifyTarget.endDate).getTime() - new Date(modifyTarget.startDate).getTime()) / 3600000) : modifyTarget.totalPrice }}
           onClose={() => setModifyTarget(null)}
           onModified={() => { setModifyTarget(null); fetchBookings(); }}
         />

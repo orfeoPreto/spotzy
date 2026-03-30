@@ -64,7 +64,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
             className="truncate font-medium text-[#004526] hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
-            {booking.address}
+            {booking.address || 'View listing'}
           </Link>
           {viewAs === 'host' && booking.spotterName && booking.spotterId && (
             <Link
@@ -114,7 +114,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
                 Modify
               </button>
             )}
-            {onCancel && (
+            {onCancel && booking.status !== 'ACTIVE' && (
               <button type="button" onClick={() => onCancel(booking)}
                 className="rounded-lg border border-red-300 px-3 py-1 text-xs font-medium text-red-600">
                 Cancel

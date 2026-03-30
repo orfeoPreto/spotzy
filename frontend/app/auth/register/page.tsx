@@ -91,6 +91,14 @@ export default function RegisterPage() {
   };
 
   const handleInvoicingContinue = () => {
+    if (vatNumber || companyName || billingAddress || billingEmail) {
+      sessionStorage.setItem('spotzy_invoicing', JSON.stringify({
+        vatNumber: vatNumber.trim(),
+        companyName: companyName.trim(),
+        billingAddress: billingAddress.trim(),
+        billingEmail: billingEmail.trim(),
+      }));
+    }
     setStep('profile');
   };
 

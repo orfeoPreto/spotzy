@@ -54,7 +54,7 @@ export default function ChatPage() {
         setOtherPartyId(id ?? null);
         // If name not embedded, fetch profile
         if (!name && id) {
-          fetch(`${API_URL}/api/v1/users/${id}/profile`, {
+          fetch(`${API_URL}/api/v1/users/${id}/public`, {
             headers: { Authorization: `Bearer ${user!.token}` },
           })
             .then((r) => r.ok ? r.json() : null)
@@ -100,8 +100,8 @@ export default function ChatPage() {
   const currentUserId = user?.userId ?? '';
 
   return (
-    <main className="flex h-screen flex-col bg-gray-50 py-6">
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <main className="flex flex-col bg-gray-50 py-6" style={{ height: 'calc(100vh - 72px)' }}>
+      <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       {/* Header with back button and booking context */}
       <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
         <div className="flex items-center gap-3">
@@ -127,7 +127,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4" style={{ maxHeight: '60vh', minHeight: '20vh' }}>
+      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <p className="text-center text-sm text-gray-400">No messages yet — start the conversation</p>
         ) : (

@@ -64,7 +64,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     spotType: l.spotType,
     pricePerHour: l.pricePerHour,
     rating: l.rating,
-    photos: l.photos ? [(l.photos as string[])[0]] : [],
+    photos: (() => {
+      const firstPhoto = typeof l.photos?.[0] === 'string' ? l.photos[0] : l.photos?.[0]?.url ?? l.photos?.[0]?.key ?? null;
+      return firstPhoto ? [firstPhoto] : [];
+    })(),
   }));
 
   // Fetch bookings as spotter (for completedBookings count and responseRate)

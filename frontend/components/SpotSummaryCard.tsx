@@ -56,7 +56,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       className={`grow group flex cursor-pointer flex-col rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-200 ${
         highlighted ? 'border-[#004526] ring-2 ring-[#004526]/30 scale-[1.02]' : 'border-gray-200'
       }`}
-      style={{ aspectRatio: '1 / 1.7' }}
+      style={{ aspectRatio: '1 / 2.1' }}
       role="article"
     >
       {/* Photo — 40% of card height */}
