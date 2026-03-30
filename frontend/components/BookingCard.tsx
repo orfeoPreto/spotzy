@@ -17,6 +17,7 @@ export interface Booking {
   startTime?: string;
   endTime?: string;
   totalPrice: number;
+  pricePerHour?: number;
   reference?: string;
   hasReview?: boolean;
 }

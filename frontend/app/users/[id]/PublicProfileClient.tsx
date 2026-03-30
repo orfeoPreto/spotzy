@@ -169,7 +169,10 @@ export default function PublicProfilePage() {
               >
                 {l.photos[0] && (
                   <img
-                    src={l.photos[0].startsWith('http') ? l.photos[0] : `${MEDIA_URL}${l.photos[0]}`}
+                    src={(() => {
+                      const photo = typeof l.photos[0] === 'string' ? l.photos[0] : (l.photos[0] as unknown as { url?: string; key?: string })?.url ?? '';
+                      return photo.startsWith('http') ? photo : `${MEDIA_URL}${photo}`;
+                    })()}
                     alt={l.address}
                     className="h-14 w-14 flex-shrink-0 rounded-lg border border-[#004526]/20 object-cover"
                   />

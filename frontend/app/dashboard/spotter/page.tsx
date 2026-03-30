@@ -13,6 +13,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 const UPCOMING_STATUSES = new Set(['CONFIRMED', 'ACTIVE', 'PENDING_PAYMENT']);
 
+function deriveBookingStatus(b: Booking): string {
+  if (b.status !== 'CONFIRMED') return b.status;
+  const start = b.startDate ?? b.startTime ?? '';
+  const end = b.endDate ?? b.endTime ?? '';
+  const now = Date.now();
+  if (end && new Date(end).getTime() <= now) return 'COMPLETED';
+  if (start && new Date(start).getTime() <= now) return 'ACTIVE';
+  return 'CONFIRMED';
+}
+
 export default function SpotterDashboardPage() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('upcoming');
@@ -29,7 +39,10 @@ export default function SpotterDashboardPage() {
       .then((r) => r.json())
       .then((d) => {
         const all = (d as { bookings: Booking[] }).bookings;
-        setBookings(all.filter((b) => b.spotterId === user?.userId));
+        const enriched = all
+          .filter((b) => b.spotterId === user?.userId)
+          .map((b) => ({ ...b, status: deriveBookingStatus(b) }));
+        setBookings(enriched);
       });
   };
 
@@ -89,7 +102,20 @@ export default function SpotterDashboardPage() {
 
       {modifyTarget && (
         <ModifyModal
-          booking={{ ...modifyTarget, status: modifyTarget.status, pricePerHour: modifyTarget.totalPrice && modifyTarget.startDate && modifyTarget.endDate ? modifyTarget.totalPrice / Math.max(1, (new Date(modifyTarget.endDate).getTime() - new Date(modifyTarget.startDate).getTime()) / 3600000) : modifyTarget.totalPrice }}
+          booking={{
+            ...modifyTarget,
+            status: modifyTarget.status,
+            pricePerHour: (() => {
+              const s = modifyTarget.startDate ?? modifyTarget.startTime;
+              const e = modifyTarget.endDate ?? modifyTarget.endTime;
+              if (modifyTarget.pricePerHour) return modifyTarget.pricePerHour;
+              if (s && e && modifyTarget.totalPrice) {
+                const hours = (new Date(e).getTime() - new Date(s).getTime()) / 3600000;
+                return hours > 0 ? modifyTarget.totalPrice / hours : modifyTarget.totalPrice;
+              }
+              return modifyTarget.totalPrice ?? 0;
+            })(),
+          }}
           onClose={() => setModifyTarget(null)}
           onModified={() => { setModifyTarget(null); fetchBookings(); }}
         />

@@ -96,7 +96,7 @@ export default function SearchBar({
           placeholder="Where are you going?"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onBlur={() => setSuggestions([])}
+          onBlur={() => setTimeout(() => setSuggestions([]), 200)}
           className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004526]"
         />
         {suggestions.length > 0 && (

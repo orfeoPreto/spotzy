@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
   const [saving, setSaving] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const [vatNumber, setVatNumber] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [billingAddress, setBillingAddress] = useState('');
@@ -52,6 +53,7 @@ export default function ProfilePage() {
         const profile = await profileRes.json();
         const metrics = await metricsRes.json() as { liveListings?: number; activeBookings?: number };
         setUser({ ...profile, listingCount: metrics.liveListings ?? 0, bookingCount: metrics.activeBookings ?? 0 });
+        setIsHost(profile.isHost === true || profile.role === 'HOST' || profile.role === 'both');
         setNameValue(profile.name ?? '');
         setEmailValue(profile.email ?? '');
         setPhoneValue(profile.phone ?? '');
@@ -366,8 +368,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Invoicing details */}
-      <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+      {/* Invoicing details — only shown for hosts */}
+      {isHost && <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
         <h3 className="mb-3 text-sm font-semibold text-[#004526]">Invoicing details</h3>
         <div className="space-y-3">
           <div>
@@ -396,7 +398,7 @@ export default function ProfilePage() {
           </button>
           {invoicingSaved && <p className="text-center text-xs text-green-600">Invoicing details saved</p>}
         </div>
-      </div>
+      </div>}
 
       {/* Sign out */}
       <button

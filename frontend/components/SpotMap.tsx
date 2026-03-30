@@ -61,7 +61,8 @@ function walkingMinutes(lat1: number, lng1: number, lat2: number, lng2: number):
   return Math.round((km / 5) * 60);
 }
 
-function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: number } | null): string {
+function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: number } | null, mapWidth?: number): string {
+  const maxW = mapWidth ? Math.min(220, Math.floor(mapWidth * 0.4)) : 220;
   const photoIdx = spot.photos?.findIndex((p) => p.validationStatus === 'PASS') ?? -1;
   const photoUrl = photoIdx >= 0
     ? `${MEDIA_URL}/media/listings/${spot.listingId}/photos/${photoIdx}.jpg`
@@ -73,7 +74,7 @@ function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: numb
     : '';
 
   return `
-    <div style="min-width:140px;max-width:min(220px,60vw);font-family:system-ui,sans-serif;">
+    <div style="min-width:140px;max-width:${maxW}px;font-family:system-ui,sans-serif;">
       ${photoUrl ? `<img src="${photoUrl}" alt="" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />` : ''}
       <div style="padding:8px 10px;">
         <p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#1C2B1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${spot.address}</p>
@@ -219,10 +220,10 @@ export default function SpotMap({
           closeButton: true,
           closeOnClick: false,
           offset: [0, -20],
-          maxWidth: 'min(220px,60vw)',
+          maxWidth: `${mapRef.current?.getContainer()?.clientWidth ? Math.min(220, Math.floor(mapRef.current.getContainer().clientWidth * 0.4)) : 220}px`,
         })
           .setLngLat([spot.addressLng, spot.addressLat])
-          .setHTML(buildPopupHtml(spot, destCoordsRef.current))
+          .setHTML(buildPopupHtml(spot, destCoordsRef.current, mapRef.current?.getContainer()?.clientWidth))
           .addTo(mapRef.current!);
         popup.on('close', () => { popupRef.current = null; });
         popupRef.current = popup;
