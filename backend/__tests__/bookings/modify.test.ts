@@ -75,11 +75,22 @@ describe('booking-modify', () => {
     expect(body.pendingRefundAmount).toBeGreaterThan(0);
   });
 
-  it('booking status ACTIVE → 400 CANNOT_MODIFY_ACTIVE_BOOKING', async () => {
-    ddbMock.on(GetCommand).resolvesOnce({ Item: { ...booking, status: 'ACTIVE', PK: `BOOKING#${BOOKING_ID}`, SK: 'METADATA' } });
+  it('booking status ACTIVE + start time changed → 400 CANNOT_CHANGE_START_ACTIVE', async () => {
+    ddbMock.on(GetCommand)
+      .resolvesOnce({ Item: { ...booking, status: 'ACTIVE', PK: `BOOKING#${BOOKING_ID}`, SK: 'METADATA' } })
+      .resolvesOnce({ Item: { ...listing, PK: `LISTING#${LISTING_ID}`, SK: 'METADATA' } });
     const res = await handler(makeEvent({ newStartTime: newStart, newEndTime: newEnd2h }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('CANNOT_MODIFY_ACTIVE_BOOKING');
+    expect(res!.body).toContain('CANNOT_CHANGE_START_ACTIVE');
+  });
+
+  it('booking status ACTIVE + only end time changed → 200 allowed', async () => {
+    const activeBooking = { ...booking, status: 'ACTIVE', PK: `BOOKING#${BOOKING_ID}`, SK: 'METADATA' };
+    ddbMock.on(GetCommand)
+      .resolvesOnce({ Item: activeBooking })
+      .resolvesOnce({ Item: { ...listing, PK: `LISTING#${LISTING_ID}`, SK: 'METADATA' } });
+    const res = await handler(makeEvent({ newStartTime: booking.startTime, newEndTime: newEnd3h }), {} as any, () => {});
+    expect(res!.statusCode).toBe(200);
   });
 
   it('new start < 2h from now → 400 TOO_CLOSE_TO_START', async () => {
@@ -93,6 +104,9 @@ describe('booking-modify', () => {
   it('new start in past → 400', async () => {
     const past = new Date(Date.now() - 3600000).toISOString();
     const pastEnd = new Date(Date.now() + 3600000).toISOString();
+    ddbMock.on(GetCommand)
+      .resolvesOnce({ Item: { ...booking, PK: `BOOKING#${BOOKING_ID}`, SK: 'METADATA' } })
+      .resolvesOnce({ Item: { ...listing, PK: `LISTING#${LISTING_ID}`, SK: 'METADATA' } });
     const res = await handler(makeEvent({ newStartTime: past, newEndTime: pastEnd }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
   });

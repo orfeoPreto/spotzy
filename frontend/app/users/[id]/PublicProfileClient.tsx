@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import { spotTypeDisplay } from '../../../lib/spotTypeDisplay';
+import { formatDateOnly } from '../../../lib/formatDate';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
@@ -180,7 +181,7 @@ export default function PublicProfilePage() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-gray-900">{l.address}</p>
                   <p className="text-xs text-gray-500">{spotTypeDisplay(l.spotType)}</p>
-                  <p className="text-sm font-bold text-[#004526]">from €{l.pricePerHour.toFixed(2)}/hr</p>
+                  <p className="text-sm font-bold text-[#004526]">from €{(l.pricePerHour ?? 0).toFixed(2)}/hr</p>
                 </div>
               </a>
             ))}
@@ -212,7 +213,7 @@ export default function PublicProfilePage() {
                 <div className="mb-1 flex items-center gap-2">
                   <StarRating rating={r.rating} />
                   <span className="text-xs text-gray-400">
-                    {new Date(r.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                    {formatDateOnly(r.createdAt)}
                   </span>
                 </div>
                 {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}

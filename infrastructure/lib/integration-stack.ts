@@ -113,7 +113,7 @@ export class IntegrationStack extends cdk.Stack {
       ],
     });
 
-    // booking.completed → payout-trigger, review-aggregate, preference-learn
+    // booking.completed → payout-trigger, review-aggregate, preference-learn, notify-sms, notify-email
     new events.Rule(this, 'BookingCompletedRule', {
       ruleName: `spotzy-booking-completed${suffix}`,
       eventBus,
@@ -125,6 +125,8 @@ export class IntegrationStack extends cdk.Stack {
         new targets.LambdaFunction(fn('payout-trigger')),
         new targets.LambdaFunction(fn('review-aggregate')),
         new targets.LambdaFunction(fn('preference-learn')),
+        new targets.LambdaFunction(fn('notify-sms')),
+        new targets.LambdaFunction(fn('notify-email')),
       ],
     });
 
@@ -151,6 +153,35 @@ export class IntegrationStack extends cdk.Stack {
         detailType: ['dispute.escalated'],
       },
       targets: [
+        new targets.LambdaFunction(fn('notify-sms')),
+        new targets.LambdaFunction(fn('notify-email')),
+      ],
+    });
+
+    // listing.published → notify-sms, notify-email
+    new events.Rule(this, 'ListingPublishedRule', {
+      ruleName: `spotzy-listing-published${suffix}`,
+      eventBus,
+      eventPattern: {
+        source: ['spotzy'],
+        detailType: ['listing.published'],
+      },
+      targets: [
+        new targets.LambdaFunction(fn('notify-sms')),
+        new targets.LambdaFunction(fn('notify-email')),
+      ],
+    });
+
+    // review.created → review-aggregate, notify-sms, notify-email
+    new events.Rule(this, 'ReviewCreatedRule', {
+      ruleName: `spotzy-review-created${suffix}`,
+      eventBus,
+      eventPattern: {
+        source: ['spotzy'],
+        detailType: ['review.created'],
+      },
+      targets: [
+        new targets.LambdaFunction(fn('review-aggregate')),
         new targets.LambdaFunction(fn('notify-sms')),
         new targets.LambdaFunction(fn('notify-email')),
       ],

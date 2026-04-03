@@ -125,12 +125,12 @@ export default function ListingPage() {
                   EV Charging
                 </span>
               )}
-              {listing.avgRating !== undefined && (
+              {listing.avgRating != null && (
                 <span className="flex items-center gap-1 text-sm text-gray-700">
                   <svg viewBox="0 0 20 20" fill="#AD3614" className="h-4 w-4">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  {listing.avgRating.toFixed(1)}
+                  {(listing.avgRating ?? 0).toFixed(1)}
                   {listing.reviewCount !== undefined && <span className="text-gray-500">({listing.reviewCount})</span>}
                 </span>
               )}
@@ -138,17 +138,17 @@ export default function ListingPage() {
           </div>
 
           {listing.host && (
-            <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3">
+            <a href={`/users/${listing.host.userId}`} className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 hover:shadow-sm transition-shadow">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#004526] text-sm font-bold text-white">
                 {listing.host.name.charAt(0)}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">{listing.host.name}</p>
-                {listing.host.avgRating !== undefined && (
-                  <p className="text-xs text-gray-500">★ {listing.host.avgRating.toFixed(1)} host rating</p>
+                <p className="text-sm font-medium text-[#004526] hover:underline">{listing.host.name}</p>
+                {listing.host.avgRating != null && (
+                  <p className="text-xs text-gray-500">★ {(listing.host.avgRating ?? 0).toFixed(1)} host rating</p>
                 )}
               </div>
-            </div>
+            </a>
           )}
 
           {listing.description && (
@@ -157,7 +157,7 @@ export default function ListingPage() {
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:col-span-1">
-          <p className="mb-4 text-xl font-bold text-[#004526]">€{listing.pricePerHour.toFixed(2)}/hr</p>
+          <p className="mb-4 text-xl font-bold text-[#004526]">€{(listing.pricePerHour ?? 0).toFixed(2)}/hr</p>
           <div className="mb-4 flex flex-col gap-3">
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-600">Start</label>

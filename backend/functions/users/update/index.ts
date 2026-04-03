@@ -1,14 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { extractClaims } from '../../../shared/utils/auth';
 import { ok, badRequest, unauthorized } from '../../../shared/utils/response';
 import { userProfileKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const sns = new SNSClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
 const IMMUTABLE = new Set(['userId', 'email', 'PK', 'SK', 'GSI1PK', 'GSI1SK', 'createdAt']);
@@ -37,15 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Build update — strip immutable fields
   const updates: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(body)) {
-    if (!IMMUTABLE.has(k) && k !== 'phone') updates[k] = v;
-  }
-
-  // Phone change handling
-  let phoneSent = false;
-  if (body.phone !== undefined && body.phone !== existing.phone) {
-    updates.pendingPhone = body.phone;
-    updates.phoneVerified = false;
-    phoneSent = true;
+    if (!IMMUTABLE.has(k)) updates[k] = v;
   }
 
   updates.updatedAt = new Date().toISOString();
@@ -63,14 +53,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }));
 
-  if (phoneSent) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await sns.send(new PublishCommand({
-      PhoneNumber: body.phone as string,
-      Message: `Your Spotzy verification code: ${otp}`,
-    }));
-  }
-
-  log.info('user updated', { updatedFields: Object.keys(updates), phoneSent });
+  log.info('user updated', { updatedFields: Object.keys(updates) });
   return ok(result.Attributes ?? { ...existing, ...updates });
 };

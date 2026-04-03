@@ -100,7 +100,7 @@ export default function ChatPage() {
   const currentUserId = user?.userId ?? '';
 
   return (
-    <main className="flex flex-col bg-gray-50 pt-4 pb-4" style={{ height: 'calc(100vh - 120px)', marginTop: '0' }}>
+    <main className="flex flex-col bg-gray-50 pt-2 pb-2" style={{ height: 'calc(100vh - 200px)' }}>
       <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       {/* Header with back button and booking context */}
       <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">

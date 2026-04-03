@@ -50,14 +50,15 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
   const [changeType, setChangeType] = useState<ChangeType>(null);
   const [newValue, setNewValue] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const bStartDate = booking.startDate ?? booking.startTime ?? '';
   const bEndDate = booking.endDate ?? booking.endTime ?? '';
   const originalHours = calcHours(bStartDate, bEndDate);
 
-  // Disable start time changes if the booking has already started
-  const startInPast = toMs(bStartDate) <= Date.now();
+  // Disable start time changes if the booking has already started or is active
   const isActive = booking.status === 'ACTIVE';
+  const startInPast = isActive || toMs(bStartDate) <= Date.now();
 
   let priceDiff = 0;
   if (newValue && changeType) {
@@ -69,6 +70,7 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
 
   const handleSave = async () => {
     setSaving(true);
+    setError('');
     try {
       const token = await getToken();
       const body = {
@@ -80,7 +82,14 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
       });
-      if (res.ok) onModified();
+      if (res.ok) {
+        onModified();
+      } else {
+        const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
+        setError(err?.message ?? err?.error ?? 'Could not modify booking. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -128,12 +137,16 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
           </div>
         )}
 
-        {priceDiff !== 0 && (
+        {priceDiff !== 0 && !(isActive && priceDiff < 0) && (
           <div className={`mb-4 rounded-lg px-3 py-2 text-center text-sm font-semibold ${
             priceDiff > 0 ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'
           }`}>
             {priceDiff > 0 ? `+€${priceDiff.toFixed(2)}` : `−€${Math.abs(priceDiff).toFixed(2)} refund`}
           </div>
+        )}
+
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-700">{error}</div>
         )}
 
         <div className="flex gap-3">

@@ -79,7 +79,7 @@ function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: numb
       <div style="padding:8px 10px;">
         <p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#1C2B1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${spot.address}</p>
         <p style="margin:0 0 4px;font-size:11px;color:#4B6354;">${typeLabel}${distance ? ' · ' + distance : ''}</p>
-        <p style="margin:0;font-size:14px;font-weight:700;color:#004526;">€${spot.pricePerHour.toFixed(2)}/hr</p>
+        <p style="margin:0;font-size:14px;font-weight:700;color:#004526;">€${(spot.pricePerHour ?? 0).toFixed(2)}/hr</p>
       </div>
     </div>
   `;
@@ -207,7 +207,7 @@ export default function SpotMap({
         transition: transform 0.2s, background 0.2s;
         pointer-events: auto;
       `;
-      inner.textContent = `€${spot.pricePerHour.toFixed(0)}`;
+      inner.textContent = `€${(spot.pricePerHour ?? 0).toFixed(0)}`;
       wrapper.appendChild(inner);
 
       wrapper.addEventListener('click', (e) => {

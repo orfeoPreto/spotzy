@@ -90,12 +90,18 @@ describe('Dispute quick reply chips', () => {
 describe('Dispute photo upload', () => {
   beforeEach(() => {
     server.use(
-      http.post('/api/v1/disputes/message', () =>
+      http.post('/api/v1/disputes', () =>
+        HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 }),
+      ),
+      http.get('*/api/v1/disputes', () =>
         HttpResponse.json({
-          messageId: 'ai-2',
-          contentType: 'TEXT',
-          text: 'Can you please upload photos as evidence?',
-          requestsEvidence: true,
+          disputeId: 'd1',
+          referenceNumber: 'DIS-001',
+          messages: [
+            { messageId: 'u-1', role: 'USER', text: 'There is damage', contentType: 'TEXT' },
+            { messageId: 'ai-confirm', role: 'AI', text: 'Your dispute has been created (ref: DIS-001).', contentType: 'TEXT' },
+            { messageId: 'ai-evidence', role: 'AI', text: 'Can you please upload photos as evidence?', contentType: 'TEXT', requestsEvidence: true },
+          ],
         }),
       ),
     );
@@ -165,6 +171,16 @@ describe('Dispute message flow', () => {
       http.post('/api/v1/disputes', () =>
         HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 }),
       ),
+      http.get('*/api/v1/disputes', () =>
+        HttpResponse.json({
+          disputeId: 'd1',
+          referenceNumber: 'DIS-001',
+          messages: [
+            { messageId: 'u-1', role: 'USER', text: 'There is damage', contentType: 'TEXT' },
+            { messageId: 'ai-confirm', role: 'AI', text: 'Your dispute has been created (ref: DIS-001). We will review it shortly.', contentType: 'TEXT' },
+          ],
+        }),
+      ),
     );
 
     const user = userEvent.setup();
@@ -185,6 +201,17 @@ describe('Dispute evidence upload', () => {
     server.use(
       http.post('/api/v1/disputes', () =>
         HttpResponse.json({ disputeId: 'd1', referenceNumber: 'DIS-001' }, { status: 201 }),
+      ),
+      http.get('*/api/v1/disputes', () =>
+        HttpResponse.json({
+          disputeId: 'd1',
+          referenceNumber: 'DIS-001',
+          messages: [
+            { messageId: 'u-1', role: 'USER', text: 'There is damage', contentType: 'TEXT' },
+            { messageId: 'ai-confirm', role: 'AI', text: 'Your dispute has been created (ref: DIS-001).', contentType: 'TEXT' },
+            { messageId: 'ai-evidence', role: 'AI', text: 'Can you please upload photos as evidence?', contentType: 'TEXT', requestsEvidence: true },
+          ],
+        }),
       ),
     );
 

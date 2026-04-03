@@ -75,8 +75,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           Detail: JSON.stringify({
             bookingId,
             listingId: booking.listingId,
+            listingAddress: booking.listingAddress,
             spotterId: booking.spotterId,
             hostId: booking.hostId,
+            startTime: booking.startTime,
+            endTime: booking.endTime,
+            totalPrice: booking.totalPrice,
           }),
         }],
       }));

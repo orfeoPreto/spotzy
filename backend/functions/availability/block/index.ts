@@ -34,13 +34,20 @@ const getDatesInRange = (startTime: string, endTime: string): string[] => {
 export const handler: EventBridgeHandler<string, {
   bookingId: string;
   listingId: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
+  newStartTime?: string;
+  newEndTime?: string;
   oldStartTime?: string;
   oldEndTime?: string;
 }, void> = async (event) => {
   const log = createLogger('availability-block', event.id);
-  const { bookingId, listingId, startTime, endTime } = event.detail;
+  const d = event.detail;
+  const bookingId = d.bookingId;
+  const listingId = d.listingId;
+  const startTime = d.startTime ?? d.newStartTime;
+  const endTime = d.endTime ?? d.newEndTime;
+  if (!startTime || !endTime) { log.warn('missing start/end time, skipping'); return; }
   const dates = getDatesInRange(startTime, endTime);
   log.info('blocking availability', { bookingId, listingId, dates });
   const now = new Date().toISOString();
@@ -50,7 +57,7 @@ export const handler: EventBridgeHandler<string, {
       TableName: TABLE,
       Item: {
         PK: `LISTING#${listingId}`,
-        SK: `AVAIL#${date}#${bookingId}`,
+        SK: `AVAIL_BLOCK#${date}#${bookingId}`,
         listingId,
         bookingId,
         date,

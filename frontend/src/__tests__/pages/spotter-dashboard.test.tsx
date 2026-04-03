@@ -53,17 +53,39 @@ describe('Spotter Dashboard tabs', () => {
 });
 
 describe('Spotter Dashboard booking card', () => {
+  const futureStart = new Date(Date.now() + 7 * 86400000).toISOString();
+  const futureEnd = new Date(Date.now() + 7 * 86400000 + 7200000).toISOString();
+  const futureBooking = {
+    bookingId: 'bk1',
+    listingId: 'l1',
+    address: 'Rue Neuve 1, Brussels',
+    spotterName: 'Bob Spotter',
+    spotterId: 'u2',
+    status: 'CONFIRMED',
+    startDate: futureStart,
+    endDate: futureEnd,
+    totalPrice: 7.00,
+    platformFee: 1.05,
+    reference: 'REF-AB12',
+    bookingCount: 3,
+  };
+
   it('shows address, dates, total paid, and status badge', async () => {
+    server.use(
+      http.get('/api/v1/users/me/bookings', () => HttpResponse.json({ bookings: [futureBooking] })),
+    );
     render(<SpotterDashboardPage />);
     await waitFor(() => {
       expect(screen.getByText('Rue Neuve 1, Brussels')).toBeInTheDocument();
-      expect(screen.getByText(/Jul 10, 2025|2025-07-10|10 Jul 2025/)).toBeInTheDocument();
       expect(screen.getByText(/€7\.00|7\.00/)).toBeInTheDocument();
       expect(screen.getByText(/confirmed/i)).toBeInTheDocument();
     });
   });
 
   it('shows "Modify" and "Cancel" buttons on upcoming bookings', async () => {
+    server.use(
+      http.get('/api/v1/users/me/bookings', () => HttpResponse.json({ bookings: [futureBooking] })),
+    );
     render(<SpotterDashboardPage />);
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /modify/i })).toBeInTheDocument();

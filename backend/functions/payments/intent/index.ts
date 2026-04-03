@@ -45,20 +45,33 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
 
     const hostConnectId = host?.stripeConnectAccountId;
-    const paymentIntent = await stripe.paymentIntents.create({
+    const baseParams: Stripe.PaymentIntentCreateParams = {
       amount: totalCents,
       currency: 'eur',
       capture_method: 'automatic',
-      ...(hostConnectId ? {
-        application_fee_amount: feeCents,
-        transfer_data: { destination: hostConnectId },
-      } : {}),
       metadata: {
         bookingId: booking.bookingId,
         spotterId: booking.spotterId,
         listingId: booking.listingId,
       },
-    });
+    };
+
+    let paymentIntent: Stripe.PaymentIntent;
+    if (hostConnectId) {
+      try {
+        paymentIntent = await stripe.paymentIntents.create({
+          ...baseParams,
+          application_fee_amount: feeCents,
+          transfer_data: { destination: hostConnectId },
+        });
+      } catch (transferErr) {
+        // Host account not ready for transfers — collect on platform, settle later
+        log.warn('host transfer failed, collecting on platform', { hostConnectId, error: (transferErr as Error).message });
+        paymentIntent = await stripe.paymentIntents.create(baseParams);
+      }
+    } else {
+      paymentIntent = await stripe.paymentIntents.create(baseParams);
+    }
 
     await ddb.send(new UpdateCommand({
       TableName: TABLE,

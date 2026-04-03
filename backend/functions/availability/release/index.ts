@@ -23,7 +23,7 @@ export const handler: EventBridgeHandler<string, {
     FilterExpression: 'bookingId = :bid',
     ExpressionAttributeValues: {
       ':pk': `LISTING#${listingId}`,
-      ':prefix': 'AVAIL#',
+      ':prefix': 'AVAIL_BLOCK#',
       ':bid': bookingId,
     },
   }));

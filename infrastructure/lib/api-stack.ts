@@ -211,6 +211,7 @@ export class ApiStack extends cdk.Stack {
         'notify-sms': 'notifications/sms',
         'notify-email': 'notifications/email',
         'preference-learn': 'preferences/learn',
+        'user-post-confirmation': 'users/post-confirmation',
       };
       const dir = dirMap[shortName];
       if (!dir) throw new Error(`No handler path for Lambda: ${shortName}`);
@@ -325,6 +326,23 @@ export class ApiStack extends cdk.Stack {
     const disputeMessageFn = mkFn(LAMBDA_NAMES.disputeMessage);
     mkFn(LAMBDA_NAMES.disputeEscalate);
 
+    // Grant Bedrock access for AI dispute responses
+    const bedrockPolicy = new cdk.aws_iam.PolicyStatement({
+      actions: ['bedrock:InvokeModel', 'bedrock:Converse'],
+      resources: [
+        'arn:aws:bedrock:*::foundation-model/anthropic.*',
+        'arn:aws:bedrock:*:*:inference-profile/*anthropic.*',
+      ],
+    });
+    const marketplacePolicy = new cdk.aws_iam.PolicyStatement({
+      actions: ['aws-marketplace:ViewSubscriptions', 'aws-marketplace:Subscribe'],
+      resources: ['*'],
+    });
+    disputeCreateFn.addToRolePolicy(bedrockPolicy);
+    disputeCreateFn.addToRolePolicy(marketplacePolicy);
+    disputeMessageFn.addToRolePolicy(bedrockPolicy);
+    disputeMessageFn.addToRolePolicy(marketplacePolicy);
+
     const userGetFn        = mkFn(LAMBDA_NAMES.userGet);
     const userUpdateFn     = mkFn(LAMBDA_NAMES.userUpdate);
     const userPublicGetFn  = mkFn(LAMBDA_NAMES.userPublicGet);
@@ -383,9 +401,27 @@ export class ApiStack extends cdk.Stack {
 
     mkFn(LAMBDA_NAMES.availabilityBlock);
     mkFn(LAMBDA_NAMES.availabilityRelease);
-    mkFn(LAMBDA_NAMES.notifySms);
-    mkFn(LAMBDA_NAMES.notifyEmail);
+
+    const notifySmsFn = mkFn(LAMBDA_NAMES.notifySms);
+    notifySmsFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['sns:Publish'],
+      resources: ['*'],
+    }));
+
+    const notifyEmailFn = mkFn(LAMBDA_NAMES.notifyEmail, {
+      APP_URL: `https://di96dohl3v2d6.cloudfront.net`,
+      SES_FROM_EMAIL: isProd ? 'noreply@spotzy.com' : 'quarcoo.duke@gmail.com',
+    });
+    notifyEmailFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+      resources: ['*'],
+    }));
+
     mkFn(LAMBDA_NAMES.preferenceLearn);
+
+    // Post-confirmation trigger — creates DynamoDB user profile with phone
+    const postConfirmationFn = mkFn('user-post-confirmation');
+    this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, postConfirmationFn);
 
     // Grant media bucket permissions
     mediaUploadsBucket.grantReadWrite(listingCreateFn);

@@ -66,7 +66,7 @@ describe('BookingFlow Step 1 — Review', () => {
   it('shows date range', async () => {
     render(<BookPage />);
     await waitFor(() => {
-      const dateTexts = screen.getAllByText(/2025-07-01|Jul 1, 2025/i);
+      const dateTexts = screen.getAllByText(/2025-07-01|Jul 1, 2025|1 Jul 2025/i);
       expect(dateTexts.length).toBeGreaterThan(0);
     });
   });

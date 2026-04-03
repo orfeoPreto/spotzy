@@ -29,16 +29,29 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token }: 
     setRatings((prev) => ({ ...prev, [section]: score }));
   };
 
+  const [error, setError] = useState('');
+
   const handleSubmit = async () => {
     setSubmitting(true);
+    setError('');
     try {
-      await fetch(`${API_URL}/api/v1/reviews`, {
+      const sectionsArray = Object.entries(ratings)
+        .filter(([, score]) => score > 0)
+        .map(([section, score]) => ({ section, score }));
+      const res = await fetch(`${API_URL}/api/v1/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ bookingId, sections: ratings }),
+        body: JSON.stringify({ bookingId, sections: sectionsArray }),
       });
-      onSubmitted();
-      onClose();
+      if (res.ok) {
+        onSubmitted();
+        onClose();
+      } else {
+        const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
+        setError(err?.message ?? err?.error ?? 'Could not submit review. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -71,6 +84,10 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token }: 
             </div>
           ))}
         </div>
+
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+        )}
 
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onClose}

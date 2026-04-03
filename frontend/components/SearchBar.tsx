@@ -34,6 +34,7 @@ export default function SearchBar({
   const [endDate, setEndDate] = useState('');
   const [dateError, setDateError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextFetchRef = useRef(false);
 
   const fetchSuggestions = useCallback(async (q: string) => {
     if (q.length < 3) {
@@ -53,6 +54,7 @@ export default function SearchBar({
   }, []);
 
   useEffect(() => {
+    if (skipNextFetchRef.current) { skipNextFetchRef.current = false; return; }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchSuggestions(query), 300);
     return () => {
@@ -61,6 +63,8 @@ export default function SearchBar({
   }, [query, fetchSuggestions]);
 
   const handleSelectSuggestion = (s: Suggestion) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    skipNextFetchRef.current = true;
     setQuery(s.place_name);
     setSuggestions([]);
     onDestinationSelect({ label: s.place_name, lat: s.center[1], lng: s.center[0] });

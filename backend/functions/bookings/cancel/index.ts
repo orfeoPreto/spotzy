@@ -69,7 +69,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       EventBusName: BUS,
       Source: 'spotzy',
       DetailType: 'booking.cancelled',
-      Detail: JSON.stringify({ bookingId, listingId: booking.listingId, spotterId: booking.spotterId, hostId: booking.hostId, cancelledBy, refundAmount, refundPercent }),
+      Detail: JSON.stringify({ bookingId, listingId: booking.listingId, spotterId: booking.spotterId, hostId: booking.hostId, cancelledBy, refundAmount, refundPercent, listingAddress: booking.listingAddress, startTime: booking.startTime, endTime: booking.endTime }),
     }],
   }));
 

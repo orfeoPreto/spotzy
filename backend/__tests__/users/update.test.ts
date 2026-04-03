@@ -1,12 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/users/update/index';
 import { mockAuthContext, TEST_USER_ID } from '../setup';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
-const snsMock = mockClient(SNSClient);
 
 const existingUser = {
   PK: `USER#${TEST_USER_ID}`, SK: 'PROFILE',
@@ -17,10 +15,8 @@ const existingUser = {
 
 beforeEach(() => {
   ddbMock.reset();
-  snsMock.reset();
   ddbMock.on(GetCommand).resolves({ Item: existingUser });
   ddbMock.on(UpdateCommand).resolves({ Attributes: existingUser });
-  snsMock.on(PublishCommand).resolves({ MessageId: 'sms-1' });
 });
 
 const makeEvent = (body: object, auth = mockAuthContext()): APIGatewayProxyEvent =>
@@ -37,18 +33,11 @@ describe('user-update', () => {
     expect(res!.statusCode).toBe(200);
   });
 
-  it('phone change → phoneVerified=false, pendingPhone stored, SNS OTP sent', async () => {
+  it('phone change → phone saved directly, no OTP', async () => {
     await handler(makeEvent({ phone: '+32471000099' }), {} as any, () => {});
-    expect(snsMock.commandCalls(PublishCommand)).toHaveLength(1);
     const call = ddbMock.commandCalls(UpdateCommand)[0];
     const vals = call.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
-    expect(Object.values(vals)).toContain(false); // phoneVerified=false
-    expect(Object.values(vals)).toContain('+32471000099'); // pendingPhone
-  });
-
-  it('phone unchanged → no SNS call', async () => {
-    await handler(makeEvent({ phone: '+32471000001' }), {} as any, () => {});
-    expect(snsMock.commandCalls(PublishCommand)).toHaveLength(0);
+    expect(Object.values(vals)).toContain('+32471000099'); // phone saved directly
   });
 
   it('vehicle with empty plate → 400', async () => {

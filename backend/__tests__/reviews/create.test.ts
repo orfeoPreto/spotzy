@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/reviews/create/index';
 import { mockAuthContext } from '../setup';
@@ -7,6 +8,7 @@ import { buildBooking } from '../factories/booking.factory';
 import { recalcAverage } from '../../functions/reviews/shared/aggregate';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
+const ebMock = mockClient(EventBridgeClient);
 
 const BOOKING_ID = 'booking-review-test';
 const SPOTTER_ID = 'spotter-review-1';
@@ -34,10 +36,12 @@ const hostRatingSections = [
 
 beforeEach(() => {
   ddbMock.reset();
+  ebMock.reset();
   ddbMock.on(GetCommand).resolves({ Item: completedBooking });
   ddbMock.on(QueryCommand).resolves({ Items: [] }); // no existing review
   ddbMock.on(PutCommand).resolves({});
   ddbMock.on(UpdateCommand).resolves({});
+  ebMock.on(PutEventsCommand).resolves({ FailedEntryCount: 0 });
 });
 
 const makeEvent = (body: object, auth = mockAuthContext(SPOTTER_ID)): APIGatewayProxyEvent =>

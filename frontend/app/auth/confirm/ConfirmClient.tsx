@@ -61,10 +61,17 @@ function ConfirmForm() {
               const session = await fetchAuthSession();
               const token = session.tokens?.idToken?.toString();
               if (token) {
+                const parts = (invoicing.billingAddress ?? '').split(',').map((p: string) => p.trim());
                 await fetch(`${API_URL}/api/v1/users/me/invoicing`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                  body: JSON.stringify(invoicing),
+                  body: JSON.stringify({
+                    vatNumber: invoicing.vatNumber || null,
+                    companyName: invoicing.companyName || null,
+                    billingStreet: parts[0] || null,
+                    billingCity: parts[1] || null,
+                    billingPostcode: parts[2] || null,
+                  }),
                 });
                 sessionStorage.removeItem('spotzy_invoicing');
               }

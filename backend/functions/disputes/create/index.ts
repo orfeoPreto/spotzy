@@ -7,6 +7,7 @@ import { extractClaims } from '../../../shared/utils/auth';
 import { created, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
 import { bookingMetadataKey, disputeByBookingKey, disputeMessageKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
+import { generateDisputeResponse } from '../shared/ai-respond';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const eb = new EventBridgeClient({});
@@ -87,6 +88,36 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       authorId: claims.userId,
       content: reason,
       createdAt: now,
+    },
+  }));
+
+  // Write bot confirmation message
+  const confirmAt = new Date(Date.now() + 1).toISOString();
+  await ddb.send(new PutCommand({
+    TableName: TABLE,
+    Item: {
+      ...disputeMessageKey(disputeId, confirmAt),
+      disputeId,
+      authorId: 'SYSTEM',
+      content: `Your dispute has been created (ref: ${referenceNumber}). We'll review it shortly.`,
+      createdAt: confirmAt,
+    },
+  }));
+
+  // Generate AI follow-up based on the dispute reason
+  const aiFollowUp = await generateDisputeResponse([
+    { role: 'user', content: reason },
+  ]);
+  const followUpAt = new Date(Date.now() + 2).toISOString();
+  await ddb.send(new PutCommand({
+    TableName: TABLE,
+    Item: {
+      ...disputeMessageKey(disputeId, followUpAt),
+      disputeId,
+      authorId: 'SYSTEM',
+      content: aiFollowUp,
+      requestsEvidence: true,
+      createdAt: followUpAt,
     },
   }));
 

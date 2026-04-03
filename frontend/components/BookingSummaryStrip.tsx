@@ -2,18 +2,17 @@
 
 import { BookingIntent } from '../hooks/useBookingIntent';
 
+import { formatDateTimeShort } from '../lib/formatDate';
+
 function formatDateRange(start: string, end: string): string {
-  const s = new Date(start);
-  const e = new Date(end);
-  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  return `${fmt(s)} — ${fmt(e)}`;
+  return `${formatDateTimeShort(start)} — ${formatDateTimeShort(end)}`;
 }
 
 export function BookingSummaryStrip({ intent }: { intent: BookingIntent }) {
   if (!intent.listingData) return null;
 
   const formattedPrice = intent.listingData.pricePerHour
-    ? `from €${intent.listingData.pricePerHour.toFixed(2)}/hr`
+    ? `from €${(intent.listingData.pricePerHour ?? 0).toFixed(2)}/hr`
     : '';
 
   return (

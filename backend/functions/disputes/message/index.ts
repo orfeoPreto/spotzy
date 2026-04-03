@@ -1,11 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
 import { created, unauthorized, notFound, badRequest } from '../../../shared/utils/response';
 import { disputeMetadataKey, disputeMessageKey } from '../../../shared/db/keys';
 import { classifyDisputeMessage } from '../shared/ai-triage';
+import { generateDisputeResponse } from '../shared/ai-respond';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -59,6 +60,32 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ExpressionAttributeValues: { ':esc': true, ':now': now },
     }));
   }
+
+  // Load conversation history for AI context
+  const historyResult = await ddb.send(new QueryCommand({
+    TableName: TABLE,
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+    ExpressionAttributeValues: { ':pk': `DISPUTE#${disputeId}`, ':sk': 'MSG#' },
+    ScanIndexForward: true,
+  }));
+  const history = (historyResult.Items ?? []).map((m) => ({
+    role: (m.authorId === 'SYSTEM' ? 'assistant' : 'user') as 'user' | 'assistant',
+    content: m.content as string,
+  }));
+
+  // Generate AI response
+  const aiResponse = await generateDisputeResponse(history);
+  const botAt = new Date(Date.now() + 1).toISOString();
+  await ddb.send(new PutCommand({
+    TableName: TABLE,
+    Item: {
+      ...disputeMessageKey(disputeId, botAt),
+      disputeId,
+      authorId: 'SYSTEM',
+      content: aiResponse,
+      createdAt: botAt,
+    },
+  }));
 
   log.info('dispute message added', { disputeId, messageId, requiresEscalation });
   return created({ messageId, disputeId, content, createdAt: now });

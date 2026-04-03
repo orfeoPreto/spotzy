@@ -113,9 +113,9 @@ export default function HostDashboardPage() {
       ) : metrics && (
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <MetricCard label="Active bookings" value={metrics.activeBookings} />
-          <MetricCard label="MTD earnings" value={`€${metrics.mtdEarnings.toFixed(2)}`} />
+          <MetricCard label="MTD earnings" value={`€${(metrics.mtdEarnings ?? 0).toFixed(2)}`} />
           <MetricCard label="Live listings" value={metrics.liveListings} />
-          <MetricCard label="Avg rating" value={metrics.avgRating.toFixed(1)} />
+          <MetricCard label="Avg rating" value={(metrics.avgRating ?? 0).toFixed(1)} />
         </div>
       )}
 

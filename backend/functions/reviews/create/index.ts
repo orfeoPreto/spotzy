@@ -1,6 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
 import { created, badRequest, unauthorized } from '../../../shared/utils/response';
@@ -8,7 +9,9 @@ import { bookingMetadataKey, reviewKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const eb = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
+const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
 const SPOTTER_SECTIONS = new Set(['LOCATION', 'CLEANLINESS', 'VALUE', 'ACCESS']);
 const HOST_SECTIONS = new Set(['PUNCTUALITY', 'VEHICLE_CONDITION', 'COMMUNICATION']);
@@ -103,7 +106,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   };
 
   await ddb.send(new PutCommand({ TableName: TABLE, Item: review }));
-  log.info('review created', { reviewId, bookingId, avgScore, published });
 
+  // Notify the reviewed party
+  const reviewedUserId = isSpotter ? booking.hostId : booking.spotterId;
+  await eb.send(new PutEventsCommand({
+    Entries: [{
+      EventBusName: BUS,
+      Source: 'spotzy',
+      DetailType: 'review.created',
+      Detail: JSON.stringify({
+        reviewId,
+        bookingId,
+        authorId: claims.userId,
+        reviewedUserId,
+        listingId: booking.listingId,
+        listingAddress: booking.listingAddress,
+        avgScore,
+      }),
+    }],
+  }));
+
+  log.info('review created', { reviewId, bookingId, avgScore, published });
   return created(review);
 };

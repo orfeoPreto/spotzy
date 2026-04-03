@@ -39,17 +39,22 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const newStart = new Date(newStartTime).getTime();
   const newEnd = new Date(newEndTime).getTime();
 
-  if (newStart <= Date.now()) return badRequest(JSON.stringify({ code: 'START_TIME_IN_PAST', message: 'New start time must be in the future' }));
-
-  const twoHoursFromNow = Date.now() + 2 * 3600000;
-  if (newStart < twoHoursFromNow) return badRequest(JSON.stringify({ code: 'TOO_CLOSE_TO_START', message: 'Cannot modify booking less than 2 hours before start' }));
-
   // Fetch booking
   const bookingResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: bookingMetadataKey(bookingId) }));
   if (!bookingResult.Item) return notFound();
   const booking = bookingResult.Item;
 
-  if (booking.status === 'ACTIVE') return badRequest(JSON.stringify({ code: 'CANNOT_MODIFY_ACTIVE_BOOKING', message: 'Cannot modify an active booking' }));
+  const isActive = booking.status === 'ACTIVE';
+  const startChanged = newStartTime !== booking.startTime;
+
+  // Active bookings: only end time changes allowed
+  if (isActive && startChanged) return badRequest(JSON.stringify({ code: 'CANNOT_CHANGE_START_ACTIVE', message: 'Cannot change start time of an active booking' }));
+
+  if (!isActive) {
+    if (newStart <= Date.now()) return badRequest(JSON.stringify({ code: 'START_TIME_IN_PAST', message: 'New start time must be in the future' }));
+    const twoHoursFromNow = Date.now() + 2 * 3600000;
+    if (newStart < twoHoursFromNow) return badRequest(JSON.stringify({ code: 'TOO_CLOSE_TO_START', message: 'Cannot modify booking less than 2 hours before start' }));
+  }
 
   // Fetch listing for price recalculation
   const listingResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: listingMetadataKey(booking.listingId) }));
@@ -114,6 +119,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Detail: JSON.stringify({
         bookingId,
         listingId: booking.listingId,
+        listingAddress: booking.listingAddress ?? listing.address,
+        hostId: booking.hostId,
+        spotterId: booking.spotterId,
         oldStartTime: booking.startTime,
         oldEndTime: booking.endTime,
         newStartTime,

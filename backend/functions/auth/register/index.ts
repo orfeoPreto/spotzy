@@ -24,9 +24,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     firstName?: string;
     lastName?: string;
     role?: string;
+    phone?: string;
   };
 
-  const { email, password, firstName, lastName, role } = body;
+  const { email, password, firstName, lastName, role, phone } = body;
   if (!email || !password || !firstName || !lastName || !role) {
     log.warn('validation failed', { reason: 'missing required fields' });
     return badRequest('Missing required fields');
@@ -42,8 +43,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       UserAttributes: [
         { Name: 'email', Value: email },
         { Name: 'name', Value: `${firstName} ${lastName}` },
-        // phone_number is required by pool schema; placeholder updated when user adds real number
-        { Name: 'phone_number', Value: '+10000000000' },
+        { Name: 'phone_number', Value: phone || '+10000000000' },
       ],
     }));
 
@@ -55,7 +55,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         TableName: TABLE,
         Item: {
           PK: `USER#${userId}`,
-          SK: `PROFILE#${userId}`,
+          SK: 'PROFILE',
           GSI1PK: `EMAIL#${email}`,
           GSI1SK: `USER#${userId}`,
           userId,
@@ -63,6 +63,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           name: `${firstName} ${lastName}`,
           firstName,
           lastName,
+          phone: phone || '',
           role,
           stripeConnectEnabled: false,
           createdAt: now,

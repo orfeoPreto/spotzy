@@ -6,6 +6,10 @@ import { handler } from '../../functions/disputes/create/index';
 import { mockAuthContext } from '../setup';
 import { buildBooking } from '../factories/booking.factory';
 
+jest.mock('../../functions/disputes/shared/ai-respond', () => ({
+  generateDisputeResponse: jest.fn().mockResolvedValue('I understand your concern. Could you provide more details about what happened?'),
+}));
+
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const ebMock = mockClient(EventBridgeClient);
 
@@ -51,9 +55,11 @@ describe('dispute-create', () => {
     expect(ebMock.commandCalls(PutEventsCommand)[0].args[0].input.Entries![0].DetailType).toBe('dispute.created');
   });
 
-  it('initial description stored as first dispute message record', async () => {
+  it('initial description stored as first dispute message record + SYSTEM messages', async () => {
     await handler(makeEvent({ reason: 'spot was blocked' }), {} as any, () => {});
-    expect(ddbMock.commandCalls(PutCommand)).toHaveLength(2); // dispute + message
+    expect(ddbMock.commandCalls(PutCommand)).toHaveLength(4); // dispute + user message + SYSTEM confirmation + SYSTEM AI follow-up
+    const systemMsgs = ddbMock.commandCalls(PutCommand).filter(c => c.args[0].input.Item?.authorId === 'SYSTEM');
+    expect(systemMsgs).toHaveLength(2);
   });
 
   it('COMPLETED within 48h → 201', async () => {

@@ -92,6 +92,24 @@ export default function DisputePage() {
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
 
+    const reloadMessages = async (dId: string) => {
+      const r = await fetch(`${API_URL}/api/v1/disputes?bookingId=${encodeURIComponent(bookingId)}`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      if (r.ok) {
+        const data = await r.json() as { messages?: Array<{ messageId: string; role: 'AI' | 'USER'; text: string; contentType?: string; requestsEvidence?: boolean }> };
+        if (data.messages) {
+          setMessages(data.messages.map((m) => ({
+            messageId: m.messageId,
+            role: m.role,
+            contentType: (m.contentType as AiMessage['contentType']) ?? 'TEXT',
+            text: m.text,
+            requestsEvidence: m.requestsEvidence,
+          })));
+        }
+      }
+    };
+
     try {
       if (!hasSentFirst) {
         // First message -> create dispute
@@ -104,22 +122,7 @@ export default function DisputePage() {
         if (res.ok) {
           const data = await res.json() as { disputeId: string; referenceNumber: string };
           setDisputeId(data.disputeId);
-          // Confirmation message
-          const aiReply: AiMessage = {
-            messageId: `ai-${Date.now()}`,
-            role: 'AI',
-            contentType: 'TEXT',
-            text: `Your dispute has been created (ref: ${data.referenceNumber}). We'll review it shortly.`,
-          };
-          // Follow-up prompt asking for more details
-          const followUp: AiMessage = {
-            messageId: `ai-${Date.now() + 1}`,
-            role: 'AI',
-            contentType: 'TEXT',
-            text: 'Can you describe what happened in more detail? If you have any photos or screenshots as evidence, please upload them using the "Add photos" button below.',
-            requestsEvidence: true,
-          };
-          setMessages((prev) => [...prev, aiReply, followUp]);
+          await reloadMessages(data.disputeId);
         } else {
           const err = await res.json().catch(() => ({ error: 'Failed to create dispute' })) as { error: string };
           const aiReply: AiMessage = {
@@ -139,13 +142,7 @@ export default function DisputePage() {
           body: JSON.stringify({ content: text }),
         });
         if (res.ok) {
-          const aiReply: AiMessage = {
-            messageId: `ai-${Date.now()}`,
-            role: 'AI',
-            contentType: 'TEXT',
-            text: 'Message added to your dispute. Our team will review it.',
-          };
-          setMessages((prev) => [...prev, aiReply]);
+          await reloadMessages(disputeId);
         }
       }
     } catch {

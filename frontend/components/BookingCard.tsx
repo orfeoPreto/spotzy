@@ -30,12 +30,9 @@ interface BookingCardProps {
   onReview?: (b: Booking) => void;
 }
 
-function formatDate(iso: string) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    + ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-}
+import { formatDateTime } from '../lib/formatDate';
+
+const formatDate = formatDateTime;
 
 function isEndingSoon(endDate: string) {
   return new Date(endDate).getTime() - Date.now() < 24 * 60 * 60 * 1000;
@@ -90,7 +87,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
           <p className="text-xs text-gray-500">
             {formatDate(startDate)} — {formatDate(endDate)}
           </p>
-          <p className="mt-1 text-sm font-semibold text-[#004526]">€{booking.totalPrice.toFixed(2)}</p>
+          <p className="mt-1 text-sm font-semibold text-[#004526]">€{(booking.totalPrice ?? 0).toFixed(2)}</p>
         </div>
         <StatusBadge status={booking.status} />
       </div>

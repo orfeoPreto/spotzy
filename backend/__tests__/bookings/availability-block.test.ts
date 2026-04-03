@@ -35,7 +35,7 @@ describe('availability-block', () => {
     await handler(makeEvent('booking.created', { bookingId: 'b3', listingId: 'l1', startTime: start, endTime: end }), {} as any, () => {});
     const put = ddbMock.commandCalls(PutCommand)[0]!.args[0].input.Item!;
     expect(put.PK).toBe('LISTING#l1');
-    expect(put.SK).toMatch(/^AVAIL#2025-06-01#b3/);
+    expect(put.SK).toMatch(/^AVAIL_BLOCK#2025-06-01#b3/);
   });
 
   it('booking crossing month boundary → records written for each day', async () => {

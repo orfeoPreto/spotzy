@@ -64,12 +64,13 @@ export const handler: Handler<StatusTransitionEvent> = async (event) => {
   if (targetStatus === 'COMPLETED') {
     await eb.send(new PutEventsCommand({
       Entries: [{
-        Source: 'spotzy.bookings',
+        Source: 'spotzy',
         DetailType: 'booking.completed',
         EventBusName: EVENT_BUS,
         Detail: JSON.stringify({
           bookingId,
           listingId: booking.listingId,
+          listingAddress: booking.listingAddress,
           spotterId: booking.spotterId,
           hostId: booking.hostId,
           totalPrice: booking.totalPrice,

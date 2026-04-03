@@ -6,6 +6,16 @@ import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
+const COUNTRY_CODES = [
+  { value: '+32', label: '\u{1F1E7}\u{1F1EA} +32' },
+  { value: '+33', label: '\u{1F1EB}\u{1F1F7} +33' },
+  { value: '+31', label: '\u{1F1F3}\u{1F1F1} +31' },
+  { value: '+49', label: '\u{1F1E9}\u{1F1EA} +49' },
+  { value: '+44', label: '\u{1F1EC}\u{1F1E7} +44' },
+  { value: '+352', label: '\u{1F1F1}\u{1F1FA} +352' },
+  { value: '+1', label: '\u{1F1FA}\u{1F1F8} +1' },
+];
+
 interface UserProfile {
   userId: string;
   name: string;
@@ -34,6 +44,7 @@ export default function ProfilePage() {
   const [emailValue, setEmailValue] = useState('');
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
+  const [phoneCountryCode, setPhoneCountryCode] = useState('+32');
   const [saving, setSaving] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [vatNumber, setVatNumber] = useState('');
@@ -56,7 +67,15 @@ export default function ProfilePage() {
         setIsHost(profile.isHost === true || profile.role === 'HOST' || profile.role === 'both');
         setNameValue(profile.name ?? '');
         setEmailValue(profile.email ?? '');
-        setPhoneValue(profile.phone ?? '');
+        const existingPhone = profile.phone ?? '';
+        const knownPrefixes = ['+352', '+32', '+33', '+31', '+49', '+44', '+1'];
+        const matchedPrefix = knownPrefixes.find((p) => existingPhone.startsWith(p));
+        if (matchedPrefix) {
+          setPhoneCountryCode(matchedPrefix);
+          setPhoneValue(existingPhone.slice(matchedPrefix.length));
+        } else {
+          setPhoneValue(existingPhone);
+        }
         // Load invoicing details
         try {
           const invoicingRes = await fetch(`${API_URL}/api/v1/users/me/invoicing`, { headers: { Authorization: `Bearer ${token}` } });
@@ -116,12 +135,13 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       const token = await getAuthToken();
+      const fullPhone = phoneCountryCode + phoneValue.replace(/^0/, '').trim();
       await fetch(`${API_URL}/api/v1/users/me`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneValue.trim() }),
+        body: JSON.stringify({ phone: fullPhone }),
       });
-      setUser((u) => u ? { ...u, phone: phoneValue.trim() } : u);
+      setUser((u) => u ? { ...u, phone: fullPhone } : u);
       setEditingPhone(false);
     } finally {
       setSaving(false);
@@ -292,11 +312,21 @@ export default function ProfilePage() {
           <label className="mb-1 block text-xs font-medium text-gray-600">Phone</label>
           {editingPhone ? (
             <div className="flex items-center gap-2">
+              <select
+                value={phoneCountryCode}
+                onChange={(e) => setPhoneCountryCode(e.target.value)}
+                className="w-24 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+              >
+                {COUNTRY_CODES.map((cc) => (
+                  <option key={cc.value} value={cc.value}>{cc.label}</option>
+                ))}
+              </select>
               <input
                 aria-label="phone"
                 type="tel"
                 value={phoneValue}
                 onChange={(e) => setPhoneValue(e.target.value)}
+                placeholder="471234567"
                 className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
                 autoFocus
               />

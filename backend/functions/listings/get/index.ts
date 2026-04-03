@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { ok, notFound, badRequest } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
-import { listingMetadataKey } from '../../../shared/db/keys';
+import { listingMetadataKey, userProfileKey } from '../../../shared/db/keys';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
@@ -37,6 +37,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       log.warn('draft access denied', { listingId });
       return notFound();
     }
+  }
+
+  // Enrich with host profile
+  if (listing.hostId) {
+    try {
+      const hostResult = await client.send(new GetCommand({
+        TableName: TABLE,
+        Key: userProfileKey(listing.hostId),
+        ProjectionExpression: 'userId, #n, photoUrl, avgRating',
+        ExpressionAttributeNames: { '#n': 'name' },
+      }));
+      if (hostResult.Item) {
+        listing.host = {
+          userId: hostResult.Item.userId,
+          name: hostResult.Item.name,
+          photoUrl: hostResult.Item.photoUrl ?? null,
+          avgRating: hostResult.Item.avgRating ?? null,
+        };
+      }
+    } catch { /* non-blocking */ }
   }
 
   log.info('listing fetched', { listingId, status: listing.status });

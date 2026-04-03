@@ -65,8 +65,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     pricePerHour: l.pricePerHour,
     rating: l.rating,
     photos: (() => {
-      const firstPhoto = typeof l.photos?.[0] === 'string' ? l.photos[0] : l.photos?.[0]?.url ?? l.photos?.[0]?.key ?? null;
-      return firstPhoto ? [firstPhoto] : [];
+      if (!Array.isArray(l.photos)) return [];
+      const idx = l.photos.findIndex((p: Record<string, unknown>) => p.validationStatus === 'PASS');
+      return idx >= 0 ? [`/media/listings/${l.listingId}/photos/${idx}.jpg`] : [];
     })(),
   }));
 

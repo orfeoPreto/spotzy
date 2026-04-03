@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useListing } from '../../../hooks/useListing';
 import { useBookingFlow } from '../../../hooks/useBookingFlow';
 import { useAuth } from '../../../hooks/useAuth';
 import { getStripe } from '../../../lib/stripe';
+import { formatDateTime } from '../../../lib/formatDate';
 
 const STEP_LABELS = ['Review', 'Payment', 'Confirmation'];
 
@@ -33,10 +34,10 @@ function StepIndicator({ step }: { step: number }) {
 
 // ─── Step 1: Review ──────────────────────────────────────────────────────────
 function ReviewStep({
-  address, spotType, startDate, endDate, subtotal, platformFee, total, onProceed,
+  address, spotType, startDate, endDate, subtotal, platformFee, total, onProceed, disabled,
 }: {
   address: string; spotType: string; startDate: string; endDate: string;
-  subtotal: number; platformFee: number; total: number; onProceed: () => void;
+  subtotal: number; platformFee: number; total: number; onProceed: () => void; disabled?: boolean;
 }) {
   return (
     <div className="space-y-6">
@@ -47,8 +48,8 @@ function ReviewStep({
 
       <div className="rounded-xl border border-gray-200 p-4">
         <h3 className="mb-2 text-sm font-semibold text-gray-700">Your dates</h3>
-        <p className="text-sm text-gray-600">{startDate}</p>
-        <p className="text-sm text-gray-600">to {endDate}</p>
+        <p className="text-sm text-gray-600">{formatDateTime(startDate)}</p>
+        <p className="text-sm text-gray-600">to {formatDateTime(endDate)}</p>
       </div>
 
       <div className="rounded-xl border border-gray-200 p-4 space-y-2">
@@ -68,15 +69,16 @@ function ReviewStep({
 
       <div className="rounded-xl bg-amber-50 p-4">
         <p className="text-xs font-semibold text-amber-800 mb-1">Cancellation policy</p>
-        <p className="text-xs text-amber-700">Full refund if cancelled 48h+ before start. 50% refund within 24–48h. No refund within 24h.</p>
+        <p className="text-xs text-amber-700">Full refund if cancelled 24h+ before start. 50% refund within 12–24h. No refund within 12h.</p>
       </div>
 
       <button
         type="button"
         onClick={onProceed}
-        className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white"
+        disabled={disabled}
+        className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-50"
       >
-        Proceed to payment
+        {disabled ? 'Processing…' : 'Proceed to payment'}
       </button>
     </div>
   );
@@ -185,38 +187,48 @@ export default function BookPage() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [payError, setPayError] = useState('');
   const [proceedError, setProceedError] = useState('');
+  const [proceeding, setProceeding] = useState(false);
+  const proceedingRef = useRef(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
   const handleProceedToPayment = async () => {
     if (!user) { router.push('/auth/login'); return; }
+    if (proceedingRef.current) return;
+    proceedingRef.current = true;
+    setProceeding(true);
     setProceedError('');
     try {
-      // Create booking — backend expects startTime/endTime as ISO strings
-      const res = await fetch(`${API_URL}/api/v1/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({
-          listingId: id,
-          startTime: flow.dates.startDate,
-          endTime: flow.dates.endDate,
-        }),
-      });
-      if (res.status === 401) { router.push('/auth/login'); return; }
-      if (!res.ok) {
-        const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
-        setProceedError(err?.message ?? err?.error ?? 'Could not create booking. Please try again.');
-        return;
+      let currentBookingId = flow.bookingId;
+
+      // Only create booking if one doesn't exist yet
+      if (!currentBookingId) {
+        const res = await fetch(`${API_URL}/api/v1/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+          body: JSON.stringify({
+            listingId: id,
+            startTime: flow.dates.startDate,
+            endTime: flow.dates.endDate,
+          }),
+        });
+        if (res.status === 401) { router.push('/auth/login'); return; }
+        if (!res.ok) {
+          const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
+          setProceedError(err?.message ?? err?.error ?? 'Could not create booking. Please try again.');
+          return;
+        }
+        const booking = await res.json() as { bookingId: string; reference?: string };
+        currentBookingId = booking.bookingId;
+        flow.setBookingId(booking.bookingId);
+        setBookingRef(booking.reference ?? booking.bookingId);
       }
-      const booking = await res.json() as { bookingId: string; reference?: string };
-      flow.setBookingId(booking.bookingId);
-      setBookingRef(booking.reference ?? booking.bookingId);
 
       // Create payment intent
       const piRes = await fetch(`${API_URL}/api/v1/payments/intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({ bookingId: booking.bookingId }),
+        body: JSON.stringify({ bookingId: currentBookingId }),
       });
       if (!piRes.ok) {
         const err = await piRes.json().catch(() => null) as { message?: string } | null;
@@ -228,6 +240,9 @@ export default function BookPage() {
     } catch {
       setProceedError('Network error. Please check your connection.');
       return;
+    } finally {
+      proceedingRef.current = false;
+      setProceeding(false);
     }
     flow.advanceStep();
   };
@@ -258,6 +273,7 @@ export default function BookPage() {
             platformFee={flow.platformFee}
             total={flow.total}
             onProceed={() => void handleProceedToPayment()}
+            disabled={proceeding}
           />
         </>
       )}
