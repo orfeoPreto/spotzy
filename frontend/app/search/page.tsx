@@ -35,12 +35,23 @@ export default function SearchPage() {
   const [selectedSpotId, setSelectedSpotId] = useState<string | undefined>();
   const [hoveredSpotId, setHoveredSpotId] = useState<string | null>(null);
   const [cardHoveredId, setCardHoveredId] = useState<string | null>(null);
+  const listingsPanelRef = useRef<HTMLElement>(null);
 
-  // Scroll highlighted card into view
+  // Scroll highlighted card into view within listings panel only
   useEffect(() => {
-    if (!hoveredSpotId) return;
-    const el = document.querySelector(`[data-listing-id="${hoveredSpotId}"]`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!hoveredSpotId || !listingsPanelRef.current) return;
+    const panel = listingsPanelRef.current;
+    const card = panel.querySelector(`[data-listing-id="${hoveredSpotId}"]`) as HTMLElement | null;
+    if (!card) return;
+    const panelRect = panel.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const cardTop = cardRect.top - panelRect.top + panel.scrollTop;
+    const cardBottom = cardTop + cardRect.height;
+    const visibleTop = panel.scrollTop;
+    const visibleBottom = visibleTop + panelRect.height;
+    if (cardTop < visibleTop || cardBottom > visibleBottom) {
+      panel.scrollTo({ top: cardTop - (panelRect.height - cardRect.height) / 2, behavior: 'smooth' });
+    }
   }, [hoveredSpotId]);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -175,6 +186,7 @@ export default function SearchPage() {
 
         {/* Listings panel — full width on mobile, 60% on desktop */}
         <aside
+          ref={listingsPanelRef}
           data-testid="listings-panel"
           className="flex-1 overflow-y-auto p-3"
         >

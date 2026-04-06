@@ -17,6 +17,8 @@ export class DataStack extends cdk.Stack {
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
     const suffix = isProd ? '' : `-${env}`;
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const appUrl = `https://${cloudfrontDomain}`;
     const removalPolicy = isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY;
     const autoDeleteObjects = !isProd;
 
@@ -90,7 +92,7 @@ export class DataStack extends cdk.Stack {
       cors: [
         {
           allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.POST, s3.HttpMethods.GET],
-          allowedOrigins: ['https://spotzy.com', 'https://di96dohl3v2d6.cloudfront.net', 'http://localhost:3000'],
+          allowedOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
           allowedHeaders: ['*'],
           exposedHeaders: ['ETag'],
           maxAge: 3000,

@@ -18,6 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const body = JSON.parse(event.body ?? '{}');
+  if (body.pseudo !== undefined && body.pseudo.trim() === '') body.pseudo = null;
   log.info('update attempt', { fields: Object.keys(body) });
 
   // Validate vehicles

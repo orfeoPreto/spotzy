@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_ucs01_s04_search_book" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="ucs01_s04_search_book" name="UC-S01/S04 — Search and Book a Parking Spot" isExecutable="false">
+    <startEvent id="start" name="Open search screen">
+      <outgoing>Flow_10dnpkm</outgoing>
+    </startEvent>
+    <scriptTask id="map_load" name="Map loads&#10;(Brussels default centre)">
+      <incoming>Flow_10dnpkm</incoming>
+    </scriptTask>
+    <userTask id="search" name="Enter destination&#10;(Mapbox autocomplete)" />
+    <userTask id="filter" name="Apply filters&#10;(optional)" />
+    <userTask id="view_results" name="View results&#10;(map pins + list panel)">
+      <incoming>f4</incoming>
+    </userTask>
+    <userTask id="select_spot" name="Select a listing" />
+    <userTask id="view_listing" name="View listing detail page" />
+    <userTask id="select_dates" name="Select dates and times" />
+    <exclusiveGateway id="gw_auth" name="User authenticated?" />
+    <callActivity id="intent_capture" name="Capture booking intent&#10;→ redirect to login&#10;(UC-A03)" />
+    <exclusiveGateway id="gw_own" name="Own listing?" />
+    <scriptTask id="show_own" name="Show &#34;This is your listing&#34;&#10;(BR-SB01)" />
+    <userTask id="review_booking" name="Step 1: Review booking&#10;+ price breakdown" />
+    <serviceTask id="hard_validate" name="Hard availability re-validation&#10;(ConsistentRead DynamoDB)" />
+    <exclusiveGateway id="gw_avail" name="Still available?" />
+    <userTask id="payment" name="Step 2: Enter payment&#10;(Stripe Elements)" />
+    <serviceTask id="create_booking" name="Create booking&#10;+ Stripe PaymentIntent" />
+    <userTask id="confirmation" name="Step 3: Confirmation screen&#10;+ booking reference" />
+    <endEvent id="end_booked" name="Booking confirmed" />
+    <endEvent id="end_unavail" name="Spot unavailable&#10;— return to search" />
+    <endEvent id="end_own" name="Own listing&#10;— no booking" />
+    <sequenceFlow id="f2" sourceRef="map_load" targetRef="search" />
+    <sequenceFlow id="f3" sourceRef="search" targetRef="filter" />
+    <sequenceFlow id="f4" sourceRef="filter" targetRef="view_results" />
+    <sequenceFlow id="f6" sourceRef="view_results" targetRef="select_spot" />
+    <sequenceFlow id="f7" sourceRef="select_spot" targetRef="view_listing" />
+    <sequenceFlow id="f8" sourceRef="view_listing" targetRef="select_dates" />
+    <sequenceFlow id="f9" sourceRef="select_dates" targetRef="gw_auth" />
+    <sequenceFlow id="f10" name="No" sourceRef="gw_auth" targetRef="intent_capture" />
+    <sequenceFlow id="f11" name="Yes" sourceRef="gw_auth" targetRef="gw_own" />
+    <sequenceFlow id="f12" name="Yes" sourceRef="gw_own" targetRef="show_own" />
+    <sequenceFlow id="f13" name="No" sourceRef="gw_own" targetRef="review_booking" />
+    <sequenceFlow id="f14" sourceRef="review_booking" targetRef="hard_validate" />
+    <sequenceFlow id="f15" sourceRef="hard_validate" targetRef="gw_avail" />
+    <sequenceFlow id="f16" name="Yes" sourceRef="gw_avail" targetRef="payment" />
+    <sequenceFlow id="f17" name="No" sourceRef="gw_avail" targetRef="end_unavail" />
+    <sequenceFlow id="f18" sourceRef="payment" targetRef="create_booking" />
+    <sequenceFlow id="f19" sourceRef="create_booking" targetRef="confirmation" />
+    <sequenceFlow id="f20" sourceRef="confirmation" targetRef="end_booked" />
+    <sequenceFlow id="f21" sourceRef="show_own" targetRef="end_own" />
+    <sequenceFlow id="Flow_10dnpkm" sourceRef="start" targetRef="map_load" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_ucs01_s04_search_book">
+    <bpmndi:BPMNPlane id="Plane_ucs01_s04_search_book" bpmnElement="ucs01_s04_search_book">
+      <bpmndi:BPMNShape id="shape_view_results" bpmnElement="view_results">
+        <dc:Bounds x="706" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="696" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_select_spot" bpmnElement="select_spot">
+        <dc:Bounds x="886" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="876" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_view_listing" bpmnElement="view_listing">
+        <dc:Bounds x="1066" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1056" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_select_dates" bpmnElement="select_dates">
+        <dc:Bounds x="1246" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1236" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_auth" bpmnElement="gw_auth" isMarkerVisible="true">
+        <dc:Bounds x="1426" y="200" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1414" y="162.5" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_own" bpmnElement="gw_own" isMarkerVisible="true">
+        <dc:Bounds x="1716" y="200" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1711" y="176" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_review_booking" bpmnElement="review_booking">
+        <dc:Bounds x="2006" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1996" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_filter" bpmnElement="filter">
+        <dc:Bounds x="550" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_search" bpmnElement="search">
+        <dc:Bounds x="400" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="390" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_map_load" bpmnElement="map_load">
+        <dc:Bounds x="240" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="230" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="172" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="159" y="253" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_intent_capture" bpmnElement="intent_capture">
+        <dc:Bounds x="1520" y="390" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1510" y="455" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_show_own" bpmnElement="show_own">
+        <dc:Bounds x="1826" y="390" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1816" y="455" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_payment" bpmnElement="payment">
+        <dc:Bounds x="2476" y="60" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2466" y="125" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_create_booking" bpmnElement="create_booking">
+        <dc:Bounds x="2670" y="130" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2660" y="195" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_confirmation" bpmnElement="confirmation">
+        <dc:Bounds x="2870" y="130" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2860" y="195" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_unavail" bpmnElement="end_unavail">
+        <dc:Bounds x="2692" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2669" y="343" width="82" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_booked" bpmnElement="end_booked">
+        <dc:Bounds x="2992" y="219" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2986" y="260" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_hard_validate" bpmnElement="hard_validate">
+        <dc:Bounds x="2186" y="200" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2176" y="265" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_avail" bpmnElement="gw_avail" isMarkerVisible="true">
+        <dc:Bounds x="2366" y="212" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2425.5" y="230" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_own" bpmnElement="end_own">
+        <dc:Bounds x="2352" y="405" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2336" y="367.5" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="360" y="230" />
+        <di:waypoint x="400" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="520" y="230" />
+        <di:waypoint x="550" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="670" y="230" />
+        <di:waypoint x="706" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="826" y="230" />
+        <di:waypoint x="886" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="1006" y="230" />
+        <di:waypoint x="1066" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8" bpmnElement="f8">
+        <di:waypoint x="1186" y="230" />
+        <di:waypoint x="1246" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9" bpmnElement="f9">
+        <di:waypoint x="1366" y="230" />
+        <di:waypoint x="1426" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f10" bpmnElement="f10">
+        <di:waypoint x="1451" y="250" />
+        <di:waypoint x="1451" y="425" />
+        <di:waypoint x="1520" y="425" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1522" y="406" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f11" bpmnElement="f11">
+        <di:waypoint x="1476" y="225" />
+        <di:waypoint x="1716" y="225" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1627" y="210" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f12" bpmnElement="f12">
+        <di:waypoint x="1741" y="250" />
+        <di:waypoint x="1741" y="425" />
+        <di:waypoint x="1826" y="425" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1826" y="406" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f13" bpmnElement="f13">
+        <di:waypoint x="1766" y="225" />
+        <di:waypoint x="2006" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1919" y="212" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f14" bpmnElement="f14">
+        <di:waypoint x="2126" y="230" />
+        <di:waypoint x="2186" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f15" bpmnElement="f15">
+        <di:waypoint x="2306" y="235" />
+        <di:waypoint x="2368" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f16" bpmnElement="f16">
+        <di:waypoint x="2391" y="212" />
+        <di:waypoint x="2391" y="95" />
+        <di:waypoint x="2476" y="95" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2464" y="76" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f17" bpmnElement="f17">
+        <di:waypoint x="2391" y="262" />
+        <di:waypoint x="2391" y="320" />
+        <di:waypoint x="2692" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2391" y="285" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f18" bpmnElement="f18">
+        <di:waypoint x="2596" y="90" />
+        <di:waypoint x="2730" y="90" />
+        <di:waypoint x="2730" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f19" bpmnElement="f19">
+        <di:waypoint x="2790" y="160" />
+        <di:waypoint x="2870" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f20" bpmnElement="f20">
+        <di:waypoint x="2930" y="190" />
+        <di:waypoint x="2930" y="233" />
+        <di:waypoint x="2992" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f21" bpmnElement="f21">
+        <di:waypoint x="1946" y="421" />
+        <di:waypoint x="2149" y="421" />
+        <di:waypoint x="2149" y="423" />
+        <di:waypoint x="2352" y="423" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10dnpkm_di" bpmnElement="Flow_10dnpkm">
+        <di:waypoint x="208" y="230" />
+        <di:waypoint x="240" y="230" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

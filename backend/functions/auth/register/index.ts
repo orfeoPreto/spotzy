@@ -25,6 +25,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     lastName?: string;
     role?: string;
     phone?: string;
+    pseudo?: string;
   };
 
   const { email, password, firstName, lastName, role, phone } = body;
@@ -65,6 +66,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           lastName,
           phone: phone || '',
           role,
+          pseudo: body.pseudo?.trim() || body.firstName,
+          showFullNamePublicly: false,
+          profilePhotoUrl: null,
           stripeConnectEnabled: false,
           createdAt: now,
           updatedAt: now,

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_uch10_rating" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="uch10_rating" name="UC-H10/S07 — Rating Flow" isExecutable="false">
+    <startEvent id="start" name="Booking status&#10;becomes COMPLETED">
+      <outgoing>Flow_0l2kc1i</outgoing>
+    </startEvent>
+    <serviceTask id="prompt_host" name="Prompt Host to rate Guest&#10;(notification)" />
+    <serviceTask id="prompt_guest" name="Prompt Guest to rate&#10;Host and Spot (notification)" />
+    <userTask id="host_rates" name="Host submits rating&#10;(3 sections, 1–5 stars)" />
+    <userTask id="guest_rates" name="Guest submits rating&#10;(4 sections, 1–5 stars)" />
+    <exclusiveGateway id="gw_both" name="Both parties rated&#10;or 7-day window passed?" />
+    <serviceTask id="publish_reviews" name="Publish reviews&#10;(both become visible)" />
+    <serviceTask id="update_averages" name="Update average ratings&#10;for Host and Guest" />
+    <endEvent id="end" name="Reviews published&#10;and visible on&#10;presentation pages" />
+    <sequenceFlow id="f1" sourceRef="Gateway_1yetknt" targetRef="prompt_host" />
+    <sequenceFlow id="f2" sourceRef="Gateway_1yetknt" targetRef="prompt_guest" />
+    <sequenceFlow id="f3" sourceRef="prompt_host" targetRef="host_rates" />
+    <sequenceFlow id="f4" sourceRef="prompt_guest" targetRef="guest_rates" />
+    <sequenceFlow id="f5" sourceRef="host_rates" targetRef="gw_both" />
+    <sequenceFlow id="f6" sourceRef="guest_rates" targetRef="gw_both" />
+    <sequenceFlow id="f7" name="Yes" sourceRef="gw_both" targetRef="publish_reviews" />
+    <sequenceFlow id="f8" sourceRef="publish_reviews" targetRef="update_averages" />
+    <sequenceFlow id="f9" sourceRef="update_averages" targetRef="end" />
+    <sequenceFlow id="Flow_0l2kc1i" sourceRef="start" targetRef="Gateway_1yetknt" />
+    <parallelGateway id="Gateway_1yetknt">
+      <incoming>Flow_0l2kc1i</incoming>
+      <outgoing>f2</outgoing>
+      <outgoing>f1</outgoing>
+    </parallelGateway>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_uch10_rating">
+    <bpmndi:BPMNPlane id="Plane_uch10_rating" bpmnElement="uch10_rating">
+      <bpmndi:BPMNShape id="shape_gw_both" bpmnElement="gw_both" isMarkerVisible="true">
+        <dc:Bounds x="856" y="150" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="837" y="100" width="87" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_publish_reviews" bpmnElement="publish_reviews">
+        <dc:Bounds x="966" y="138" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="956" y="203" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_update_averages" bpmnElement="update_averages">
+        <dc:Bounds x="1146" y="138" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1136" y="203" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end" bpmnElement="end">
+        <dc:Bounds x="1326" y="166" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1310" y="207" width="68" height="66" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_host_rates" bpmnElement="host_rates">
+        <dc:Bounds x="640" y="332" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="630" y="397" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_prompt_host" bpmnElement="prompt_host">
+        <dc:Bounds x="410" y="332" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="400" y="397" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_guest_rates" bpmnElement="guest_rates">
+        <dc:Bounds x="700" y="138" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="690" y="203" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_prompt_guest" bpmnElement="prompt_guest">
+        <dc:Bounds x="490" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="480" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1yetknt_di" bpmnElement="Gateway_1yetknt">
+        <dc:Bounds x="325" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="172" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="154" y="233" width="73" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="350" y="235" />
+        <di:waypoint x="350" y="374" />
+        <di:waypoint x="410" y="374" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="350" y="185" />
+        <di:waypoint x="350" y="113" />
+        <di:waypoint x="490" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="530" y="362" />
+        <di:waypoint x="640" y="362" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="550" y="140" />
+        <di:waypoint x="550" y="168" />
+        <di:waypoint x="700" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="760" y="363" />
+        <di:waypoint x="881" y="363" />
+        <di:waypoint x="881" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="820" y="173" />
+        <di:waypoint x="858" y="173" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="904" y="173" />
+        <di:waypoint x="966" y="173" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="967" y="155" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8" bpmnElement="f8">
+        <di:waypoint x="1086" y="168" />
+        <di:waypoint x="1146" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9" bpmnElement="f9">
+        <di:waypoint x="1266" y="180" />
+        <di:waypoint x="1326" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l2kc1i_di" bpmnElement="Flow_0l2kc1i">
+        <di:waypoint x="208" y="210" />
+        <di:waypoint x="325" y="210" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -111,9 +111,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     createdAt: r.createdAt,
   }));
 
-  const publicProfile = {
+  const displayName = (user.pseudo as string)?.trim() || (user.firstName as string) || (user.name as string)?.split(' ')[0];
+
+  const publicProfile: Record<string, unknown> = {
     userId,
     name: publicName,
+    displayName,
+    profilePhotoUrl: (user.profilePhotoUrl as string) ?? null,
     photoUrl: (user.photoUrl as string) ?? (user.avatarUrl as string) ?? null,
     bio: (user.bio as string) ?? null,
     memberSince: user.createdAt,
@@ -126,6 +130,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     completedBookings,
     responseRate,
   };
+
+  if (user.showFullNamePublicly === true) {
+    publicProfile.fullName = `${user.firstName} ${user.lastName}`.trim();
+  }
 
   log.info('public profile fetched', { userId, listingCount: listings.length });
   return ok(publicProfile);

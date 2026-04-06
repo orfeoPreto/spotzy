@@ -43,9 +43,10 @@ describe('ListingCard host footer', () => {
     expect(screen.queryByTestId('host-footer')).not.toBeInTheDocument();
   });
 
-  test('host avatar shows initials when no photo available', () => {
+  test('host avatar shows initial when no photo available', () => {
     const listing = { ...mockListing, hostPhotoUrl: undefined };
     render(<SpotSummaryCard spot={listing} currentUserId="other-user" />);
-    expect(screen.getByText('JD')).toBeInTheDocument();
+    expect(screen.getByTestId('avatar-fallback')).toBeInTheDocument();
+    expect(screen.getByText('J')).toBeInTheDocument();
   });
 });

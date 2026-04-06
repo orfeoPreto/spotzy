@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { spotTypeDisplay } from '../lib/spotTypeDisplay';
+import { UserAvatar } from './UserAvatar';
 
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
 
@@ -32,6 +34,7 @@ interface SpotSummaryCardProps {
 }
 
 export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, startDate, endDate, highlighted, onHover }: SpotSummaryCardProps) {
+  const [cardHovered, setCardHovered] = useState(false);
   const router = useRouter();
   const navigate = () => {
     const params = new URLSearchParams();
@@ -51,12 +54,15 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       data-testid="spot-summary-card"
       data-listing-id={spot.listingId}
       onClick={navigate}
-      onMouseEnter={() => onHover?.(spot.listingId)}
-      onMouseLeave={() => onHover?.(null)}
-      className={`grow group flex cursor-pointer flex-col rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-200 ${
-        highlighted ? 'border-[#004526] ring-2 ring-[#004526]/30 scale-[1.02]' : 'border-gray-200'
-      }`}
-      style={{ aspectRatio: '1 / 2.1' }}
+      onMouseEnter={() => { setCardHovered(true); onHover?.(spot.listingId); }}
+      onMouseLeave={() => { setCardHovered(false); onHover?.(null); }}
+      className="grow group flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden"
+      style={{
+        aspectRatio: '2 / 3.5',
+        transform: highlighted || cardHovered ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: highlighted || cardHovered ? '0 8px 24px rgba(0,69,38,0.25)' : '',
+        transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
+      }}
       role="article"
     >
       {/* Photo — 40% of card height */}
@@ -127,19 +133,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             onClick={(e) => e.stopPropagation()}
           >
-            {spot.hostPhotoUrl ? (
-              <img
-                src={spot.hostPhotoUrl}
-                alt={`${spot.hostFirstName} ${spot.hostLastName}`}
-                className="w-7 h-7 rounded-full border-[1.5px] border-[#004526] object-cover"
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-[#004526] flex items-center justify-center">
-                <span className="text-white text-[10px] font-medium">
-                  {spot.hostFirstName?.[0]}{spot.hostLastName?.[0]}
-                </span>
-              </div>
-            )}
+            <UserAvatar user={{ photoUrl: spot.hostPhotoUrl, pseudo: null, firstName: spot.hostFirstName || '' }} size={28} />
             <span className="text-[13px] text-[#4B6354]">
               by {spot.hostFirstName} {spot.hostLastName}
             </span>

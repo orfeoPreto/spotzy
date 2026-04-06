@@ -3,6 +3,16 @@
 import Link from 'next/link';
 import StatusBadge from './StatusBadge';
 
+export interface ReviewInfo {
+  rating?: number;
+  avgScore?: number;
+  sections?: Array<{ section: string; score: number }>;
+  comment?: string;
+  description?: string;
+  isEditable?: boolean;
+  lockReason?: string | null;
+}
+
 export interface Booking {
   bookingId: string;
   listingId: string;
@@ -20,6 +30,7 @@ export interface Booking {
   pricePerHour?: number;
   reference?: string;
   hasReview?: boolean;
+  userReview?: ReviewInfo | null;
 }
 
 interface BookingCardProps {
@@ -125,6 +136,18 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
             className="rounded-lg bg-[#006B3C] px-3 py-1 text-xs font-medium text-white">
             Leave a review
           </button>
+        )}
+        {booking.status === 'COMPLETED' && booking.hasReview && booking.userReview && (
+          booking.userReview.isEditable === false ? (
+            <span data-testid="review-submitted-badge" className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+              Review submitted
+            </span>
+          ) : onReview ? (
+            <button type="button" onClick={() => onReview(booking)}
+              className="rounded-lg border border-[#006B3C] px-3 py-1 text-xs font-medium text-[#006B3C]">
+              Update review
+            </button>
+          ) : null
         )}
         <Link
           href={`/dispute/${booking.bookingId}`}

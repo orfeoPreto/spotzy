@@ -4,9 +4,10 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCom
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, badRequest, unauthorized } from '../../../shared/utils/response';
+import { created, ok, badRequest, unauthorized } from '../../../shared/utils/response';
 import { bookingMetadataKey, reviewKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
+import { isReviewLocked } from '../lib/isReviewLocked';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const eb = new EventBridgeClient({});
@@ -16,9 +17,9 @@ const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 const SPOTTER_SECTIONS = new Set(['LOCATION', 'CLEANLINESS', 'VALUE', 'ACCESS']);
 const HOST_SECTIONS = new Set(['PUNCTUALITY', 'VEHICLE_CONDITION', 'COMMUNICATION']);
 
-const conflict409 = (code: string, message: string) => ({
+const conflict409 = (code: string, message: string, reason?: string) => ({
   statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message, code }),
+  body: JSON.stringify({ error: code, message, ...(reason ? { reason } : {}) }),
 });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -60,12 +61,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
   }
 
-  // Review window check (7 days)
-  if (booking.completedAt) {
-    const daysSinceCompletion = (Date.now() - new Date(booking.completedAt).getTime()) / 86400000;
-    if (daysSinceCompletion > 7) return badRequest(JSON.stringify({ code: 'REVIEW_WINDOW_EXPIRED', message: 'Review window has expired (7 days)' }));
-  }
-
   // Check for existing review by this user
   const targetId = isSpotter ? booking.listingId : booking.spotterId;
   const existingReviews = await ddb.send(new QueryCommand({
@@ -74,8 +69,39 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     FilterExpression: 'authorId = :aid AND bookingId = :bid',
     ExpressionAttributeValues: { ':pk': `REVIEW#${targetId}`, ':aid': claims.userId, ':bid': bookingId },
   }));
+
   if (existingReviews.Items && existingReviews.Items.length > 0) {
-    return conflict409('ALREADY_REVIEWED', 'You have already reviewed this booking');
+    // Review exists — check if it can be edited (lock check includes window expiry)
+    const lockResult = await isReviewLocked(ddb, bookingId, claims.userId, booking);
+    if (lockResult.locked) {
+      return conflict409('REVIEW_LOCKED', 'This review can no longer be edited', lockResult.reason!);
+    }
+
+    // Not locked — allow update
+    const avgScore = Math.round(sections.reduce((sum: number, s: { score: number }) => sum + s.score, 0) / sections.length * 10) / 10;
+    const existingReview = existingReviews.Items[0];
+    const now = new Date().toISOString();
+
+    await ddb.send(new UpdateCommand({
+      TableName: TABLE,
+      Key: { PK: existingReview.PK as string, SK: existingReview.SK as string },
+      UpdateExpression: 'SET sections = :sec, avgScore = :avg, description = :desc, updatedAt = :now',
+      ExpressionAttributeValues: {
+        ':sec': sections,
+        ':avg': avgScore,
+        ':desc': description ?? null,
+        ':now': now,
+      },
+    }));
+
+    log.info('review updated', { reviewId: existingReview.reviewId, bookingId, avgScore });
+    return ok({ ...existingReview, sections, avgScore, description, updatedAt: now });
+  }
+
+  // Review window check (7 days) — only for first-time submissions
+  if (booking.completedAt) {
+    const daysSinceCompletion = (Date.now() - new Date(booking.completedAt).getTime()) / 86400000;
+    if (daysSinceCompletion > 7) return badRequest(JSON.stringify({ code: 'REVIEW_WINDOW_EXPIRED', message: 'Review window has expired (7 days)' }));
   }
 
   // Check if other party has reviewed (for visibility toggle)

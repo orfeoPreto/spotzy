@@ -9,6 +9,10 @@ import { ObservabilityStack } from '../lib/observability-stack';
 
 const app = new cdk.App();
 
+const envName = process.env.ENVIRONMENT ?? 'dev';
+// Existing dev stacks were deployed without suffix — keep them as-is for backwards compatibility
+const stackSuffix = (envName === 'prod' || envName === 'dev') ? '' : `-${envName}`;
+
 const env: cdk.Environment = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
   region: process.env.CDK_DEFAULT_REGION ?? 'us-east-1',
@@ -20,9 +24,9 @@ const env: cdk.Environment = {
 //   FrontendStack and ObservabilityStack are independent
 // -------------------------------------------------------------------------
 
-const dataStack = new DataStack(app, 'SpotzyDataStack', { env });
+const dataStack = new DataStack(app, `SpotzyDataStack${stackSuffix}`, { env });
 
-const apiStack = new ApiStack(app, 'SpotzyApiStack', {
+const apiStack = new ApiStack(app, `SpotzyApiStack${stackSuffix}`, {
   env,
   table: dataStack.table,
   eventBus: dataStack.eventBus,
@@ -32,7 +36,7 @@ const apiStack = new ApiStack(app, 'SpotzyApiStack', {
 // IntegrationStack wires EventBridge rules to Lambda functions by name.
 // It must deploy AFTER ApiStack so Lambda functions exist before EventBridge
 // tries to create Lambda::Permission resources.
-const integrationStack = new IntegrationStack(app, 'SpotzyIntegrationStack', {
+const integrationStack = new IntegrationStack(app, `SpotzyIntegrationStack${stackSuffix}`, {
   env,
   eventBus: dataStack.eventBus,
   mediaUploadsBucket: dataStack.mediaUploadsBucket,
@@ -40,9 +44,9 @@ const integrationStack = new IntegrationStack(app, 'SpotzyIntegrationStack', {
 
 // FrontendStack is independent — it creates its own buckets so CloudFront OAC
 // grants stay within a single stack (avoids a DataStack ↔ FrontendStack cycle).
-const frontendStack = new FrontendStack(app, 'SpotzyFrontendStack', { env });
+const frontendStack = new FrontendStack(app, `SpotzyFrontendStack${stackSuffix}`, { env });
 
-new ObservabilityStack(app, 'SpotzyObservabilityStack', {
+new ObservabilityStack(app, `SpotzyObservabilityStack${stackSuffix}`, {
   env,
   api: apiStack.restApi,
   table: dataStack.table,

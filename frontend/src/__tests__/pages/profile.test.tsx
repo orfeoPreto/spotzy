@@ -85,6 +85,7 @@ describe('<ProfilePage />', () => {
     await waitFor(() => expect(screen.getByTestId('edit-name')).toBeInTheDocument());
 
     fireEvent.click(screen.getByTestId('edit-name'));
-    expect(screen.getByRole('textbox', { name: 'name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'first name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'last name' })).toBeInTheDocument();
   });
 });

@@ -1,8 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, QueryCommand, ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { extractClaims } from '../../../shared/utils/auth';
 import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { bookingMetadataKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -21,7 +22,39 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const bookingId = event.queryStringParameters?.bookingId;
-  if (!bookingId) return badRequest('bookingId query parameter is required');
+
+  // If no bookingId, return all disputes for this user
+  if (!bookingId) {
+    const scanResult = await ddb.send(new ScanCommand({
+      TableName: TABLE,
+      FilterExpression: 'SK = :sk AND begins_with(PK, :dp) AND (initiatorId = :uid OR hostId = :uid OR spotterId = :uid)',
+      ExpressionAttributeValues: { ':sk': 'METADATA', ':dp': 'DISPUTE#', ':uid': claims.userId },
+    }));
+
+    const disputes = (scanResult.Items ?? [])
+      .sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
+
+    // Enrich with booking address
+    const enriched = await Promise.all(disputes.map(async (d) => {
+      let listingAddress: string | null = null;
+      try {
+        const bResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: bookingMetadataKey(d.bookingId as string) }));
+        listingAddress = (bResult.Item?.listingAddress as string) ?? null;
+      } catch { /* ignore */ }
+      return {
+        disputeId: d.disputeId,
+        bookingId: d.bookingId,
+        status: d.status,
+        reason: d.reason,
+        referenceNumber: d.referenceNumber,
+        listingAddress,
+        createdAt: d.createdAt,
+      };
+    }));
+
+    log.info('user disputes listed', { count: enriched.length });
+    return ok({ disputes: enriched });
+  }
 
   // Query disputes by booking using GSI1
   const disputeResult = await ddb.send(new QueryCommand({

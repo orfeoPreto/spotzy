@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_uca01_host_registration" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="uca01_host_registration" name="UC-A01 — Host Registration" isExecutable="false">
+    <laneSet id="ls_uca01_host_registration">
+      <lane id="lane_system" name="System">
+        <flowNodeRef>gen_stripe_url</flowNodeRef>
+        <flowNodeRef>create_account_host</flowNodeRef>
+        <flowNodeRef>create_account_guest</flowNodeRef>
+        <flowNodeRef>redirect_listings</flowNodeRef>
+        <flowNodeRef>redirect_dashboard</flowNodeRef>
+      </lane>
+      <lane id="lane_visitor" name="Visitor">
+        <flowNodeRef>select_host</flowNodeRef>
+        <flowNodeRef>stripe_gate</flowNodeRef>
+        <flowNodeRef>stripe_connect</flowNodeRef>
+        <flowNodeRef>profile_form</flowNodeRef>
+        <flowNodeRef>otp</flowNodeRef>
+        <flowNodeRef>Gateway_1i2l112</flowNodeRef>
+        <flowNodeRef>start</flowNodeRef>
+        <flowNodeRef>check_stripe</flowNodeRef>
+        <flowNodeRef>end_host</flowNodeRef>
+        <flowNodeRef>end_guest</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="start" name="Arrive at /auth/register" />
+    <userTask id="select_host" name="Select Host persona" />
+    <serviceTask id="gen_stripe_url" name="Generate Stripe Connect URL" />
+    <userTask id="stripe_gate" name="View Stripe gate screen" />
+    <userTask id="stripe_connect" name="Complete Stripe Connect onboarding" />
+    <exclusiveGateway id="check_stripe" name="Stripe completed?" />
+    <userTask id="profile_form" name="Fill profile form" />
+    <userTask id="otp" name="Verify email (OTP)">
+      <outgoing>Flow_068scna</outgoing>
+    </userTask>
+    <serviceTask id="create_account_host" name="Create account&#10;Host+Guest personas&#10;stripeConnectEnabled=true" />
+    <serviceTask id="create_account_guest" name="Create account&#10;Guest only&#10;stripeConnectEnabled=false" />
+    <serviceTask id="redirect_listings" name="Navigate to /listings/new" />
+    <serviceTask id="redirect_dashboard" name="Navigate to /dashboard/guest&#10;+ incomplete payout banner" />
+    <endEvent id="end_host" name="Host registered" />
+    <endEvent id="end_guest" name="Guest registered&#10;(payout pending)" />
+    <sequenceFlow id="f1" sourceRef="start" targetRef="select_host" />
+    <sequenceFlow id="f2" sourceRef="select_host" targetRef="gen_stripe_url" />
+    <sequenceFlow id="f3" sourceRef="gen_stripe_url" targetRef="stripe_gate" />
+    <sequenceFlow id="f4" sourceRef="stripe_gate" targetRef="stripe_connect" />
+    <sequenceFlow id="f5" sourceRef="stripe_connect" targetRef="check_stripe" />
+    <sequenceFlow id="f6" name="Yes — completed" sourceRef="check_stripe" targetRef="profile_form" />
+    <sequenceFlow id="f6b" name="No — abandoned" sourceRef="check_stripe" targetRef="profile_form" />
+    <sequenceFlow id="f7" sourceRef="profile_form" targetRef="otp" />
+    <sequenceFlow id="f8a" name="Stripe success" sourceRef="Gateway_1i2l112" targetRef="create_account_host" />
+    <sequenceFlow id="f8b" name="Stripe abandoned" sourceRef="Gateway_1i2l112" targetRef="create_account_guest" />
+    <sequenceFlow id="f9a" sourceRef="create_account_host" targetRef="redirect_listings" />
+    <sequenceFlow id="f9b" sourceRef="create_account_guest" targetRef="redirect_dashboard" />
+    <sequenceFlow id="f10a" sourceRef="redirect_listings" targetRef="end_host" />
+    <sequenceFlow id="f10b" sourceRef="redirect_dashboard" targetRef="end_guest" />
+    <exclusiveGateway id="Gateway_1i2l112">
+      <incoming>Flow_068scna</incoming>
+      <outgoing>f8a</outgoing>
+      <outgoing>f8b</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="Flow_068scna" sourceRef="otp" targetRef="Gateway_1i2l112" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_uca01_host_registration">
+    <bpmndi:BPMNPlane id="Plane_uca01_host_registration" bpmnElement="uca01_host_registration">
+      <bpmndi:BPMNShape id="shape_lane_system" bpmnElement="lane_system" isHorizontal="true">
+        <dc:Bounds x="160" y="240" width="2352" height="320" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_visitor" bpmnElement="lane_visitor" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2628" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_select_host" bpmnElement="select_host">
+        <dc:Bounds x="330" y="160" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="320" y="225" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gen_stripe_url" bpmnElement="gen_stripe_url">
+        <dc:Bounds x="500" y="290" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="490" y="355" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="222" y="184" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="208" y="225" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_stripe_gate" bpmnElement="stripe_gate">
+        <dc:Bounds x="686" y="150" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="676" y="215" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_stripe_connect" bpmnElement="stripe_connect">
+        <dc:Bounds x="866" y="150" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="856" y="215" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_profile_form" bpmnElement="profile_form">
+        <dc:Bounds x="1170" y="152" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1160" y="217" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_check_stripe" bpmnElement="check_stripe" isMarkerVisible="true">
+        <dc:Bounds x="1046" y="162" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1026" y="138" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_otp" bpmnElement="otp">
+        <dc:Bounds x="1336" y="152" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1326" y="217" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1i2l112_di" bpmnElement="Gateway_1i2l112" isMarkerVisible="true">
+        <dc:Bounds x="1495" y="157" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_create_account_host" bpmnElement="create_account_host">
+        <dc:Bounds x="1460" y="370" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1450" y="435" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_create_account_guest" bpmnElement="create_account_guest">
+        <dc:Bounds x="1720" y="270" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1710" y="335" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_redirect_listings" bpmnElement="redirect_listings">
+        <dc:Bounds x="1980" y="370" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1970" y="435" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_redirect_dashboard" bpmnElement="redirect_dashboard">
+        <dc:Bounds x="2010" y="290" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2000" y="355" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_host" bpmnElement="end_host">
+        <dc:Bounds x="2452" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2432" y="148" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_guest" bpmnElement="end_guest">
+        <dc:Bounds x="2232" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2208" y="124.5" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="257" y="198" />
+        <di:waypoint x="292" y="198" />
+        <di:waypoint x="292" y="202" />
+        <di:waypoint x="330" y="202" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="450" y="190" />
+        <di:waypoint x="478" y="190" />
+        <di:waypoint x="478" y="320" />
+        <di:waypoint x="500" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="620" y="320" />
+        <di:waypoint x="653" y="320" />
+        <di:waypoint x="653" y="180" />
+        <di:waypoint x="686" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="806" y="180" />
+        <di:waypoint x="866" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="986" y="185" />
+        <di:waypoint x="1048" y="185" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="1094" y="185" />
+        <di:waypoint x="1133" y="185" />
+        <di:waypoint x="1133" y="187" />
+        <di:waypoint x="1170" y="187" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1083" y="209" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6b" bpmnElement="f6b">
+        <di:waypoint x="1094" y="185" />
+        <di:waypoint x="1133" y="185" />
+        <di:waypoint x="1133" y="187" />
+        <di:waypoint x="1170" y="187" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1064" y="178" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="1290" y="182" />
+        <di:waypoint x="1336" y="182" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8a" bpmnElement="f8a">
+        <di:waypoint x="1520" y="207" />
+        <di:waypoint x="1520" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1467" y="238" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8b" bpmnElement="f8b">
+        <di:waypoint x="1545" y="182" />
+        <di:waypoint x="1780" y="182" />
+        <di:waypoint x="1780" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1708" y="138" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9a" bpmnElement="f9a">
+        <di:waypoint x="1580" y="400" />
+        <di:waypoint x="1980" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9b" bpmnElement="f9b">
+        <di:waypoint x="1840" y="300" />
+        <di:waypoint x="1974" y="300" />
+        <di:waypoint x="1974" y="320" />
+        <di:waypoint x="2010" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f10a" bpmnElement="f10a">
+        <di:waypoint x="2100" y="403" />
+        <di:waypoint x="2470" y="403" />
+        <di:waypoint x="2470" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f10b" bpmnElement="f10b">
+        <di:waypoint x="2130" y="325" />
+        <di:waypoint x="2250" y="325" />
+        <di:waypoint x="2250" y="198" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_068scna_di" bpmnElement="Flow_068scna">
+        <di:waypoint x="1456" y="182" />
+        <di:waypoint x="1495" y="182" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

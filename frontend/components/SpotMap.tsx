@@ -119,6 +119,16 @@ export default function SpotMap({
     mapRef.current = map;
     map.on('load', () => setMapReady(true));
 
+    map.on('click', () => {
+      popupRef.current?.remove();
+      popupRef.current = null;
+    });
+
+    containerRef.current.addEventListener('mouseleave', () => {
+      popupRef.current?.remove();
+      popupRef.current = null;
+    });
+
     map.on('moveend', () => {
       if (!onMoveEnd) return;
       const bounds = map.getBounds();
@@ -167,6 +177,15 @@ export default function SpotMap({
           inner.style.transform = 'scale(1.3)';
         }
         cur.getElement().style.zIndex = '10';
+
+        // Pan map if pin is outside visible bounds
+        if (mapRef.current) {
+          const lngLat = cur.getLngLat();
+          const bounds = mapRef.current.getBounds();
+          if (bounds && !bounds.contains(lngLat)) {
+            mapRef.current.panTo(lngLat, { duration: 500 });
+          }
+        }
       }
     }
     prevCardHoverRef.current = highlightedFromCard ?? null;
@@ -239,9 +258,6 @@ export default function SpotMap({
         inner.style.transform = 'scale(1)';
         wrapper.style.zIndex = '';
         onSpotHoverRef.current?.(null);
-        // Close popup on mouseleave
-        popupRef.current?.remove();
-        popupRef.current = null;
       });
 
       const marker = new mapboxgl.Marker({ element: wrapper })

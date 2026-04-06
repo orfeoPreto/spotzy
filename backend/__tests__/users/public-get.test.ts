@@ -198,6 +198,39 @@ describe('user-public-get', () => {
     expect(body.responseRate).toBeLessThanOrEqual(100);
   });
 
+  test('showFullNamePublicly=false → fullName undefined in response', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: makeUser({ firstName: 'Jean', lastName: 'Dupont', showFullNamePublicly: false }) });
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    const res = await handler(makeEvent(USER_ID, CALLER_ID), {} as any, () => {});
+    const body = JSON.parse(res!.body);
+    expect(body.fullName).toBeUndefined();
+  });
+
+  test('showFullNamePublicly=true → fullName = "Jean Dupont"', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: makeUser({ firstName: 'Jean', lastName: 'Dupont', showFullNamePublicly: true }) });
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    const res = await handler(makeEvent(USER_ID, CALLER_ID), {} as any, () => {});
+    const body = JSON.parse(res!.body);
+    expect(body.fullName).toBe('Jean Dupont');
+  });
+
+  test('displayName uses pseudo when available, falls back to firstName', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: makeUser({ pseudo: 'JeannyBoy', firstName: 'Jean' }) });
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    const res = await handler(makeEvent(USER_ID, CALLER_ID), {} as any, () => {});
+    const body = JSON.parse(res!.body);
+    expect(body.displayName).toBe('JeannyBoy');
+
+    // fallback to firstName
+    ddbMock.on(GetCommand).resolves({ Item: makeUser({ pseudo: undefined, firstName: 'Jean' }) });
+    const res2 = await handler(makeEvent(USER_ID, CALLER_ID), {} as any, () => {});
+    const body2 = JSON.parse(res2!.body);
+    expect(body2.displayName).toBe('Jean');
+  });
+
   test('responseRate is null when < 5 completed bookings', async () => {
     ddbMock.on(GetCommand).resolves({ Item: makeUser() });
     ddbMock.on(QueryCommand).callsFake((input) => {

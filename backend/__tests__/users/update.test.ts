@@ -68,4 +68,11 @@ describe('user-update', () => {
     const expr = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.UpdateExpression as string;
     expect(expr).not.toContain('email');
   });
+
+  it('empty pseudo string → stores null', async () => {
+    await handler(makeEvent({ pseudo: '' }), {} as any, () => {});
+    const call = ddbMock.commandCalls(UpdateCommand)[0];
+    const vals = call.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+    expect(Object.values(vals)).toContain(null);
+  });
 });

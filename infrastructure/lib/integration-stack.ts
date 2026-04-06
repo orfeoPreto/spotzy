@@ -189,12 +189,16 @@ export class IntegrationStack extends cdk.Stack {
 
     // -----------------------------------------------------------------------
     // S3 event: photo uploaded → listing-ai-validate
+    // Skip on first deploy of new environment (SKIP_S3_NOTIFICATION=true)
+    // Re-deploy without the flag after ApiStack creates the Lambda
     // -----------------------------------------------------------------------
-    mediaUploadsBucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED,
-      new s3n.LambdaDestination(fn('listing-ai-validate')),
-      { prefix: 'listings/' },
-    );
+    if (process.env.SKIP_S3_NOTIFICATION !== 'true') {
+      mediaUploadsBucket.addEventNotification(
+        s3.EventType.OBJECT_CREATED,
+        new s3n.LambdaDestination(fn('listing-ai-validate')),
+        { prefix: 'listings/' },
+      );
+    }
 
     // -----------------------------------------------------------------------
     // EventBridge Scheduler — daily booking completion check
@@ -245,10 +249,13 @@ export class IntegrationStack extends cdk.Stack {
       tlsPolicy: ses.ConfigurationSetTlsPolicy.REQUIRE,
     });
 
-    new ses.EmailIdentity(this, 'SpotzyDomainIdentity', {
-      identity: ses.Identity.domain('spotzy.com'),
-      configurationSet: this.sesConfigSet,
-    });
+    // SES domain identity is account-global — only create for primary dev or prod
+    if (env === 'dev' || isProd) {
+      new ses.EmailIdentity(this, 'SpotzyDomainIdentity', {
+        identity: ses.Identity.domain('spotzy.com'),
+        configurationSet: this.sesConfigSet,
+      });
+    }
 
     // -----------------------------------------------------------------------
     // Secrets Manager — empty secrets to be filled manually

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { UserAvatar } from '../../components/UserAvatar';
+import { resolveDisplayName } from '../../lib/resolveDisplayName';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -21,6 +23,9 @@ interface UserProfile {
   name: string;
   email: string;
   phone?: string;
+  pseudo?: string | null;
+  profilePhotoUrl?: string | null;
+  showFullNamePublicly?: boolean;
   listingCount?: number;
   bookingCount?: number;
 }
@@ -40,12 +45,18 @@ export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState('');
+  const [firstNameValue, setFirstNameValue] = useState('');
+  const [lastNameValue, setLastNameValue] = useState('');
   const [editingEmail, setEditingEmail] = useState(false);
   const [emailValue, setEmailValue] = useState('');
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
   const [phoneCountryCode, setPhoneCountryCode] = useState('+32');
   const [saving, setSaving] = useState(false);
+  const [editingPseudo, setEditingPseudo] = useState(false);
+  const [pseudoValue, setPseudoValue] = useState('');
+  const [showFullNamePublicly, setShowFullNamePublicly] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [isHost, setIsHost] = useState(false);
   const [vatNumber, setVatNumber] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -66,6 +77,10 @@ export default function ProfilePage() {
         setUser({ ...profile, listingCount: metrics.liveListings ?? 0, bookingCount: metrics.activeBookings ?? 0 });
         setIsHost(profile.isHost === true || profile.role === 'HOST' || profile.role === 'both');
         setNameValue(profile.name ?? '');
+        setFirstNameValue(profile.firstName ?? profile.name?.split(' ')[0] ?? '');
+        setLastNameValue(profile.lastName ?? profile.name?.split(' ').slice(1).join(' ') ?? '');
+        setPseudoValue(profile.pseudo ?? '');
+        setShowFullNamePublicly(profile.showFullNamePublicly ?? false);
         setEmailValue(profile.email ?? '');
         const existingPhone = profile.phone ?? '';
         const knownPrefixes = ['+352', '+32', '+33', '+31', '+49', '+44', '+1'];
@@ -97,16 +112,17 @@ export default function ProfilePage() {
   }, [router]);
 
   const handleSaveName = async () => {
-    if (!nameValue.trim() || !user) return;
+    if (!firstNameValue.trim() || !user) return;
     setSaving(true);
+    const fullName = `${firstNameValue.trim()} ${lastNameValue.trim()}`.trim();
     try {
       const token = await getAuthToken();
       await fetch(`${API_URL}/api/v1/users/me`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: nameValue.trim() }),
+        body: JSON.stringify({ name: fullName, firstName: firstNameValue.trim(), lastName: lastNameValue.trim() }),
       });
-      setUser((u) => u ? { ...u, name: nameValue.trim() } : u);
+      setUser((u) => u ? { ...u, name: fullName } : u);
       setEditingName(false);
     } finally {
       setSaving(false);
@@ -143,6 +159,63 @@ export default function ProfilePage() {
       });
       setUser((u) => u ? { ...u, phone: fullPhone } : u);
       setEditingPhone(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePseudo = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const token = await getAuthToken();
+      await fetch(`${API_URL}/api/v1/users/me`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pseudo: pseudoValue.trim() || null }),
+      });
+      setUser((u) => u ? { ...u, pseudo: pseudoValue.trim() || null } : u);
+      setEditingPseudo(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleFullName = async (checked: boolean) => {
+    setShowFullNamePublicly(checked);
+    try {
+      const token = await getAuthToken();
+      await fetch(`${API_URL}/api/v1/users/me`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ showFullNamePublicly: checked }),
+      });
+      setUser((u) => u ? { ...u, showFullNamePublicly: checked } : u);
+    } catch {
+      setShowFullNamePublicly(!checked);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSaving(true);
+    try {
+      const token = await getAuthToken();
+      const urlRes = await fetch(`${API_URL}/api/v1/users/me/photo-url`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentType: file.type }),
+      });
+      if (!urlRes.ok) return;
+      const { uploadUrl, publicUrl } = await urlRes.json() as { uploadUrl: string; publicUrl: string };
+      await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+      await fetch(`${API_URL}/api/v1/users/me`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profilePhotoUrl: publicUrl }),
+      });
+      setUser((u) => u ? { ...u, profilePhotoUrl: publicUrl } : u);
     } finally {
       setSaving(false);
     }
@@ -196,30 +269,46 @@ export default function ProfilePage() {
     <main className="mx-auto max-w-lg px-4 py-8">
       {/* Profile header */}
       <div className="mb-6 flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#004526] text-2xl font-bold text-white">
-          {user.name.charAt(0).toUpperCase()}
+        <div className="cursor-pointer" onClick={() => photoInputRef.current?.click()}>
+          <UserAvatar
+            user={{ photoUrl: user.profilePhotoUrl, pseudo: user.pseudo, firstName: user.name.split(' ')[0] || user.name }}
+            size={80}
+          />
+          <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handlePhotoUpload(e)} />
         </div>
         <div className="flex-1">
           {editingName ? (
-            <div className="flex items-center gap-2">
-              <input
-                aria-label="name"
-                value={nameValue}
-                onChange={(e) => setNameValue(e.target.value)}
-                className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={handleSaveName}
-                disabled={saving}
-                className="btn-gold rounded-lg px-3 py-1 text-xs"
-              >
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-              <button type="button" onClick={() => setEditingName(false)} className="text-xs text-gray-400">
-                Cancel
-              </button>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  aria-label="first name"
+                  value={firstNameValue}
+                  onChange={(e) => setFirstNameValue(e.target.value)}
+                  placeholder="First name"
+                  className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                  autoFocus
+                />
+                <input
+                  aria-label="last name"
+                  value={lastNameValue}
+                  onChange={(e) => setLastNameValue(e.target.value)}
+                  placeholder="Last name"
+                  className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveName}
+                  disabled={saving || !firstNameValue.trim()}
+                  className="btn-gold rounded-lg px-3 py-1 text-xs"
+                >
+                  {saving ? 'Saving…' : 'Save'}
+                </button>
+                <button type="button" onClick={() => setEditingName(false)} className="text-xs text-gray-400">
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -260,51 +349,57 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Display name (pseudo) */}
+      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-[#004526]">Display name</h3>
+        {editingPseudo ? (
+          <div className="flex items-center gap-2">
+            <input
+              aria-label="display name"
+              value={pseudoValue}
+              onChange={(e) => setPseudoValue(e.target.value)}
+              placeholder="e.g. SpotKing"
+              className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+              autoFocus
+            />
+            <button type="button" onClick={() => void handleSavePseudo()} disabled={saving}
+              className="btn-gold rounded-lg px-3 py-1 text-xs">{saving ? 'Saving...' : 'Save'}</button>
+            <button type="button" onClick={() => setEditingPseudo(false)} className="text-xs text-gray-400">Cancel</button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-900">
+              {resolveDisplayName({ pseudo: user.pseudo, firstName: user.name.split(' ')[0] || user.name })}
+            </p>
+            {user.pseudo && <span className="text-xs text-gray-400">(display name)</span>}
+            <button type="button" data-testid="edit-pseudo" onClick={() => setEditingPseudo(true)} aria-label="Edit display name"
+              className="text-gray-400 hover:text-[#004526]">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+              </svg>
+            </button>
+          </div>
+        )}
+        <div className="flex items-center gap-2 pt-1">
+          <input
+            type="checkbox"
+            id="showFullName"
+            checked={showFullNamePublicly}
+            onChange={(e) => void handleToggleFullName(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-[#006B3C] focus:ring-[#006B3C]"
+          />
+          <label htmlFor="showFullName" className="text-sm text-gray-600">Show my full name publicly</label>
+        </div>
+      </div>
+
       {/* Contact info */}
       <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
         <h3 className="text-sm font-semibold text-[#004526]">Contact info</h3>
 
-        {/* Email */}
+        {/* Email (read-only) */}
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-600">Email</label>
-          {editingEmail ? (
-            <div className="flex items-center gap-2">
-              <input
-                aria-label="email"
-                type="email"
-                value={emailValue}
-                onChange={(e) => setEmailValue(e.target.value)}
-                className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={handleSaveEmail}
-                disabled={saving}
-                className="btn-gold rounded-lg px-3 py-1 text-xs"
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-              <button type="button" onClick={() => setEditingEmail(false)} className="text-xs text-gray-400">
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-900">{user.email || 'Not set'}</p>
-              <button
-                type="button"
-                data-testid="edit-email"
-                onClick={() => setEditingEmail(true)}
-                aria-label="Edit email"
-                className="text-gray-400 hover:text-[#004526]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
-                </svg>
-              </button>
-            </div>
-          )}
+          <p className="text-sm text-gray-900">{user.email || 'Not set'}</p>
         </div>
 
         {/* Phone */}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_ucs06_cancel" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="ucs06_cancel" name="UC-S06 — Cancel a Booking" isExecutable="false">
+    <startEvent id="start" name="Guest taps&#10;&#34;Cancel booking&#34;" />
+    <userTask id="show_modal" name="Show cancel modal&#10;(refund amount, policy)" />
+    <exclusiveGateway id="gw_confirm" name="User confirms&#10;cancellation?" />
+    <serviceTask id="call_api" name="POST /bookings/{id}/cancel&#10;(with Authorization header)" />
+    <serviceTask id="stripe_refund" name="Process Stripe refund&#10;(per cancellation policy)" />
+    <serviceTask id="emit_event" name="Emit booking.cancelled&#10;(EventBridge)" />
+    <serviceTask id="notify" name="Notify Host&#10;(SMS + email)" />
+    <serviceTask id="release_avail" name="Release availability blocks&#10;(availability-release Lambda)" />
+    <endEvent id="end_cancelled" name="Booking cancelled&#10;Refund issued">
+      <incoming>f9</incoming>
+    </endEvent>
+    <endEvent id="end_kept" name="Booking kept">
+      <incoming>f4</incoming>
+    </endEvent>
+    <sequenceFlow id="f1" sourceRef="start" targetRef="show_modal" />
+    <sequenceFlow id="f2" sourceRef="show_modal" targetRef="gw_confirm" />
+    <sequenceFlow id="f3" name="Yes — cancel" sourceRef="gw_confirm" targetRef="call_api" />
+    <sequenceFlow id="f4" name="No — keep" sourceRef="gw_confirm" targetRef="end_kept" />
+    <sequenceFlow id="f5" sourceRef="call_api" targetRef="stripe_refund" />
+    <sequenceFlow id="f6" sourceRef="stripe_refund" targetRef="emit_event" />
+    <sequenceFlow id="f7" sourceRef="emit_event" targetRef="notify" />
+    <sequenceFlow id="f8" sourceRef="notify" targetRef="release_avail" />
+    <sequenceFlow id="f9" sourceRef="release_avail" targetRef="end_cancelled" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_ucs06_cancel">
+    <bpmndi:BPMNPlane id="Plane_ucs06_cancel" bpmnElement="ucs06_cancel">
+      <bpmndi:BPMNShape id="shape_show_modal" bpmnElement="show_modal">
+        <dc:Bounds x="246" y="150" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="215" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="150" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="126" y="203" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_call_api" bpmnElement="call_api">
+        <dc:Bounds x="536" y="330" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="526" y="395" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_stripe_refund" bpmnElement="stripe_refund">
+        <dc:Bounds x="730" y="320" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="720" y="385" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_emit_event" bpmnElement="emit_event">
+        <dc:Bounds x="910" y="320" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="900" y="385" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_notify" bpmnElement="notify">
+        <dc:Bounds x="1070" y="320" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1060" y="385" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_release_avail" bpmnElement="release_avail">
+        <dc:Bounds x="1250" y="320" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1240" y="385" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_confirm" bpmnElement="gw_confirm" isMarkerVisible="true">
+        <dc:Bounds x="426" y="162" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="486" y="173.5" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_kept" bpmnElement="end_kept">
+        <dc:Bounds x="1132" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1118" y="123" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_cancelled" bpmnElement="end_cancelled">
+        <dc:Bounds x="1482" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1455" y="84.5" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="185" y="176" />
+        <di:waypoint x="216" y="176" />
+        <di:waypoint x="216" y="192" />
+        <di:waypoint x="246" y="192" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="366" y="185" />
+        <di:waypoint x="428" y="185" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="451" y="212" />
+        <di:waypoint x="451" y="365" />
+        <di:waypoint x="536" y="365" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="429" y="239" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="451" y="162" />
+        <di:waypoint x="451" y="100" />
+        <di:waypoint x="1132" y="100" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="415" y="121" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="656" y="360" />
+        <di:waypoint x="730" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="850" y="350" />
+        <di:waypoint x="910" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="1030" y="350" />
+        <di:waypoint x="1070" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8" bpmnElement="f8">
+        <di:waypoint x="1190" y="350" />
+        <di:waypoint x="1250" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9" bpmnElement="f9">
+        <di:waypoint x="1370" y="362" />
+        <di:waypoint x="1500" y="362" />
+        <di:waypoint x="1500" y="158" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

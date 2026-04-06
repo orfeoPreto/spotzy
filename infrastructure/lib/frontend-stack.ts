@@ -19,6 +19,7 @@ export class FrontendStack extends cdk.Stack {
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
     const suffix = isProd ? '' : `-${env}`;
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
     const removalPolicy = isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY;
     const autoDeleteObjects = !isProd;
 
@@ -46,6 +47,13 @@ export class FrontendStack extends cdk.Stack {
       autoDeleteObjects,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      cors: [{
+        allowedHeaders: ['*'],
+        allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET],
+        allowedOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [`https://${cloudfrontDomain}`, 'http://localhost:3000'],
+        exposedHeaders: ['ETag'],
+        maxAge: 3600,
+      }],
     });
 
     // ACM certificate ARN is injected per-environment via CDK context.
@@ -136,7 +144,9 @@ function handler(event) {
     { pattern: /^\\/book\\/([^\\/]+)(\\/?)$/, rewrite: '/book/_/' },
     { pattern: /^\\/users\\/([^\\/]+)(\\/?)$/, rewrite: '/users/_/' },
     { pattern: /^\\/chat\\/([^\\/]+)(\\/?)$/, rewrite: '/chat/_/' },
-    { pattern: /^\\/dispute\\/([^\\/]+)(\\/?)$/, rewrite: '/dispute/_/' }
+    { pattern: /^\\/dispute\\/([^\\/]+)(\\/?)$/, rewrite: '/dispute/_/' },
+    { pattern: /^\\/backoffice\\/disputes\\/([^\\/]+)(\\/?)$/, rewrite: '/backoffice/disputes/_/' },
+    { pattern: /^\\/backoffice\\/customers\\/([^\\/]+)(\\/?)$/, rewrite: '/backoffice/customers/_/' }
   ];
   for (var i = 0; i < dynamicRoutes.length; i++) {
     if (dynamicRoutes[i].pattern.test(uri)) {

@@ -30,7 +30,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const user = strip(result.Item);
     const isHost = result.Item.stripeConnectEnabled === true;
     const personas = ['GUEST', ...(isHost ? ['HOST'] : [])];
-    return ok({ ...user, isHost, personas });
+    const displayName = (user.pseudo as string)?.trim() || (user.firstName as string) || (user.name as string)?.split(' ')[0] || 'User';
+    return ok({ ...user, displayName, isHost, personas });
   }
 
   // Auto-create minimal profile

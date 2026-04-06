@@ -8,6 +8,7 @@ export interface AuthUser {
   userId: string;
   email: string;
   token: string;
+  groups?: string[];
 }
 
 export function useAuth(): { user: AuthUser | null; isLoading: boolean } {
@@ -22,9 +23,10 @@ export function useAuth(): { user: AuthUser | null; isLoading: boolean } {
       ]);
       const token = session.tokens?.idToken?.toString() ?? '';
       const email = (session.tokens?.idToken?.payload?.email as string) ?? '';
+      const groups = (session.tokens?.idToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
       const userId = current.userId;
       if (token) {
-        setUser({ userId, email, token });
+        setUser({ userId, email, token, groups });
       } else {
         setUser(null);
       }

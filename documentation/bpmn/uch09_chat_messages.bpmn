@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_uch09_chat" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="uch09_chat" name="UC-H09/S — Chat and Messages Flow" isExecutable="false">
+    <startEvent id="start" name="User opens&#10;Messages section&#10;or booking card" />
+    <exclusiveGateway id="gw_entry" name="Entry point?" />
+    <userTask id="messages_list" name="View conversation list&#10;(/messages)" />
+    <userTask id="direct_thread" name="Open specific chat thread&#10;(bypasses list)" />
+    <userTask id="select_convo" name="Select conversation" />
+    <userTask id="open_thread" name="Open chat thread&#10;(booking context banner)" />
+    <userTask id="send_message" name="Send message&#10;(text or image)" />
+    <serviceTask id="ws_deliver" name="Deliver via WebSocket&#10;to recipient" />
+    <serviceTask id="increment_unread" name="Increment unread count&#10;(UNREAD#{bookingId})" />
+    <serviceTask id="update_badge" name="Update nav unread badge&#10;(real-time)" />
+    <exclusiveGateway id="gw_more" name="Continue chatting?" />
+    <endEvent id="end" name="Chat session ended" />
+    <sequenceFlow id="f1" sourceRef="start" targetRef="gw_entry" />
+    <sequenceFlow id="f2" name="Via Messages tab" sourceRef="gw_entry" targetRef="messages_list" />
+    <sequenceFlow id="f3" name="Via booking card" sourceRef="gw_entry" targetRef="direct_thread" />
+    <sequenceFlow id="f4" sourceRef="messages_list" targetRef="select_convo" />
+    <sequenceFlow id="f5" sourceRef="select_convo" targetRef="open_thread" />
+    <sequenceFlow id="f6" sourceRef="direct_thread" targetRef="open_thread" />
+    <sequenceFlow id="f7" sourceRef="open_thread" targetRef="send_message" />
+    <sequenceFlow id="f8" sourceRef="send_message" targetRef="ws_deliver" />
+    <sequenceFlow id="f9" sourceRef="ws_deliver" targetRef="increment_unread" />
+    <sequenceFlow id="f10" sourceRef="increment_unread" targetRef="update_badge" />
+    <sequenceFlow id="f11" sourceRef="update_badge" targetRef="gw_more" />
+    <sequenceFlow id="f12" name="Yes" sourceRef="gw_more" targetRef="send_message" />
+    <sequenceFlow id="f13" name="No" sourceRef="gw_more" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_uch09_chat">
+    <bpmndi:BPMNPlane id="Plane_uch09_chat" bpmnElement="uch09_chat">
+      <bpmndi:BPMNShape id="shape_gw_entry" bpmnElement="gw_entry" isMarkerVisible="true">
+        <dc:Bounds x="246" y="110" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="241" y="86" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_increment_unread" bpmnElement="increment_unread">
+        <dc:Bounds x="1436" y="110" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1426" y="175" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_update_badge" bpmnElement="update_badge">
+        <dc:Bounds x="1616" y="110" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1606" y="175" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="150" y="123" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="124" y="164" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_messages_list" bpmnElement="messages_list">
+        <dc:Bounds x="350" y="230" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="340" y="295" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_select_convo" bpmnElement="select_convo">
+        <dc:Bounds x="716" y="230" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="706" y="295" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_open_thread" bpmnElement="open_thread">
+        <dc:Bounds x="896" y="160" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="886" y="225" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_send_message" bpmnElement="send_message">
+        <dc:Bounds x="1076" y="160" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1066" y="225" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_more" bpmnElement="gw_more" isMarkerVisible="true">
+        <dc:Bounds x="1796" y="122" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1798" y="84.5" width="45" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ws_deliver" bpmnElement="ws_deliver">
+        <dc:Bounds x="1256" y="110" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1246" y="175" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end" bpmnElement="end">
+        <dc:Bounds x="1906" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1892" y="163" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_direct_thread" bpmnElement="direct_thread">
+        <dc:Bounds x="536" y="103" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="526" y="168" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="186" y="139" />
+        <di:waypoint x="216" y="139" />
+        <di:waypoint x="216" y="138" />
+        <di:waypoint x="249" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="271" y="160" />
+        <di:waypoint x="271" y="265" />
+        <di:waypoint x="350" y="265" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="256" y="233" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="295" y="134" />
+        <di:waypoint x="536" y="134" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="415" y="118" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="470" y="260" />
+        <di:waypoint x="716" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="836" y="260" />
+        <di:waypoint x="866" y="260" />
+        <di:waypoint x="866" y="190" />
+        <di:waypoint x="896" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="656" y="133" />
+        <di:waypoint x="866" y="133" />
+        <di:waypoint x="866" y="190" />
+        <di:waypoint x="896" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="1016" y="190" />
+        <di:waypoint x="1076" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8" bpmnElement="f8">
+        <di:waypoint x="1196" y="190" />
+        <di:waypoint x="1226" y="190" />
+        <di:waypoint x="1226" y="140" />
+        <di:waypoint x="1256" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9" bpmnElement="f9">
+        <di:waypoint x="1376" y="140" />
+        <di:waypoint x="1436" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f10" bpmnElement="f10">
+        <di:waypoint x="1556" y="140" />
+        <di:waypoint x="1616" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f11" bpmnElement="f11">
+        <di:waypoint x="1736" y="145" />
+        <di:waypoint x="1798" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f12" bpmnElement="f12">
+        <di:waypoint x="1821" y="172" />
+        <di:waypoint x="1821" y="330" />
+        <di:waypoint x="1136" y="330" />
+        <di:waypoint x="1136" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1506" y="314" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f13" bpmnElement="f13">
+        <di:waypoint x="1843" y="150" />
+        <di:waypoint x="1876" y="150" />
+        <di:waypoint x="1876" y="138" />
+        <di:waypoint x="1906" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1880" y="141" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

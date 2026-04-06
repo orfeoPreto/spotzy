@@ -12,6 +12,7 @@ interface NavUser {
   name: string;
   hasListings: boolean;
   isHost: boolean;
+  isAdmin: boolean;
 }
 
 export default function NavigationWrapper() {
@@ -41,12 +42,13 @@ export default function NavigationWrapper() {
             name: (profile.name as string) ?? user.email,
             hasListings: ((metrics.listingCount as number) ?? 0) > 0,
             isHost: (profile.isHost as boolean) ?? false,
+            isAdmin: user.groups?.includes('admin') ?? false,
           });
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setNavUser({ userId: user.userId, name: user.email, hasListings: false, isHost: false });
+          setNavUser({ userId: user.userId, name: user.email, hasListings: false, isHost: false, isAdmin: user.groups?.includes('admin') ?? false });
         }
       });
     return () => {

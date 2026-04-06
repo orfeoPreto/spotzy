@@ -56,6 +56,7 @@ export const LAMBDA_NAMES = {
   userMeListings: 'user-me-listings',
   userMeBookings: 'user-me-bookings',
   userMeMetrics: 'user-me-metrics',
+  userPhotoUrl: 'user-photo-url',
   payoutSetup: 'payout-setup',
   userBecomeHost: 'user-become-host',
   availabilityBlock: 'availability-block',
@@ -66,8 +67,16 @@ export const LAMBDA_NAMES = {
   messagesList: 'messages-list',
   messagesUnread: 'messages-unread',
   bookingStatusTransition: 'booking-status-transition',
+  bookingStatusCleanup: 'booking-status-cleanup',
   userInvoicing: 'user-invoicing',
   disputeGet: 'dispute-get',
+  adminDisputesList: 'admin-disputes-list',
+  adminDisputeGet: 'admin-dispute-get',
+  adminDisputeMessage: 'admin-dispute-message',
+  adminDisputeResolve: 'admin-dispute-resolve',
+  adminCustomersList: 'admin-customers-list',
+  adminCustomerGet: 'admin-customer-get',
+  adminCustomerSuspend: 'admin-customer-suspend',
 } as const;
 
 export class ApiStack extends cdk.Stack {
@@ -84,6 +93,9 @@ export class ApiStack extends cdk.Stack {
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
     const suffix = isProd ? '' : `-${env}`;
+    // CloudFront domain — pass via CLOUDFRONT_DOMAIN env var for new environments, default to existing dev domain
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const appUrl = `https://${cloudfrontDomain}`;
 
     const { table, eventBus, mediaUploadsBucket } = props;
     // Import media-public bucket by name (owned by FrontendStack to avoid OAC cross-stack cycle)
@@ -200,11 +212,13 @@ export class ApiStack extends cdk.Stack {
         'user-me-listings': 'users/me-listings',
         'user-me-bookings': 'users/me-bookings',
         'user-me-metrics': 'users/me-metrics',
+        'user-photo-url': 'users/photo-url',
         'payout-setup': 'users/payout-setup',
         'user-become-host': 'users/become-host',
         'messages-list': 'messages/list',
         'messages-unread': 'messages/unread',
         'booking-status-transition': 'bookings/status-transition',
+        'booking-status-cleanup': 'bookings/status-cleanup',
         'user-invoicing': 'users/invoicing',
         'availability-block': 'availability/block',
         'availability-release': 'availability/release',
@@ -212,6 +226,13 @@ export class ApiStack extends cdk.Stack {
         'notify-email': 'notifications/email',
         'preference-learn': 'preferences/learn',
         'user-post-confirmation': 'users/post-confirmation',
+        'admin-disputes-list': 'admin/disputes-list',
+        'admin-dispute-get': 'admin/dispute-get',
+        'admin-dispute-message': 'admin/dispute-message',
+        'admin-dispute-resolve': 'admin/dispute-resolve',
+        'admin-customers-list': 'admin/customers-list',
+        'admin-customer-get': 'admin/customer-get',
+        'admin-customer-suspend': 'admin/customer-suspend',
       };
       const dir = dirMap[shortName];
       if (!dir) throw new Error(`No handler path for Lambda: ${shortName}`);
@@ -226,7 +247,6 @@ export class ApiStack extends cdk.Stack {
         entry: handlerPath(shortName),
         handler: 'handler',
         tracing: lambda.Tracing.ACTIVE,
-        logRetention: logs.RetentionDays.ONE_MONTH,
         timeout: cdk.Duration.seconds(30),
         memorySize: 512,
         bundling: {
@@ -326,6 +346,23 @@ export class ApiStack extends cdk.Stack {
     const disputeMessageFn = mkFn(LAMBDA_NAMES.disputeMessage);
     mkFn(LAMBDA_NAMES.disputeEscalate);
 
+    const disputeEscalateFn = this.functions[LAMBDA_NAMES.disputeEscalate];
+
+    // Admin Lambda functions
+    const adminDisputesListFn   = mkFn(LAMBDA_NAMES.adminDisputesList);
+    const adminDisputeGetFn     = mkFn(LAMBDA_NAMES.adminDisputeGet);
+    const adminDisputeMessageFn = mkFn(LAMBDA_NAMES.adminDisputeMessage);
+    const adminDisputeResolveFn = mkFn(LAMBDA_NAMES.adminDisputeResolve);
+    const adminCustomersListFn  = mkFn(LAMBDA_NAMES.adminCustomersList);
+    const adminCustomerGetFn    = mkFn(LAMBDA_NAMES.adminCustomerGet);
+    const adminCustomerSuspendFn = mkFn(LAMBDA_NAMES.adminCustomerSuspend, cognitoEnv);
+
+    // Grant Cognito admin permissions to customer-suspend Lambda
+    adminCustomerSuspendFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminDisableUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
+
     // Grant Bedrock access for AI dispute responses
     const bedrockPolicy = new cdk.aws_iam.PolicyStatement({
       actions: ['bedrock:InvokeModel', 'bedrock:Converse'],
@@ -342,6 +379,8 @@ export class ApiStack extends cdk.Stack {
     disputeCreateFn.addToRolePolicy(marketplacePolicy);
     disputeMessageFn.addToRolePolicy(bedrockPolicy);
     disputeMessageFn.addToRolePolicy(marketplacePolicy);
+    disputeEscalateFn.addToRolePolicy(bedrockPolicy);
+    disputeEscalateFn.addToRolePolicy(marketplacePolicy);
 
     const userGetFn        = mkFn(LAMBDA_NAMES.userGet);
     const userUpdateFn     = mkFn(LAMBDA_NAMES.userUpdate);
@@ -349,8 +388,12 @@ export class ApiStack extends cdk.Stack {
     const userMeListingsFn = mkFn(LAMBDA_NAMES.userMeListings);
     const userMeBookingsFn = mkFn(LAMBDA_NAMES.userMeBookings);
     const userMeMetricsFn  = mkFn(LAMBDA_NAMES.userMeMetrics);
+    const userPhotoUrlFn   = mkFn(LAMBDA_NAMES.userPhotoUrl, {
+      UPLOADS_BUCKET: mediaPublicBucket.bucketName,
+      MEDIA_URL: appUrl,
+    });
     const payoutSetupFn    = mkFn(LAMBDA_NAMES.payoutSetup, {
-      APP_URL: `https://di96dohl3v2d6.cloudfront.net`,
+      APP_URL: appUrl,
     });
     const userBecomeHostFn = mkFn(LAMBDA_NAMES.userBecomeHost);
 
@@ -360,6 +403,14 @@ export class ApiStack extends cdk.Stack {
 
     const bookingStatusTransitionFn = mkFn(LAMBDA_NAMES.bookingStatusTransition, {
       EVENT_BUS_NAME: eventBus.eventBusName,
+    });
+
+    // Hourly cleanup Lambda to catch missed status transitions
+    const bookingStatusCleanupFn = mkFn(LAMBDA_NAMES.bookingStatusCleanup);
+    new events.Rule(this, 'BookingStatusCleanupSchedule', {
+      ruleName: `spotzy-booking-cleanup${suffix}`,
+      schedule: events.Schedule.rate(cdk.Duration.hours(1)),
+      targets: [new (require('aws-cdk-lib/aws-events-targets').LambdaFunction)(bookingStatusCleanupFn)],
     });
 
     // Grant booking-create and booking-cancel Lambdas permission to create/delete Scheduler schedules
@@ -409,7 +460,7 @@ export class ApiStack extends cdk.Stack {
     }));
 
     const notifyEmailFn = mkFn(LAMBDA_NAMES.notifyEmail, {
-      APP_URL: `https://di96dohl3v2d6.cloudfront.net`,
+      APP_URL: appUrl,
       SES_FROM_EMAIL: isProd ? 'noreply@spotzy.com' : 'quarcoo.duke@gmail.com',
     });
     notifyEmailFn.addToRolePolicy(new iam.PolicyStatement({
@@ -429,6 +480,7 @@ export class ApiStack extends cdk.Stack {
     mediaPublicBucket.grantWrite(listingCreateFn);
     mediaPublicBucket.grantReadWrite(listingPhotoDeleteFn);
     mediaUploadsBucket.grantReadWrite(chatImageUrlFn);
+    mediaPublicBucket.grantPut(userPhotoUrlFn);
     mediaPublicBucket.grantWrite(chatImageUrlFn);
 
     // ai-validate: read uploads, write public, call Rekognition
@@ -453,6 +505,12 @@ export class ApiStack extends cdk.Stack {
       resources: [stripeWebhookSecretArn],
     }));
 
+    // Grant Stripe secret access to admin-dispute-resolve
+    adminDisputeResolveFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['secretsmanager:GetSecretValue'],
+      resources: [stripeSecretArn],
+    }));
+
     // -----------------------------------------------------------------------
     // API Gateway access log group
     // -----------------------------------------------------------------------
@@ -469,7 +527,7 @@ export class ApiStack extends cdk.Stack {
       restApiName: `spotzy-api${suffix}`,
       description: 'Spotzy REST API',
       defaultCorsPreflightOptions: {
-        allowOrigins: ['https://spotzy.com', 'https://di96dohl3v2d6.cloudfront.net', 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,
@@ -590,6 +648,7 @@ export class ApiStack extends cdk.Stack {
     usersMe.addResource('listings').addMethod('GET', integ(userMeListingsFn), authOpts);
     usersMe.addResource('bookings').addMethod('GET', integ(userMeBookingsFn), authOpts);
     usersMe.addResource('metrics').addMethod('GET', integ(userMeMetricsFn), authOpts);
+    usersMe.addResource('photo-url').addMethod('POST', integ(userPhotoUrlFn), authOpts);
     usersMe.addResource('payout').addMethod('POST', integ(payoutSetupFn), authOpts);
     usersMe.addResource('become-host').addMethod('POST', integ(userBecomeHostFn), authOpts);
     const invoicingResource = usersMe.addResource('invoicing');
@@ -600,6 +659,22 @@ export class ApiStack extends cdk.Stack {
     const messages = v1.addResource('messages');
     messages.addMethod('GET', integ(messagesListFn), authOpts);
     messages.addResource('unread-count').addMethod('GET', integ(messagesUnreadFn), authOpts);
+
+    // /api/v1/admin — all admin routes use standard Cognito auth + in-Lambda admin group check
+    const admin = v1.addResource('admin');
+
+    const adminDisputes = admin.addResource('disputes');
+    adminDisputes.addMethod('GET', integ(adminDisputesListFn), authOpts);
+    const adminDisputeById = adminDisputes.addResource('{id}');
+    adminDisputeById.addMethod('GET', integ(adminDisputeGetFn), authOpts);
+    adminDisputeById.addResource('message').addMethod('POST', integ(adminDisputeMessageFn), authOpts);
+    adminDisputeById.addResource('resolve').addMethod('POST', integ(adminDisputeResolveFn), authOpts);
+
+    const adminCustomers = admin.addResource('customers');
+    adminCustomers.addMethod('GET', integ(adminCustomersListFn), authOpts);
+    const adminCustomerById = adminCustomers.addResource('{userId}');
+    adminCustomerById.addMethod('GET', integ(adminCustomerGetFn), authOpts);
+    adminCustomerById.addResource('suspend').addMethod('POST', integ(adminCustomerSuspendFn), authOpts);
 
     // -----------------------------------------------------------------------
     // WebSocket API (API Gateway v2)

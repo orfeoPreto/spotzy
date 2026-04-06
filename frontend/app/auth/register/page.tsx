@@ -32,6 +32,7 @@ export default function RegisterPage() {
   const [selectedRole, setSelectedRole] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [pseudo, setPseudo] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -140,6 +141,11 @@ export default function RegisterPage() {
           billingAddress: billingAddress.trim(),
           billingEmail: billingEmail.trim() || email.trim(),
         }));
+      }
+
+      // Store pseudo for later use after account creation
+      if (pseudo.trim()) {
+        sessionStorage.setItem('spotzy_pseudo', pseudo.trim());
       }
 
       // Pass role and stripe status to confirm page
@@ -380,6 +386,16 @@ export default function RegisterPage() {
               <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" required />
             </div>
+          </div>
+          <div>
+            <label htmlFor="pseudo" className="mb-1 block text-sm font-medium text-gray-700">Display name <span className="text-gray-400">(optional)</span></label>
+            <input id="pseudo" type="text" value={pseudo} onChange={(e) => setPseudo(e.target.value)}
+              placeholder="e.g. SpotKing"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+            <p className="mt-1 text-xs text-gray-400">This is what other users will see</p>
+            {!pseudo.trim() && firstName.trim() && (
+              <p className="mt-0.5 text-xs text-[#006B3C]">We&apos;ll use your first name</p>
+            )}
           </div>
           <div>
             <label htmlFor="reg-email" className="mb-1 block text-sm font-medium text-gray-700">Email</label>

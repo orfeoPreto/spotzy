@@ -60,4 +60,18 @@ describe('user-get', () => {
     const res = await handler(makeEvent({ requestContext: {} } as any), {} as any, () => {});
     expect(res!.statusCode).toBe(401);
   });
+
+  it('user with no pseudo → displayName = firstName', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...existingUser, firstName: 'Jean', pseudo: undefined } });
+    const res = await handler(makeEvent(), {} as any, () => {});
+    const body = JSON.parse(res!.body);
+    expect(body.displayName).toBe('Jean');
+  });
+
+  it('user with pseudo → displayName = pseudo', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...existingUser, firstName: 'Jean', pseudo: 'JeannyBoy' } });
+    const res = await handler(makeEvent(), {} as any, () => {});
+    const body = JSON.parse(res!.body);
+    expect(body.displayName).toBe('JeannyBoy');
+  });
 });

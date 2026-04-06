@@ -10,6 +10,7 @@ interface NavUser {
   name: string;
   hasListings?: boolean;
   isHost?: boolean;
+  isAdmin?: boolean;
 }
 
 interface NavigationProps {
@@ -116,6 +117,19 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                     </Link>
                   );
                 })}
+                {user?.isAdmin && (
+                  <Link
+                    href="/backoffice"
+                    className={`relative pb-0.5 text-sm font-medium transition-colors ${
+                      pathname.startsWith('/backoffice') ? 'text-[#AD3614]' : 'text-gray-500 hover:text-[#AD3614]'
+                    }`}
+                  >
+                    Backoffice
+                    {pathname.startsWith('/backoffice') && (
+                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-[#AD3614]" />
+                    )}
+                  </Link>
+                )}
               </>
             ) : (
               <>

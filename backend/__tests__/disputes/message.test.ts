@@ -8,6 +8,10 @@ jest.mock('../../functions/disputes/shared/ai-respond', () => ({
   generateDisputeResponse: jest.fn().mockResolvedValue('Thank you for your message. Let me look into this for you.'),
 }));
 
+jest.mock('../../functions/disputes/shared/ai-summarize', () => ({
+  generateEscalationSummary: jest.fn().mockResolvedValue('Summary of the dispute.'),
+}));
+
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 const DISPUTE_ID = 'dispute-msg-test';
@@ -44,16 +48,27 @@ describe('dispute-message', () => {
     expect(res!.statusCode).toBe(201);
   });
 
-  it('"speak to human" → requiresEscalation=true set on dispute', async () => {
+  it('"speak to human" → escalates dispute with USER_REQUESTED reason', async () => {
     await handler(makeEvent({ content: 'I want to speak to a human please' }), {} as any, () => {});
-    expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
-    const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
-    expect(Object.values(vals)).toContain(true);
+    const updateCalls = ddbMock.commandCalls(UpdateCommand);
+    expect(updateCalls.length).toBeGreaterThanOrEqual(1);
+    const escalationUpdate = updateCalls.find(c => {
+      const vals = c.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+      return vals?.[':status'] === 'ESCALATED';
+    });
+    expect(escalationUpdate).toBeDefined();
+    const vals = escalationUpdate!.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+    expect(vals[':reason']).toBe('USER_REQUESTED');
   });
 
-  it('"refund" + "damage" → requiresEscalation=true', async () => {
+  it('"refund" + "damage" → escalates with BOT_CANNOT_RESOLVE', async () => {
     await handler(makeEvent({ content: 'I want a refund for the damage to my car' }), {} as any, () => {});
-    expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
+    const updateCalls = ddbMock.commandCalls(UpdateCommand);
+    const escalationUpdate = updateCalls.find(c => {
+      const vals = c.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+      return vals?.[':status'] === 'ESCALATED';
+    });
+    expect(escalationUpdate).toBeDefined();
   });
 
   it('unrelated user → 403', async () => {

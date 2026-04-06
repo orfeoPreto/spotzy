@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_uch11_dispute" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="uch11_dispute" name="UC-H11 — Open and Resolve a Dispute" isExecutable="false">
+    <startEvent id="start" name="User opens dispute&#10;from booking card" />
+    <serviceTask id="open_dispute" name="Create dispute record&#10;(POST /disputes)" />
+    <userTask id="ai_triage" name="AI triage chat&#10;(Spotzy Support messages)" />
+    <exclusiveGateway id="gw_resolve" name="AI resolution&#10;successful?" />
+    <serviceTask id="auto_resolve" name="Apply automatic resolution&#10;(refund or no refund)" />
+    <serviceTask id="escalate" name="Escalate to human agent&#10;(emit dispute.escalated event)" />
+    <userTask id="agent_review" name="Agent reviews&#10;evidence and messages" />
+    <serviceTask id="agent_decision" name="Agent applies decision&#10;(Stripe refund if applicable)" />
+    <serviceTask id="notify_parties" name="Notify both parties&#10;of outcome" />
+    <endEvent id="end" name="Dispute resolved" />
+    <sequenceFlow id="f1" sourceRef="start" targetRef="open_dispute" />
+    <sequenceFlow id="f2" sourceRef="open_dispute" targetRef="ai_triage" />
+    <sequenceFlow id="f3" sourceRef="ai_triage" targetRef="gw_resolve" />
+    <sequenceFlow id="f4" name="Yes" sourceRef="gw_resolve" targetRef="auto_resolve" />
+    <sequenceFlow id="f5" name="No" sourceRef="gw_resolve" targetRef="escalate" />
+    <sequenceFlow id="f6" sourceRef="auto_resolve" targetRef="notify_parties" />
+    <sequenceFlow id="f7" sourceRef="escalate" targetRef="agent_review" />
+    <sequenceFlow id="f8" sourceRef="agent_review" targetRef="agent_decision" />
+    <sequenceFlow id="f9" sourceRef="agent_decision" targetRef="notify_parties" />
+    <sequenceFlow id="f10" sourceRef="notify_parties" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_uch11_dispute">
+    <bpmndi:BPMNPlane id="Plane_uch11_dispute" bpmnElement="uch11_dispute">
+      <bpmndi:BPMNShape id="shape_open_dispute" bpmnElement="open_dispute">
+        <dc:Bounds x="246" y="110" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="175" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ai_triage" bpmnElement="ai_triage">
+        <dc:Bounds x="426" y="110" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="416" y="175" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="150" y="138" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="124" y="179" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_resolve" bpmnElement="gw_resolve" isMarkerVisible="true">
+        <dc:Bounds x="606" y="122" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="600" y="84.5" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_auto_resolve" bpmnElement="auto_resolve">
+        <dc:Bounds x="716" y="270" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="706" y="335" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_escalate" bpmnElement="escalate">
+        <dc:Bounds x="896" y="115" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="886" y="180" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_agent_review" bpmnElement="agent_review">
+        <dc:Bounds x="1076" y="115" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1066" y="180" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_agent_decision" bpmnElement="agent_decision">
+        <dc:Bounds x="1250" y="116" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1240" y="181" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_notify_parties" bpmnElement="notify_parties">
+        <dc:Bounds x="1436" y="115" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1426" y="180" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end" bpmnElement="end">
+        <dc:Bounds x="1616" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1593" y="163" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="185" y="152" />
+        <di:waypoint x="246" y="152" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="366" y="140" />
+        <di:waypoint x="426" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="546" y="145" />
+        <di:waypoint x="608" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="631" y="172" />
+        <di:waypoint x="631" y="305" />
+        <di:waypoint x="716" y="305" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="648" y="284" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="655" y="146" />
+        <di:waypoint x="896" y="146" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="808" y="130" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="836" y="300" />
+        <di:waypoint x="1496" y="300" />
+        <di:waypoint x="1496" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f7" bpmnElement="f7">
+        <di:waypoint x="1016" y="145" />
+        <di:waypoint x="1076" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f8" bpmnElement="f8">
+        <di:waypoint x="1196" y="145" />
+        <di:waypoint x="1223" y="145" />
+        <di:waypoint x="1223" y="146" />
+        <di:waypoint x="1250" y="146" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f9" bpmnElement="f9">
+        <di:waypoint x="1370" y="146" />
+        <di:waypoint x="1403" y="146" />
+        <di:waypoint x="1403" y="145" />
+        <di:waypoint x="1436" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f10" bpmnElement="f10">
+        <di:waypoint x="1556" y="157" />
+        <di:waypoint x="1586" y="157" />
+        <di:waypoint x="1586" y="136" />
+        <di:waypoint x="1616" y="136" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_uca02_guest_registration" targetNamespace="http://spotzy.com/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0">
+  <process id="uca02_guest_registration" name="UC-A02 — Guest Registration" isExecutable="false">
+    <startEvent id="start" name="Arrive at /auth/register" />
+    <userTask id="select_guest" name="Select Guest persona" />
+    <userTask id="profile_form" name="Fill profile form" />
+    <userTask id="otp" name="Verify email (OTP)" />
+    <serviceTask id="create_account" name="Create Guest account&#10;stripeConnectEnabled=false" />
+    <serviceTask id="redirect" name="Navigate to /search" />
+    <endEvent id="end" name="Guest registered" />
+    <sequenceFlow id="f1" sourceRef="start" targetRef="select_guest" />
+    <sequenceFlow id="f2" sourceRef="select_guest" targetRef="profile_form" />
+    <sequenceFlow id="f3" sourceRef="profile_form" targetRef="otp" />
+    <sequenceFlow id="f4" sourceRef="otp" targetRef="create_account" />
+    <sequenceFlow id="f5" sourceRef="create_account" targetRef="redirect" />
+    <sequenceFlow id="f6" sourceRef="redirect" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_uca02_guest_registration">
+    <bpmndi:BPMNPlane id="Plane_uca02_guest_registration" bpmnElement="uca02_guest_registration">
+      <bpmndi:BPMNShape id="shape_select_guest" bpmnElement="select_guest">
+        <dc:Bounds x="246" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_profile_form" bpmnElement="profile_form">
+        <dc:Bounds x="426" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="416" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_otp" bpmnElement="otp">
+        <dc:Bounds x="606" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="596" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_create_account" bpmnElement="create_account">
+        <dc:Bounds x="786" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="776" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_redirect" bpmnElement="redirect">
+        <dc:Bounds x="966" y="80" width="120" height="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="956" y="145" width="140" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end" bpmnElement="end">
+        <dc:Bounds x="1146" y="108" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1123" y="149" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="150" y="108" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="136" y="149" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_f1" bpmnElement="f1">
+        <di:waypoint x="185" y="122" />
+        <di:waypoint x="246" y="122" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f2" bpmnElement="f2">
+        <di:waypoint x="366" y="110" />
+        <di:waypoint x="426" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f3" bpmnElement="f3">
+        <di:waypoint x="546" y="110" />
+        <di:waypoint x="606" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f4" bpmnElement="f4">
+        <di:waypoint x="726" y="110" />
+        <di:waypoint x="786" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f5" bpmnElement="f5">
+        <di:waypoint x="906" y="110" />
+        <di:waypoint x="966" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_f6" bpmnElement="f6">
+        <di:waypoint x="1086" y="122" />
+        <di:waypoint x="1146" y="122" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

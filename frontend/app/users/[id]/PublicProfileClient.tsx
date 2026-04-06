@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import { spotTypeDisplay } from '../../../lib/spotTypeDisplay';
 import { formatDateOnly } from '../../../lib/formatDate';
+import { UserAvatar } from '../../../components/UserAvatar';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
@@ -28,6 +29,9 @@ interface PublicReview {
 interface PublicProfile {
   userId: string;
   name: string;
+  displayName?: string | null;
+  fullName?: string | null;
+  profilePhotoUrl?: string | null;
   photoUrl?: string | null;
   bio?: string | null;
   memberSince: string;
@@ -108,29 +112,25 @@ export default function PublicProfilePage() {
     );
   }
 
-  const { name, photoUrl, bio, memberSince, listings, reviews, reviewCount, averageRating, completedBookings, responseRate } = profile;
+  const { name, displayName, fullName, profilePhotoUrl, photoUrl, bio, memberSince, listings, reviews, reviewCount, averageRating, completedBookings, responseRate } = profile;
   const joinYear = memberSince ? new Date(memberSince).getFullYear() : null;
-  const avatarSrc = photoUrl ? (photoUrl.startsWith('http') ? photoUrl : `${MEDIA_URL}${photoUrl}`) : null;
+  const heading = displayName ?? name;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
-        {avatarSrc ? (
-          <img
-            src={avatarSrc}
-            alt={name}
-            className="h-16 w-16 rounded-full object-cover border border-[#004526]/20"
-          />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#004526] text-2xl font-bold text-white">
-            {name.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <UserAvatar
+          user={{ photoUrl: profilePhotoUrl ?? photoUrl, pseudo: null, firstName: displayName ?? name }}
+          size={80}
+        />
         <div>
           <h1 className="text-2xl font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-            {name}
+            {heading}
           </h1>
+          {fullName && fullName !== heading && (
+            <p className="text-sm text-gray-500">{fullName}</p>
+          )}
           {joinYear && <p className="text-sm text-gray-400">Member since {joinYear}</p>}
           <div className="flex gap-3 mt-1">
             {completedBookings > 0 && (

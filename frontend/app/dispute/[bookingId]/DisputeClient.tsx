@@ -34,6 +34,7 @@ export default function DisputePage() {
   const [hasSentFirst, setHasSentFirst] = useState(false);
   const [evidenceThumbnails, setEvidenceThumbnails] = useState<string[]>([]);
   const [escalated, setEscalated] = useState(false);
+  const [escalationReason, setEscalationReason] = useState('');
   const [escalationRef, setEscalationRef] = useState('');
   const [agentConnected, setAgentConnected] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -56,6 +57,8 @@ export default function DisputePage() {
           const data = await res.json() as {
             disputeId?: string;
             referenceNumber?: string;
+            status?: string;
+            escalationReason?: string;
             messages?: Array<{ messageId: string; role: 'AI' | 'USER'; text: string; contentType?: string; requestsEvidence?: boolean }>;
           };
           if (data.disputeId && data.messages && data.messages.length > 0) {
@@ -69,6 +72,10 @@ export default function DisputePage() {
               requestsEvidence: m.requestsEvidence,
             }));
             setMessages(loaded);
+            if (data.status === 'ESCALATED') {
+              setEscalated(true);
+              setEscalationReason(data.escalationReason ?? '');
+            }
           }
         }
       } catch {
@@ -97,7 +104,7 @@ export default function DisputePage() {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (r.ok) {
-        const data = await r.json() as { messages?: Array<{ messageId: string; role: 'AI' | 'USER'; text: string; contentType?: string; requestsEvidence?: boolean }> };
+        const data = await r.json() as { status?: string; escalationReason?: string; messages?: Array<{ messageId: string; role: 'AI' | 'USER'; text: string; contentType?: string; requestsEvidence?: boolean }> };
         if (data.messages) {
           setMessages(data.messages.map((m) => ({
             messageId: m.messageId,
@@ -106,6 +113,10 @@ export default function DisputePage() {
             text: m.text,
             requestsEvidence: m.requestsEvidence,
           })));
+        }
+        if (data.status === 'ESCALATED') {
+          setEscalated(true);
+          setEscalationReason(data.escalationReason ?? '');
         }
       }
     };
@@ -188,6 +199,24 @@ export default function DisputePage() {
           Spotzy Support
         </h1>
       </div>
+
+      {/* Escalation banner */}
+      {escalated && (
+        <div
+          data-testid="escalation-banner"
+          className="border-b border-[#B8E6D0] bg-[#EBF7F1] px-4 py-3 flex items-center gap-3"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5 text-[#004526] flex-shrink-0">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+          </svg>
+          <div>
+            <p className="text-sm font-semibold text-[#004526]">Transferred to our support team</p>
+            <p className="text-xs text-[#4B6354] mt-0.5">
+              A Spotzy agent will review your case and respond shortly.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -295,28 +324,29 @@ export default function DisputePage() {
       )}
 
       {/* Input */}
-      {!escalated && (
-        <div className="border-t border-gray-200 bg-white px-4 py-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void sendMessage(inputText); } }}
-              placeholder="Describe your issue\u2026"
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => void sendMessage(inputText)}
-              disabled={!inputText.trim()}
-              className="rounded-lg bg-[#006B3C] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-            >
-              Send
-            </button>
-          </div>
+      <div className="border-t border-gray-200 bg-white px-4 py-3">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !escalated) { e.preventDefault(); void sendMessage(inputText); } }}
+            placeholder={escalated ? 'Case transferred to support team' : 'Describe your issue\u2026'}
+            disabled={escalated}
+            data-testid="dispute-input"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+          />
+          <button
+            type="button"
+            data-testid="send-message"
+            onClick={() => void sendMessage(inputText)}
+            disabled={!inputText.trim() || escalated}
+            className="rounded-lg bg-[#006B3C] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+          >
+            Send
+          </button>
         </div>
-      )}
+      </div>
     </main>
   );
 }

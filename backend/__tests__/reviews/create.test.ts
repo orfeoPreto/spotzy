@@ -114,11 +114,12 @@ describe('review-create', () => {
     expect(res!.body).toContain('BOOKING_NOT_COMPLETED');
   });
 
-  it('review already submitted → 409 ALREADY_REVIEWED', async () => {
-    ddbMock.on(QueryCommand).resolves({ Items: [{ reviewId: 'existing' }] });
+  it('review already submitted + other party reviewed → 409 REVIEW_LOCKED', async () => {
+    // Both queries (existing review + counterparty check) return items → locked
+    ddbMock.on(QueryCommand).resolves({ Items: [{ reviewId: 'existing', authorId: SPOTTER_ID, bookingId: BOOKING_ID, PK: `REVIEW#${LISTING_ID}`, SK: `REVIEW#${BOOKING_ID}` }] });
     const res = await handler(makeEvent({ sections: spotterRatingSections }), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
-    expect(res!.body).toContain('ALREADY_REVIEWED');
+    expect(res!.body).toContain('REVIEW_LOCKED');
   });
 
   it('submitted > 7 days after completedAt → 400 REVIEW_WINDOW_EXPIRED', async () => {
