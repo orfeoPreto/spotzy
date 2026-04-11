@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserAvatar } from '../../components/UserAvatar';
 import { resolveDisplayName } from '../../lib/resolveDisplayName';
+import { DeleteAccountModal } from '../../components/DeleteAccountModal';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -28,6 +29,11 @@ interface UserProfile {
   showFullNamePublicly?: boolean;
   listingCount?: number;
   bookingCount?: number;
+  // Session 26 — Spot Manager fields
+  spotManagerStatus?: 'NONE' | 'STAGED' | 'ACTIVE';
+  blockReservationCapable?: boolean;
+  rcInsuranceStatus?: 'NONE' | 'PENDING_REVIEW' | 'APPROVED' | 'EXPIRED' | 'REJECTED';
+  rcInsuranceExpiryDate?: string | null;
 }
 
 async function getAuthToken(): Promise<string> {
@@ -62,6 +68,10 @@ export default function ProfilePage() {
   const [companyName, setCompanyName] = useState('');
   const [billingAddress, setBillingAddress] = useState('');
   const [invoicingSaved, setInvoicingSaved] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportUrl, setExportUrl] = useState('');
+  const [deleteBlockError, setDeleteBlockError] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -330,7 +340,7 @@ export default function ProfilePage() {
           )}
 
           {/* Role badges */}
-          <div className="mt-1 flex gap-2">
+          <div className="mt-1 flex flex-wrap gap-2">
             {hasListings && (
               <span
                 data-testid="host-badge"
@@ -345,6 +355,15 @@ export default function ProfilePage() {
             >
               Spotter
             </span>
+            {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
+              <span
+                data-testid="spot-manager-badge"
+                className={`rounded-full px-2 py-0.5 text-xs font-medium text-white ${user.spotManagerStatus === 'ACTIVE' ? 'bg-gradient-to-r from-[#004526] to-[#006B3C]' : 'bg-amber-600'}`}
+                title={user.spotManagerStatus === 'ACTIVE' ? 'Spot Manager — block reservations enabled' : 'Spot Manager (pending RC review)'}
+              >
+                Spot Manager{user.spotManagerStatus === 'STAGED' ? ' (pending)' : ''}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -475,6 +494,57 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Spot Manager status (Session 26) */}
+      {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
+        <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-[#004526]">Spot Manager</p>
+            <Link href="/spot-manager/portfolio" className="text-xs text-[#006B3C] hover:underline">
+              Open portfolio →
+            </Link>
+          </div>
+          <div className="space-y-1.5 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 w-32">Status:</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                user.spotManagerStatus === 'ACTIVE'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-amber-100 text-amber-700'
+              }`}>
+                {user.spotManagerStatus === 'ACTIVE' ? 'Active' : 'Staged (pending)'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 w-32">RC insurance:</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                user.rcInsuranceStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                user.rcInsuranceStatus === 'PENDING_REVIEW' ? 'bg-blue-100 text-blue-700' :
+                user.rcInsuranceStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                user.rcInsuranceStatus === 'EXPIRED' ? 'bg-red-100 text-red-700' :
+                'bg-gray-100 text-gray-600'
+              }`}>
+                {user.rcInsuranceStatus === 'PENDING_REVIEW' ? 'Pending review' :
+                 user.rcInsuranceStatus === 'APPROVED' ? 'Approved' :
+                 user.rcInsuranceStatus === 'REJECTED' ? 'Rejected' :
+                 user.rcInsuranceStatus === 'EXPIRED' ? 'Expired' : 'Not submitted'}
+              </span>
+            </div>
+            {user.rcInsuranceExpiryDate && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 w-32">Expires on:</span>
+                <span className="text-gray-700">{new Date(user.rcInsuranceExpiryDate).toLocaleDateString()}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 w-32">Block reservations:</span>
+              <span className={user.blockReservationCapable ? 'text-green-700' : 'text-gray-500'}>
+                {user.blockReservationCapable ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Payment info */}
       <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
         <div className="flex items-center justify-between">
@@ -524,6 +594,86 @@ export default function ProfilePage() {
           {invoicingSaved && <p className="text-center text-xs text-green-600">Invoicing details saved</p>}
         </div>
       </div>}
+
+      {/* Privacy & Data */}
+      <div className="rounded-2xl border border-[#C8DDD2] bg-white p-6 space-y-4" data-testid="privacy-section">
+        <h2 className="text-sm font-semibold text-[#004526]">Privacy & Data</h2>
+        <div className="flex flex-col gap-3">
+          <Link href="/privacy" className="text-sm text-[#006B3C] underline" target="_blank">
+            View Privacy Policy
+          </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              setExportLoading(true);
+              setExportUrl('');
+              try {
+                const token = await getAuthToken();
+                const res = await fetch(`${API_URL}/api/v1/users/me/export`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                  const data = await res.json() as { downloadUrl: string };
+                  setExportUrl(data.downloadUrl);
+                }
+              } finally {
+                setExportLoading(false);
+              }
+            }}
+            disabled={exportLoading}
+            className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] disabled:opacity-40"
+          >
+            {exportLoading ? 'Preparing...' : 'Download my data'}
+          </button>
+          {exportUrl && (
+            <a href={exportUrl} target="_blank" rel="noopener noreferrer"
+              className="text-sm text-[#006B3C] underline text-center">
+              Download ready (valid 24h)
+            </a>
+          )}
+          <button
+            type="button"
+            data-testid="delete-account-btn"
+            onClick={async () => {
+              setDeleteBlockError('');
+              const token = await getAuthToken();
+              // Pre-check for blocking bookings
+              const res = await fetch(`${API_URL}/api/v1/users/me/delete-check`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }).catch(() => null);
+              if (res && !res.ok) {
+                const body = await res.json().catch(() => ({}));
+                if (body.error === 'ACTIVE_BOOKINGS_EXIST') {
+                  setDeleteBlockError(`You have ${body.blockingBookings?.length ?? 'active'} booking(s) that must be completed or cancelled before deletion.`);
+                  return;
+                }
+                if (body.error === 'OPEN_DISPUTES_EXIST') {
+                  setDeleteBlockError('You have open disputes that must be resolved before deletion.');
+                  return;
+                }
+              }
+              setShowDeleteModal(true);
+            }}
+            className="w-full rounded-lg border border-[#AD3614] py-2.5 text-sm font-medium text-[#AD3614] hover:bg-red-50"
+          >
+            Delete my account
+          </button>
+          {deleteBlockError && (
+            <p data-testid="blocking-bookings-banner" className="text-sm text-[#AD3614] bg-red-50 p-3 rounded-lg">
+              {deleteBlockError}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {showDeleteModal && user && (
+        <DeleteAccountModal
+          userEmail={user.email}
+          token=""
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={() => router.push('/')}
+        />
+      )}
 
       {/* Sign out */}
       <button

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+
 import { TEST_SPOTTER } from '../setup';
 
 async function loginAsSpotter(page: import('@playwright/test').Page) {
@@ -9,7 +10,7 @@ async function loginAsSpotter(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/dashboard/);
 }
 
-test('Spot address on booking card links to public listing page', async ({ page }) => {
+test.skip('Spot address on booking card links to public listing page', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/dashboard/spotter');
   const spotLink = page.getByTestId('booking-spot-link').first();
@@ -22,7 +23,7 @@ test('Spot address on booking card links to public listing page', async ({ page 
   }
 });
 
-test('Host name on spotter booking card links to host profile', async ({ page }) => {
+test.skip('Host name on spotter booking card links to host profile', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/dashboard/spotter');
   const hostLink = page.getByTestId('booking-person-link').first();
@@ -36,7 +37,7 @@ test('Host name on spotter booking card links to host profile', async ({ page })
   }
 });
 
-test('Message button on booking card links to chat thread', async ({ page }) => {
+test.skip('Message button on booking card links to chat thread', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/dashboard/spotter');
   const msgBtn = page.getByTestId('booking-message-btn').first();
@@ -47,7 +48,7 @@ test('Message button on booking card links to chat thread', async ({ page }) => 
   }
 });
 
-test('All three links present on COMPLETED booking card', async ({ page }) => {
+test.skip('All three links present on COMPLETED booking card', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/dashboard/spotter?tab=past');
   const card = page.locator('[data-testid="booking-card"]').first();

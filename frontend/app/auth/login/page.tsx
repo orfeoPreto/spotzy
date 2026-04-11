@@ -34,14 +34,25 @@ export default function LoginPage() {
         return;
       }
       if (isSignedIn) {
-        // Check for booking intent — redirect to checkout if present
+        // 1. Booking intent wins over everything — preserve the user's original goal
         const currentIntent = readIntent();
         if (currentIntent) {
           clearIntent();
           router.push(`/book/${currentIntent.listingId}?startDate=${encodeURIComponent(currentIntent.startTime)}&endDate=${encodeURIComponent(currentIntent.endTime)}`);
-        } else {
-          router.push('/search');
+          return;
         }
+        // 2. Explicit `next` query param (e.g. from the post-OTP host flow that
+        //    needs to land on /become-host before Stripe is set up)
+        const nextParam = searchParams.get('next');
+        if (nextParam) {
+          // Only allow safe internal paths
+          if (nextParam.startsWith('/') && !nextParam.startsWith('//')) {
+            router.push(nextParam);
+            return;
+          }
+        }
+        // 3. Default landing
+        router.push('/search');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);

@@ -9,6 +9,11 @@ export interface ChatMessage {
   text?: string;
   imageUrl?: string;
   createdAt: string;
+  type?: string;
+  code?: string;
+  validFrom?: string;
+  validUntil?: string;
+  revokedAt?: string | null;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';

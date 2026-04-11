@@ -11,6 +11,8 @@ interface NavUser {
   hasListings?: boolean;
   isHost?: boolean;
   isAdmin?: boolean;
+  isSpotManager?: boolean;
+  isBlockSpotter?: boolean;
 }
 
 interface NavigationProps {
@@ -29,7 +31,6 @@ const HOST_LINKS = [
   { href: '/dashboard/spotter', label: 'Bookings' },
   { href: '/messages', label: 'Messages' },
   { href: '/dashboard/host', label: 'My spots' },
-  { href: '/listings/new', label: '+ Add listing' },
 ];
 
 const MOBILE_TABS = [
@@ -62,7 +63,15 @@ const MOBILE_TABS = [
 
 export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
   const pathname = usePathname();
-  const navLinks = user?.isHost ? HOST_LINKS : SPOTTER_LINKS;
+  const baseLinks = user?.isHost ? HOST_LINKS : SPOTTER_LINKS;
+  // Append v2.x persona-gated tabs
+  const navLinks = [...baseLinks];
+  if (user?.isSpotManager) {
+    navLinks.push({ href: '/spot-manager/portfolio', label: 'Portfolio' });
+  }
+  if (user?.isBlockSpotter || user?.isHost) {
+    navLinks.push({ href: '/block-requests', label: 'Block requests' });
+  }
   const { destination: listSpotDest } = useListYourSpotDestination();
 
   const UnreadBadge = () =>
@@ -154,12 +163,22 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
               </Link>
             )}
             {user?.isHost && (
-              <Link
-                href="/dashboard/host"
-                className="rounded-lg border border-[#004526] px-3 py-1.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors"
-              >
-                Host dashboard
-              </Link>
+              user?.isSpotManager ? (
+                <Link
+                  href="/dashboard/host"
+                  className="rounded-lg border border-[#004526] px-3 py-1.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors"
+                >
+                  Host dashboard
+                </Link>
+              ) : (
+                <Link
+                  href="/account/spot-manager/apply"
+                  className="rounded-lg bg-gradient-to-r from-[#004526] to-[#006B3C] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                  title="Unlock multi-bay pools and block reservations"
+                >
+                  Become Spot Manager
+                </Link>
+              )
             )}
             {user && (
               <Link

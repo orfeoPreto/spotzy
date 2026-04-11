@@ -87,10 +87,6 @@ export default function RegisterPage() {
     setStep('invoicing');
   };
 
-  const handleStripeGateSkip = () => {
-    setStep('invoicing');
-  };
-
   const handleInvoicingContinue = () => {
     if (vatNumber || companyName || billingAddress || billingEmail) {
       sessionStorage.setItem('spotzy_invoicing', JSON.stringify({
@@ -237,17 +233,28 @@ export default function RegisterPage() {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#004526] mb-2">Set up your payout account</h2>
-            <p className="text-sm text-[#4B6354]">To receive earnings from your parking spot, you will need to connect a Stripe payout account.</p>
+            <h2 className="text-xl font-bold text-[#004526] mb-2">Stripe payout account required</h2>
+            <p className="text-sm text-[#4B6354]">
+              To receive earnings as a Host, you must connect a Stripe payout account.
+              This step is <strong>mandatory</strong> — you can&apos;t list spots or accept bookings without it.
+            </p>
           </div>
 
           <div className="rounded-lg bg-[#F0F7F3] p-4 text-left space-y-2">
             <p className="text-sm font-medium text-[#004526]">What happens next:</p>
             <ul className="text-sm text-[#4B6354] space-y-1">
-              <li className="flex items-start gap-2"><span className="text-[#006B3C]">1.</span> Complete your account registration</li>
-              <li className="flex items-start gap-2"><span className="text-[#006B3C]">2.</span> Verify your email address</li>
-              <li className="flex items-start gap-2"><span className="text-[#006B3C]">3.</span> Set up Stripe Connect for payouts</li>
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">1.</span> Finish account registration (next 2 steps)</li>
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">2.</span> Verify your email with a one-time code</li>
+              <li className="flex items-start gap-2"><span className="text-[#006B3C]">3.</span> <strong>Connect Stripe Connect</strong> — you&apos;ll be taken directly to Stripe onboarding after verification</li>
             </ul>
+          </div>
+
+          <div className="rounded-lg bg-[#FFF4E5] border border-[#FFD89A] p-3 text-left">
+            <p className="text-xs text-[#8C5A00]">
+              <strong>Can&apos;t skip.</strong> Until Stripe onboarding is complete, the only pages you can access
+              will be the setup screen and sign-out. If you close the browser mid-flow, you&apos;ll land back on
+              the Stripe setup screen next time you sign in.
+            </p>
           </div>
 
           <button
@@ -255,15 +262,7 @@ export default function RegisterPage() {
             onClick={handleStripeGateContinue}
             className="w-full rounded-lg bg-[#004526] py-3 text-sm font-semibold text-white hover:bg-[#003a1f] transition-colors"
           >
-            Continue to Stripe
-          </button>
-
-          <button
-            type="button"
-            onClick={handleStripeGateSkip}
-            className="text-sm text-[#4B6354] hover:text-[#004526] hover:underline"
-          >
-            Skip for now — set up later
+            I understand — continue
           </button>
 
           <p className="text-xs text-[#7A9A88]">
@@ -455,6 +454,12 @@ export default function RegisterPage() {
               {submitLoading ? 'Creating account\u2026' : 'Create account'}
             </button>
           </div>
+          <p className="text-center text-xs text-[#4B6354]">
+            By creating an account, you agree to our{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#006B3C] underline">
+              Privacy Policy
+            </a>
+          </p>
         </form>
       )}
     </main>

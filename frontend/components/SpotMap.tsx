@@ -18,6 +18,11 @@ export interface SpotListing {
   hostLastName?: string;
   hostPhotoUrl?: string;
   hostId?: string;
+  // Session 26 pool extensions
+  isPool?: boolean;
+  bayCount?: number;
+  totalBayCount?: number;
+  availableBayCount?: number;
 }
 
 export interface BBox {
@@ -73,12 +78,20 @@ function buildPopupHtml(spot: SpotListing, destCoords?: { lat: number; lng: numb
     ? `${walkingMinutes(destCoords.lat, destCoords.lng, spot.addressLat, spot.addressLng)} min walk`
     : '';
 
+  // Pool badge
+  let poolBadge = '';
+  if (spot.isPool) {
+    const avail = spot.availableBayCount ?? 0;
+    const total = spot.totalBayCount ?? spot.bayCount ?? 0;
+    poolBadge = `<span style="display:inline-block;padding:2px 6px;border-radius:10px;background:#e6f7ef;color:#004526;font-size:10px;font-weight:600;margin-left:4px;">POOL · ${avail}/${total} bays</span>`;
+  }
+
   return `
     <div style="min-width:140px;max-width:${maxW}px;font-family:system-ui,sans-serif;">
       ${photoUrl ? `<img src="${photoUrl}" alt="" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />` : ''}
       <div style="padding:8px 10px;">
         <p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#1C2B1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${spot.address}</p>
-        <p style="margin:0 0 4px;font-size:11px;color:#4B6354;">${typeLabel}${distance ? ' · ' + distance : ''}</p>
+        <p style="margin:0 0 4px;font-size:11px;color:#4B6354;">${typeLabel}${distance ? ' · ' + distance : ''}${poolBadge}</p>
         <p style="margin:0;font-size:14px;font-weight:700;color:#004526;">€${(spot.pricePerHour ?? 0).toFixed(2)}/hr</p>
       </div>
     </div>
@@ -217,16 +230,41 @@ export default function SpotMap({
       const inner = document.createElement('div');
       inner.className = 'spot-pin-inner';
       inner.dataset.listingId = spot.listingId;
-      inner.style.cssText = `
-        width: 32px; height: 32px; border-radius: 50%;
-        background: ${NAVY};
-        border: 2px solid white;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 11px; font-weight: bold; color: white;
-        transition: transform 0.2s, background 0.2s;
-        pointer-events: auto;
-      `;
-      inner.textContent = `€${(spot.pricePerHour ?? 0).toFixed(0)}`;
+      // Pool listings get a larger, rounded-square pin with a bay count badge.
+      // Single spots get the standard circular pin with the hourly price.
+      if (spot.isPool) {
+        const bays = spot.availableBayCount ?? spot.totalBayCount ?? spot.bayCount ?? 0;
+        inner.style.cssText = `
+          min-width: 44px; height: 34px; padding: 0 8px; border-radius: 10px;
+          background: linear-gradient(135deg, ${NAVY} 0%, ${AMBER} 100%);
+          border: 2px solid white;
+          display: flex; align-items: center; justify-content: center; gap: 4px;
+          font-size: 11px; font-weight: bold; color: white;
+          transition: transform 0.2s, background 0.2s;
+          pointer-events: auto;
+          box-shadow: 0 2px 8px rgba(0,69,38,0.35);
+        `;
+        inner.innerHTML = `
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="white" style="flex-shrink:0">
+            <rect x="3" y="3" width="8" height="8" rx="1"/>
+            <rect x="13" y="3" width="8" height="8" rx="1"/>
+            <rect x="3" y="13" width="8" height="8" rx="1"/>
+            <rect x="13" y="13" width="8" height="8" rx="1"/>
+          </svg>
+          <span>${bays}</span>
+        `;
+      } else {
+        inner.style.cssText = `
+          width: 32px; height: 32px; border-radius: 50%;
+          background: ${NAVY};
+          border: 2px solid white;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 11px; font-weight: bold; color: white;
+          transition: transform 0.2s, background 0.2s;
+          pointer-events: auto;
+        `;
+        inner.textContent = `€${(spot.pricePerHour ?? 0).toFixed(0)}`;
+      }
       wrapper.appendChild(inner);
 
       wrapper.addEventListener('click', (e) => {

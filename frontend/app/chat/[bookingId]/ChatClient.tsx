@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import { useChat } from '../../../hooks/useChat';
 import ChatBubble from '../../../components/ChatBubble';
+import { AccessCodeMessage } from '../../../components/chat/AccessCodeMessage';
 
 interface BookingContext {
   bookingId: string;
@@ -132,7 +133,11 @@ export default function ChatPage() {
           <p className="text-center text-sm text-gray-400">No messages yet — start the conversation</p>
         ) : (
           messages.map((m) => (
-            <ChatBubble key={m.messageId} message={m} own={m.senderId === currentUserId} />
+            m.type === 'ACCESS_CODE' ? (
+              <AccessCodeMessage key={m.messageId} code={m.code ?? ''} validFrom={m.validFrom ?? ''} validUntil={m.validUntil ?? ''} revokedAt={m.revokedAt} />
+            ) : (
+              <ChatBubble key={m.messageId} message={m} own={m.senderId === currentUserId} />
+            )
           ))
         )}
         <div ref={bottomRef} />

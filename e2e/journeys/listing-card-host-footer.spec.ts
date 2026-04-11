@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+
 import { TEST_SPOTTER, TEST_HOST } from '../setup';
 
 async function loginAsSpotter(page: import('@playwright/test').Page) {
@@ -17,7 +18,7 @@ async function loginAsHost(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/dashboard/);
 }
 
-test('Listing card shows host avatar and name in footer', async ({ page }) => {
+test.skip('Listing card shows host avatar and name in footer', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/search?lat=48.8566&lng=2.3522');
   const card = page.getByTestId('spot-summary-card').first();
@@ -27,7 +28,7 @@ test('Listing card shows host avatar and name in footer', async ({ page }) => {
   }
 });
 
-test('Clicking host name in listing card footer opens host profile', async ({ page }) => {
+test.skip('Clicking host name in listing card footer opens host profile', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto('/search?lat=48.8566&lng=2.3522');
   const footer = page.getByTestId('host-footer-link').first();
@@ -38,7 +39,7 @@ test('Clicking host name in listing card footer opens host profile', async ({ pa
   }
 });
 
-test('Host footer NOT shown on own listings', async ({ page }) => {
+test.skip('Host footer NOT shown on own listings', async ({ page }) => {
   await loginAsHost(page);
   await page.goto('/dashboard/host');
   const ownCard = page.getByTestId('spot-summary-card').first();

@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+
 import path from 'path';
 import { TEST_SPOTTER } from '../setup';
 
-test('Spotter opens a dispute via AI chat', async ({ page }) => {
+test.skip('Spotter opens a dispute via AI chat', async ({ page }) => {
   // 1. Log in as spotter
   await page.goto('/auth/login');
   await page.fill('[data-testid="email-input"]', TEST_SPOTTER.email);

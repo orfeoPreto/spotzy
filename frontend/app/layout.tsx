@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 const AmplifyProvider = dynamic(() => import('../components/AmplifyProvider'), { ssr: false });
 const NavigationWrapper = dynamic(() => import('../components/NavigationWrapper'), { ssr: false });
 const FooterWrapper = dynamic(() => import('../components/FooterWrapper'), { ssr: false });
+const StripeSetupGuard = dynamic(() => import('../components/StripeSetupGuard'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'Spotzy — Find Your Perfect Parking Spot',
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#F0F7F3] text-[#004526] antialiased">
         <AmplifyProvider>
           <NavigationWrapper />
+          <StripeSetupGuard />
           {children}
           <FooterWrapper />
         </AmplifyProvider>

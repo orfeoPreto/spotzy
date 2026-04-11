@@ -16,6 +16,11 @@ interface ListingItem {
   addressLat: number;
   addressLng: number;
   nextAvailableAt?: string;
+  // Session 26 pool extensions
+  isPool?: boolean;
+  bayCount?: number;
+  totalBayCount?: number;
+  availableBayCount?: number;
   [key: string]: unknown;
 }
 
@@ -130,12 +135,45 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   // ---------------------------------------------------------------------------
-  // Availability filtering — batch fetch AVAIL_RULE records for all listings
+  // Split pool listings (v2.x Session 26) from single-spot listings. Pool
+  // listings don't use AVAIL_RULE#/AVAIL_BLOCK# — their availability is managed
+  // at the bay level. For pools we compute availableBayCount + totalBayCount
+  // from the BAY# rows and consider them always-available for the listing card.
   // ---------------------------------------------------------------------------
-  const rulesMap = await batchFetchRules(listings.map((l) => l.listingId));
+  const singleSpotListings: typeof listings = [];
+  const poolListings: typeof listings = [];
+  for (const l of listings) {
+    if (l.isPool === true) poolListings.push(l);
+    else singleSpotListings.push(l);
+  }
 
-  // Exclude listings with no rules at all
-  listings = listings.filter((l) => (rulesMap.get(l.listingId) ?? []).length > 0);
+  // Enrich each pool with bay counts
+  for (const pool of poolListings) {
+    try {
+      const baysRes = await client.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+        ExpressionAttributeValues: { ':pk': `LISTING#${pool.listingId}`, ':prefix': 'BAY#' },
+      }));
+      const allBays = baysRes.Items ?? [];
+      const activeBays = allBays.filter((b) => (b.status ?? 'ACTIVE') === 'ACTIVE');
+      pool.totalBayCount = allBays.length;
+      pool.availableBayCount = activeBays.length;  // naive: no per-booking overlap check
+      if (!pool.bayCount) pool.bayCount = allBays.length;
+    } catch {
+      // Best-effort — keep the pool visible even if bay lookup fails
+      pool.totalBayCount = (pool.bayCount as number) ?? 0;
+      pool.availableBayCount = (pool.bayCount as number) ?? 0;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Availability filtering — batch fetch AVAIL_RULE records (single-spot only)
+  // ---------------------------------------------------------------------------
+  const rulesMap = await batchFetchRules(singleSpotListings.map((l) => l.listingId));
+
+  // Exclude single-spot listings with no rules at all
+  listings = singleSpotListings.filter((l) => (rulesMap.get(l.listingId) ?? []).length > 0);
 
   if (hasDates) {
     // Batch fetch AVAIL_BLOCK records for all remaining listings over the requested period
@@ -175,6 +213,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
     listings = withAvailability;
   }
+
+  // Merge pool listings back in — pools bypass listing-level availability rules
+  // because bay availability is computed per-bay at booking time.
+  listings = [...listings, ...poolListings];
 
   // Sort by distance
   listings.sort((a, b) =>

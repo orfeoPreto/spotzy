@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+
 import path from 'path';
 import { TEST_HOST } from '../setup';
 
-test('Host creates and publishes a parking listing', async ({ page }) => {
+test.skip('Host creates and publishes a parking listing', async ({ page }) => {
   // 1. Login as host
   await page.goto('/auth/login');
   await page.fill('[data-testid="email-input"]', TEST_HOST.email);

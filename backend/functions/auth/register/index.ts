@@ -70,6 +70,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           showFullNamePublicly: false,
           profilePhotoUrl: null,
           stripeConnectEnabled: false,
+          privacyPolicyVersion: process.env.CURRENT_POLICY_VERSION ?? '2026-04-01',
+          privacyPolicyAcceptedAt: now,
           createdAt: now,
           updatedAt: now,
         },

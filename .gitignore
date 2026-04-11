@@ -30,3 +30,7 @@ cdk-outputs.json
 # Coverage
 coverage/
 *.lcov
+
+# Playwright
+e2e/test-results/
+e2e/playwright-report/

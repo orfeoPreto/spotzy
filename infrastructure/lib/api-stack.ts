@@ -77,6 +77,43 @@ export const LAMBDA_NAMES = {
   adminCustomersList: 'admin-customers-list',
   adminCustomerGet: 'admin-customer-get',
   adminCustomerSuspend: 'admin-customer-suspend',
+  gdprDelete: 'gdpr-delete',
+  gdprExport: 'gdpr-export',
+  // Session 27 — Block Spotter
+  blockRequestCreate: 'block-request-create',
+  blockRequestUpdate: 'block-request-update',
+  blockRequestGet: 'block-request-get',
+  blockRequestList: 'block-request-list',
+  blockMatch: 'block-match',
+  blockAcceptPlan: 'block-accept-plan',
+  blockAuthorise: 'block-authorise',
+  blockSettle: 'block-settle',
+  blockRequestCancel: 'block-request-cancel',
+  blockGuestAdd: 'block-guest-add',
+  blockGuestReassign: 'block-guest-reassign',
+  blockGuestAnonymise: 'block-guest-anonymise',
+  magicLinkClaim: 'magic-link-claim',
+  blockPaymentWebhook: 'block-payment-webhook',
+  // Session 28 — Tiered Pricing + Platform Fee
+  adminPlatformFeeGet: 'admin-platform-fee-get',
+  adminPlatformFeeUpdate: 'admin-platform-fee-update',
+  bookingQuote: 'booking-quote',
+  // Session 26 — Spot Manager
+  rcSubmissionCreate: 'rc-submission-create',
+  rcSubmissionPresign: 'rc-submission-presign',
+  rcSubmissionGet: 'rc-submission-get',
+  rcSubmissionList: 'rc-submission-list',
+  adminRcReviewList: 'admin-rc-review-list',
+  adminRcReviewLock: 'admin-rc-review-lock',
+  adminRcReviewDecide: 'admin-rc-review-decide',
+  poolListingCreate: 'pool-listing-create',
+  poolBayUpdate: 'pool-bay-update',
+  poolBayList: 'pool-bay-list',
+  bookingBaySwap: 'booking-bay-swap',
+  spotManagerPortfolio: 'spot-manager-portfolio',
+  rcExpiryReminder30d: 'rc-expiry-reminder-30d',
+  rcExpiryReminder7d: 'rc-expiry-reminder-7d',
+  rcExpirySuspend: 'rc-expiry-suspend',
 } as const;
 
 export class ApiStack extends cdk.Stack {
@@ -95,7 +132,8 @@ export class ApiStack extends cdk.Stack {
     const suffix = isProd ? '' : `-${env}`;
     // CloudFront domain — pass via CLOUDFRONT_DOMAIN env var for new environments, default to existing dev domain
     const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
-    const appUrl = `https://${cloudfrontDomain}`;
+    const isLocalDev = env === 'dev-local';
+    const appUrl = isLocalDev ? 'http://localhost:3000' : `https://${cloudfrontDomain}`;
 
     const { table, eventBus, mediaUploadsBucket } = props;
     // Import media-public bucket by name (owned by FrontendStack to avoid OAC cross-stack cycle)
@@ -233,6 +271,43 @@ export class ApiStack extends cdk.Stack {
         'admin-customers-list': 'admin/customers-list',
         'admin-customer-get': 'admin/customer-get',
         'admin-customer-suspend': 'admin/customer-suspend',
+        'gdpr-delete': 'gdpr/delete',
+        'gdpr-export': 'gdpr/export',
+        // Session 27 — Block Spotter
+        'block-request-create': 'block-reservations/request-create',
+        'block-request-update': 'block-reservations/request-update',
+        'block-request-get': 'block-reservations/request-get',
+        'block-request-list': 'block-reservations/request-list',
+        'block-match': 'block-reservations/match',
+        'block-accept-plan': 'block-reservations/accept-plan',
+        'block-authorise': 'block-reservations/authorise',
+        'block-settle': 'block-reservations/settle',
+        'block-request-cancel': 'block-reservations/request-cancel',
+        'block-guest-add': 'block-reservations/guest-add',
+        'block-guest-reassign': 'block-reservations/guest-reassign',
+        'block-guest-anonymise': 'block-reservations/guest-anonymise',
+        'magic-link-claim': 'block-reservations/magic-link-claim',
+        'block-payment-webhook': 'block-reservations/payment-webhook',
+        // Session 28 — Tiered Pricing + Platform Fee
+        'admin-platform-fee-get': 'admin/platform-fee-get',
+        'admin-platform-fee-update': 'admin/platform-fee-update',
+        'booking-quote': 'bookings/quote',
+        // Session 26 — Spot Manager
+        'rc-submission-create': 'spot-manager/rc-submission-create',
+        'rc-submission-presign': 'spot-manager/rc-submission-presign',
+        'rc-submission-get': 'spot-manager/rc-submission-get',
+        'rc-submission-list': 'spot-manager/rc-submission-list',
+        'admin-rc-review-list': 'spot-manager/admin-rc-review-list',
+        'admin-rc-review-lock': 'spot-manager/admin-rc-review-lock',
+        'admin-rc-review-decide': 'spot-manager/admin-rc-review-decide',
+        'pool-listing-create': 'spot-manager/pool-listing-create',
+        'pool-bay-update': 'spot-manager/pool-bay-update',
+        'pool-bay-list': 'spot-manager/pool-bay-list',
+        'booking-bay-swap': 'spot-manager/booking-bay-swap',
+        'spot-manager-portfolio': 'spot-manager/portfolio',
+        'rc-expiry-reminder-30d': 'spot-manager/rc-expiry-reminder-30d',
+        'rc-expiry-reminder-7d': 'spot-manager/rc-expiry-reminder-7d',
+        'rc-expiry-suspend': 'spot-manager/rc-expiry-suspend',
       };
       const dir = dirMap[shortName];
       if (!dir) throw new Error(`No handler path for Lambda: ${shortName}`);
@@ -275,7 +350,7 @@ export class ApiStack extends cdk.Stack {
       COGNITO_CLIENT_ID: this.userPoolClient.userPoolClientId,
       COGNITO_USER_POOL_ID: this.userPool.userPoolId,
     };
-    const authRegisterFn      = mkFn('auth-register',       cognitoEnv);
+    const authRegisterFn      = mkFn('auth-register',       { ...cognitoEnv, CURRENT_POLICY_VERSION: '2026-04-01' });
     const authLoginFn         = mkFn('auth-login',          cognitoEnv);
     const authVerifyOtpFn     = mkFn('auth-verify-otp',     cognitoEnv);
     const authResendOtpFn     = mkFn('auth-resend-otp',     cognitoEnv);
@@ -382,6 +457,35 @@ export class ApiStack extends cdk.Stack {
     disputeEscalateFn.addToRolePolicy(bedrockPolicy);
     disputeEscalateFn.addToRolePolicy(marketplacePolicy);
 
+    // GDPR Lambdas
+    const gdprDeleteFn = mkFn(LAMBDA_NAMES.gdprDelete, {
+      ...cognitoEnv,
+      MEDIA_PUBLIC_BUCKET: mediaPublicBucket.bucketName,
+      FROM_EMAIL: 'noreply@spotzy.com',
+      CURRENT_POLICY_VERSION: '2026-04-01',
+    });
+    gdprDeleteFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminDisableUser', 'cognito-idp:AdminDeleteUser'],
+      resources: [this.userPool.userPoolArn],
+    }));
+    gdprDeleteFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['s3:DeleteObject'],
+      resources: [`${mediaPublicBucket.bucketArn}/*`],
+    }));
+    gdprDeleteFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ses:SendEmail'],
+      resources: ['*'],
+    }));
+
+    const gdprExportsBucketName = `spotzy-gdpr-exports${suffix}`;
+    const gdprExportFn = mkFn(LAMBDA_NAMES.gdprExport, {
+      GDPR_EXPORTS_BUCKET: gdprExportsBucketName,
+    });
+    gdprExportFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:GetObject'],
+      resources: [`arn:aws:s3:::${gdprExportsBucketName}/*`],
+    }));
+
     const userGetFn        = mkFn(LAMBDA_NAMES.userGet);
     const userUpdateFn     = mkFn(LAMBDA_NAMES.userUpdate);
     const userPublicGetFn  = mkFn(LAMBDA_NAMES.userPublicGet);
@@ -450,6 +554,18 @@ export class ApiStack extends cdk.Stack {
     paymentWebhookFn.addEnvironment('SCHEDULER_ROLE_ARN', schedulerRole.roleArn);
     paymentWebhookFn.addEnvironment('STATUS_TRANSITION_LAMBDA_ARN', bookingStatusTransitionFn.functionArn);
 
+    // Stripe secret ARNs — declared early so Session 26/27/28 Lambdas can reference them
+    const stripeSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/secret-key*`;
+    const stripeWebhookSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/webhook-secret*`;
+
+    // Session 26 Spot Manager Lambdas are in SpotManagerStack (separate
+    // CloudFormation stack to stay under the 500 resources/stack limit).
+
+    // Session 28 Tiered Pricing + Platform Fee Lambdas are in SpotManagerStack.
+    // Session 27 Block Reservation Lambdas are in a separate stack
+    // (infrastructure/lib/block-reservations-stack.ts) to stay under the 500
+    // resource-per-stack CloudFormation limit.
+
     mkFn(LAMBDA_NAMES.availabilityBlock);
     mkFn(LAMBDA_NAMES.availabilityRelease);
 
@@ -492,8 +608,7 @@ export class ApiStack extends cdk.Stack {
     }));
 
     // payment-intent and payment-webhook need to read the Stripe secret key
-    const stripeSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/secret-key*`;
-    const stripeWebhookSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/webhook-secret*`;
+    // (stripeSecretArn and stripeWebhookSecretArn declared earlier for Session 26/27)
     for (const fn of [paymentIntentFn, paymentWebhookFn, payoutSetupFn]) {
       fn.addToRolePolicy(new iam.PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
@@ -651,6 +766,8 @@ export class ApiStack extends cdk.Stack {
     usersMe.addResource('photo-url').addMethod('POST', integ(userPhotoUrlFn), authOpts);
     usersMe.addResource('payout').addMethod('POST', integ(payoutSetupFn), authOpts);
     usersMe.addResource('become-host').addMethod('POST', integ(userBecomeHostFn), authOpts);
+    usersMe.addMethod('DELETE', integ(gdprDeleteFn), authOpts);
+    usersMe.addResource('export').addMethod('GET', integ(gdprExportFn), authOpts);
     const invoicingResource = usersMe.addResource('invoicing');
     invoicingResource.addMethod('GET', integ(userInvoicingFn), authOpts);
     invoicingResource.addMethod('PUT', integ(userInvoicingFn), authOpts);
@@ -670,11 +787,19 @@ export class ApiStack extends cdk.Stack {
     adminDisputeById.addResource('message').addMethod('POST', integ(adminDisputeMessageFn), authOpts);
     adminDisputeById.addResource('resolve').addMethod('POST', integ(adminDisputeResolveFn), authOpts);
 
+    // Session 26 admin RC review routes and Session 28 platform fee routes are in SpotManagerStack.
+
     const adminCustomers = admin.addResource('customers');
     adminCustomers.addMethod('GET', integ(adminCustomersListFn), authOpts);
     const adminCustomerById = adminCustomers.addResource('{userId}');
     adminCustomerById.addMethod('GET', integ(adminCustomerGetFn), authOpts);
     adminCustomerById.addResource('suspend').addMethod('POST', integ(adminCustomerSuspendFn), authOpts);
+
+    // Session 26 Spot Manager routes are in SpotManagerStack.
+
+    // Session 27 Block Reservations routes are hosted in BlockReservationsStack
+    // under a separate RestApi (spotzy-block-api) to stay under CloudFormation
+    // resource limits.
 
     // -----------------------------------------------------------------------
     // WebSocket API (API Gateway v2)

@@ -9,6 +9,8 @@ export default function BackofficeLayout({ children }: { children: React.ReactNo
   const navItems = [
     { href: '/backoffice', label: 'Disputes' },
     { href: '/backoffice/customers', label: 'Customers' },
+    { href: '/backoffice/rc-review', label: 'RC review' },
+    { href: '/backoffice/platform-fee', label: 'Platform fee' },
   ];
 
   return (

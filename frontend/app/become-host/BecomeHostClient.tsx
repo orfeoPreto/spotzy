@@ -70,9 +70,10 @@ export default function BecomeHostClient() {
         </div>
 
         <div>
-          <h1 className="text-2xl font-bold text-[#004526]">Become a Host</h1>
+          <h1 className="text-2xl font-bold text-[#004526]">Finish setting up your host account</h1>
           <p className="mt-2 text-sm text-gray-500">
-            Set up your payout account to start earning from your parking space.
+            Connecting a Stripe payout account is required before you can list parking spots. This is a one-time
+            setup and takes about 2 minutes.
           </p>
         </div>
 
@@ -82,8 +83,15 @@ export default function BecomeHostClient() {
           disabled={loading}
           className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-semibold text-white hover:bg-[#004526] disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Opening Stripe…' : 'Set up payouts'}
+          {loading ? 'Opening Stripe…' : 'Set up payouts with Stripe'}
         </button>
+
+        <div className="rounded-lg bg-[#FFF4E5] border border-[#FFD89A] p-3 text-left">
+          <p className="text-xs text-[#8C5A00]">
+            <strong>Required step.</strong> Until you complete Stripe onboarding, you won't be able to create
+            listings or receive payouts. You'll remain on this screen whenever you try to access host features.
+          </p>
+        </div>
 
         <p className="text-xs text-gray-400">
           Powered by Stripe Connect — your banking details are handled securely by Stripe, not stored by Spotzy.

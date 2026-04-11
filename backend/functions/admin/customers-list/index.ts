@@ -67,11 +67,38 @@ const getBookingCount = async (userId: string): Promise<number> => {
   return (asSpotter.Count ?? 0) + (asHost.Count ?? 0);
 };
 
-/** Build personas array */
-const buildPersonas = (user: Record<string, unknown>): string[] => {
+/** Count BLOCKREQ# records for a user (indicates BLOCK_SPOTTER persona) */
+const getBlockRequestCount = async (userId: string): Promise<number> => {
+  try {
+    const res = await ddb.send(new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+      ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'BLOCKREQ#' },
+      Select: 'COUNT',
+    }));
+    return res.Count ?? 0;
+  } catch {
+    return 0;
+  }
+};
+
+/** Build personas array. SPOTTER is always present; HOST, SPOT_MANAGER, BLOCK_SPOTTER
+ *  are additive based on profile flags and activity. */
+const buildPersonas = (user: Record<string, unknown>, blockRequestCount: number): string[] => {
   const personas: string[] = ['SPOTTER'];
   if (user.stripeConnectAccountId || user.stripeConnectEnabled || user.isHost) {
     personas.push('HOST');
+  }
+  // Session 26: Spot Manager is active when the commitment gate has been submitted
+  // (STAGED = pending RC review) or approved (ACTIVE).
+  const smStatus = user.spotManagerStatus as string | undefined;
+  if (smStatus === 'STAGED' || smStatus === 'ACTIVE') {
+    personas.push('SPOT_MANAGER');
+  }
+  // Session 27: Block Spotter is active for any user who has submitted at least
+  // one block reservation request.
+  if (blockRequestCount > 0) {
+    personas.push('BLOCK_SPOTTER');
   }
   return personas;
 };
@@ -118,17 +145,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const enrichedCustomers = await Promise.all(
     users.map(async (u) => {
       const userId = (u.userId as string) ?? (u.PK as string).replace('USER#', '');
-      const [rating, listingCount, bookingCount] = await Promise.all([
+      const [rating, listingCount, bookingCount, blockRequestCount] = await Promise.all([
         getRating(userId),
         getListingCount(userId),
         getBookingCount(userId),
+        getBlockRequestCount(userId),
       ]);
       return {
         userId,
         displayName: deriveDisplayName(u),
         fullName: `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || null,
         email: u.email ?? null,
-        personas: buildPersonas(u),
+        personas: buildPersonas(u, blockRequestCount),
         isHost: !!(u.stripeConnectAccountId || u.stripeConnectEnabled),
         rating,
         listingCount,

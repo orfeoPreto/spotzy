@@ -9,6 +9,7 @@ export class DataStack extends cdk.Stack {
   public readonly eventBus: events.EventBus;
   public readonly mediaUploadsBucket: s3.Bucket;
   public readonly mediaDisputesBucket: s3.Bucket;
+  public readonly gdprExportsBucket: s3.Bucket;
   public readonly logsBucket: s3.Bucket;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -150,6 +151,56 @@ export class DataStack extends cdk.Stack {
       serverAccessLogsPrefix: 'media-disputes/',
     });
 
+    // spotzy-gdpr-exports — temporary export files with auto-delete
+    this.gdprExportsBucket = new s3.Bucket(this, 'SpotzyGdprExportsBucket', {
+      bucketName: `spotzy-gdpr-exports${suffix}`,
+      removalPolicy,
+      autoDeleteObjects,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      lifecycleRules: [
+        { id: 'expire-exports', expiration: cdk.Duration.days(1) },
+      ],
+    });
+
+    // -----------------------------------------------------------------------
+    // Session 26 — RC Documents bucket (SSE-S3, lifecycle to IA + Glacier)
+    // -----------------------------------------------------------------------
+    new s3.Bucket(this, 'SpotzyRCDocumentsBucket', {
+      bucketName: `spotzy-rc-documents${suffix}`,
+      removalPolicy,
+      autoDeleteObjects,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      versioned: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.PUT],
+          allowedOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
+          allowedHeaders: ['*'],
+          exposedHeaders: ['ETag'],
+          maxAge: 3000,
+        },
+      ],
+      lifecycleRules: [
+        {
+          id: 'to-infrequent-access',
+          transitions: [
+            { storageClass: s3.StorageClass.INFREQUENT_ACCESS, transitionAfter: cdk.Duration.days(90) },
+          ],
+        },
+        {
+          id: 'to-glacier',
+          transitions: [
+            { storageClass: s3.StorageClass.GLACIER, transitionAfter: cdk.Duration.days(365) },
+          ],
+        },
+      ],
+      serverAccessLogsBucket: this.logsBucket,
+      serverAccessLogsPrefix: 'rc-documents/',
+    });
+
     // -----------------------------------------------------------------------
     // Outputs
     // -----------------------------------------------------------------------
@@ -162,5 +213,6 @@ export class DataStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'MediaDisputesBucketName', { value: this.mediaDisputesBucket.bucketName });
     new cdk.CfnOutput(this, 'MediaDisputesBucketArn', { value: this.mediaDisputesBucket.bucketArn });
     new cdk.CfnOutput(this, 'LogsBucketName', { value: this.logsBucket.bucketName });
+    new cdk.CfnOutput(this, 'GdprExportsBucketName', { value: this.gdprExportsBucket.bucketName });
   }
 }

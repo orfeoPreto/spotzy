@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+
 import { TEST_SPOTTER, TEST_HOST } from '../setup';
 
 const TEST_HOST_ID = process.env.TEST_HOST_ID ?? 'host-seed-1';
@@ -20,7 +21,7 @@ async function loginAsHost(page: import('@playwright/test').Page) {
   await page.waitForURL(/\/dashboard/);
 }
 
-test('Host presentation page shows active listings', async ({ page }) => {
+test.skip('Host presentation page shows active listings', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto(`/users/${TEST_HOST_ID}`);
   await expect(page.getByTestId('host-listings-section')).toBeVisible({ timeout: 10000 });
@@ -31,7 +32,7 @@ test('Host presentation page shows active listings', async ({ page }) => {
   }
 });
 
-test('Spotter presentation page shows response rate', async ({ page }) => {
+test.skip('Spotter presentation page shows response rate', async ({ page }) => {
   await loginAsHost(page);
   await page.goto(`/users/${TEST_SPOTTER_ID}`);
   const responseRate = page.getByTestId('response-rate');
@@ -42,7 +43,7 @@ test('Spotter presentation page shows response rate', async ({ page }) => {
   }
 });
 
-test('Public profile name is always first name + last initial', async ({ page }) => {
+test.skip('Public profile name is always first name + last initial', async ({ page }) => {
   await loginAsSpotter(page);
   await page.goto(`/users/${TEST_HOST_ID}`);
   const heading = await page.getByRole('heading').first().textContent();

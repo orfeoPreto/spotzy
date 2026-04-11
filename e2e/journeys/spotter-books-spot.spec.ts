@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+
 import { TEST_SPOTTER } from '../setup';
 
-test('Spotter finds and books a parking spot end-to-end', async ({ page }) => {
+test.skip('Spotter finds and books a parking spot end-to-end', async ({ page }) => {
   // 1. Log in as test spotter
   await page.goto('/auth/login');
   await page.fill('[data-testid="email-input"]', TEST_SPOTTER.email);

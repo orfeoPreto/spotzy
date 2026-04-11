@@ -56,6 +56,8 @@ export default function ListingWizardPage() {
   const [availabilitySaving, setAvailabilitySaving] = useState(false);
   const [availabilityError, setAvailabilityError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextFetchRef = useRef(false);
+  const addressInputRef = useRef<HTMLInputElement>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -92,6 +94,7 @@ export default function ListingWizardPage() {
   // Fetch address suggestions
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (skipNextFetchRef.current) { skipNextFetchRef.current = false; return; }
     if (addressQuery.length < 3) { setSuggestions([]); return; }
     debounceRef.current = setTimeout(async () => {
       const res = await fetch(
@@ -104,9 +107,12 @@ export default function ListingWizardPage() {
   }, [addressQuery]);
 
   const selectAddress = (s: GeoSuggestion) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    skipNextFetchRef.current = true;
     setState((p) => ({ ...p, address: s.place_name, lat: s.center[1], lng: s.center[0] }));
     setAddressQuery(s.place_name);
     setSuggestions([]);
+    addressInputRef.current?.blur();
   };
 
   // Step validity
@@ -345,10 +351,12 @@ export default function ListingWizardPage() {
           <h2 className="mb-4 text-xl font-bold text-gray-900">Where is your spot?</h2>
           <div className="relative">
             <input
+              ref={addressInputRef}
               type="text"
               placeholder="Enter address or street"
               value={addressQuery}
               onChange={(e) => { setAddressQuery(e.target.value); setState((p) => ({ ...p, address: '', lat: null, lng: null })); }}
+              onBlur={() => setTimeout(() => setSuggestions([]), 200)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
             />
             {suggestions.length > 0 && (

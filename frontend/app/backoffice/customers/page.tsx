@@ -163,15 +163,24 @@ function CustomersContent() {
                   </Link>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex gap-1">
-                    {c.personas.map((p) => (
-                      <span
-                        key={p}
-                        className="text-xs px-2 py-0.5 rounded-full bg-[#004526]/10 text-[#004526]"
-                      >
-                        {p}
-                      </span>
-                    ))}
+                  <div className="flex gap-1 flex-wrap">
+                    {c.personas.map((p) => {
+                      const label =
+                        p === 'SPOT_MANAGER' ? 'Spot Manager' :
+                        p === 'BLOCK_SPOTTER' ? 'Block Spotter' :
+                        p.charAt(0) + p.slice(1).toLowerCase();
+                      const color =
+                        p === 'HOST' ? 'bg-[#004526]/10 text-[#004526]' :
+                        p === 'SPOTTER' ? 'bg-[#006B3C]/10 text-[#006B3C]' :
+                        p === 'SPOT_MANAGER' ? 'bg-gradient-to-r from-[#004526]/15 to-[#006B3C]/15 text-[#004526]' :
+                        p === 'BLOCK_SPOTTER' ? 'bg-amber-50 text-amber-700' :
+                        'bg-gray-100 text-gray-600';
+                      return (
+                        <span key={p} className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${color}`}>
+                          {label}
+                        </span>
+                      );
+                    })}
                   </div>
                 </td>
                 <td className="px-4 py-3">{c.rating?.toFixed(1) ?? '-'}</td>

@@ -98,7 +98,7 @@ function HowItWorks() {
   );
 }
 
-// ─── Features split ──────────────────────────────────────────────────────────
+// ─── Features / Agent API rotating showcase ─────────────────────────────────
 
 const SPOTTER_FEATURES = [
   'Real-time map search',
@@ -118,65 +118,224 @@ const HOST_FEATURES = [
   'Earnings dashboard',
 ];
 
-function Features() {
+function BuiltForEveryoneCards() {
   const { destination: listSpotDest } = useListYourSpotDestination();
   return (
-    <section className="bg-[#F0F7F3] px-6 py-20">
-      <div className="mx-auto max-w-5xl">
-        <h2 className="mb-12 text-center text-3xl font-bold text-[#004526]">Built for everyone</h2>
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Spotter card */}
-          <div className="grow group rounded-2xl bg-white p-8 shadow-sm">
-            <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" />
-                <path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" />
-                <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
-              </svg>
-            </div>
-            <h3 className="mb-1 text-xl font-bold text-[#004526]">Find a spot</h3>
-            <p className="mb-6 text-sm text-gray-500">For drivers looking for reliable, affordable parking</p>
-            <ul className="mb-8 space-y-2">
-              {SPOTTER_FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                  <span className="text-[#006B3C]">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/search"
-              className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
-            >
-              Search parking now
-            </Link>
+    <div>
+      <h2 className="mb-12 text-center text-3xl font-bold text-[#004526] md:text-4xl">Built for everyone</h2>
+      <div className="grid gap-8 md:grid-cols-2">
+        {/* Spotter card */}
+        <div className="grow group rounded-2xl bg-white p-8 shadow-sm">
+          <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" />
+              <path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" />
+              <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
+            </svg>
           </div>
+          <h3 className="mb-1 text-xl font-bold text-[#004526]">Find a spot</h3>
+          <p className="mb-6 text-sm text-gray-500">For drivers looking for reliable, affordable parking</p>
+          <ul className="mb-8 space-y-2">
+            {SPOTTER_FEATURES.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="text-[#006B3C]">✓</span> {f}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/search"
+            className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
+          >
+            Search parking now
+          </Link>
+        </div>
 
-          {/* Host card */}
-          <div className="grow group rounded-2xl bg-[#006B3C]/10 border border-[#006B3C]/20 p-8 shadow-sm">
-            <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
-                <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" />
-              </svg>
-            </div>
-            <h3 className="mb-1 text-xl font-bold text-[#004526]">List your spot</h3>
-            <p className="mb-6 text-sm text-gray-500">For property owners who want to earn from unused space</p>
-            <ul className="mb-8 space-y-2">
-              {HOST_FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                  <span className="text-[#006B3C]">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href={listSpotDest}
-              className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
-            >
-              Start earning
-            </Link>
+        {/* Host card */}
+        <div className="grow group rounded-2xl bg-[#006B3C]/10 border border-[#006B3C]/20 p-8 shadow-sm">
+          <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+              <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" />
+            </svg>
+          </div>
+          <h3 className="mb-1 text-xl font-bold text-[#004526]">List your spot</h3>
+          <p className="mb-6 text-sm text-gray-500">For property owners who want to earn from unused space</p>
+          <ul className="mb-8 space-y-2">
+            {HOST_FEATURES.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="text-[#006B3C]">✓</span> {f}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href={listSpotDest}
+            className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
+          >
+            Start earning
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AgentApiAnnouncement() {
+  return (
+    <div>
+      {/* Announcement badge */}
+      <div className="mb-6 flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#006B3C]/30 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#006B3C] shadow-sm">
+          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#006B3C]"></span>
+          Coming soon · Developer preview
+        </span>
+      </div>
+
+      <h2 className="mb-4 text-center text-3xl font-bold text-[#004526] md:text-4xl">
+        Book parking with a single prompt.
+      </h2>
+      <p className="mx-auto mb-12 max-w-2xl text-center text-base text-gray-600">
+        The Spotzy Agent API lets AI assistants like Claude, ChatGPT, and custom
+        LangChain agents find, book, and manage parking on your behalf — through
+        a natural-language interface backed by the same platform that powers spotzy.com.
+      </p>
+
+      {/* Prompt demo card */}
+      <div className="mx-auto mb-12 max-w-3xl overflow-hidden rounded-2xl border border-[#006B3C]/20 bg-white shadow-lg">
+        {/* Terminal-like header */}
+        <div className="flex items-center gap-2 border-b border-gray-100 bg-[#F0F7F3] px-4 py-2">
+          <div className="flex gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
+            <div className="h-2.5 w-2.5 rounded-full bg-amber-400"></div>
+            <div className="h-2.5 w-2.5 rounded-full bg-green-400"></div>
+          </div>
+          <span className="ml-2 text-xs font-mono text-gray-500">claude.ai · spotzy mcp</span>
+        </div>
+
+        {/* User prompt */}
+        <div className="border-b border-gray-100 bg-white px-6 py-4">
+          <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">You</div>
+          <p className="text-sm text-gray-800">
+            I&apos;m driving to a meeting near Rue de la Loi 175 on Thursday 2–5pm.
+            Book me a covered spot within 5 min walk, under €8 total. Use Spotzy.
+          </p>
+        </div>
+
+        {/* Agent response */}
+        <div className="bg-gradient-to-b from-white to-[#F0F7F3] px-6 py-4">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#004526]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.8l7 3.5v7.4l-7 3.5-7-3.5V8.3l7-3.5z" />
+            </svg>
+            Claude · via Spotzy MCP
+          </div>
+          <div className="space-y-2 text-sm text-gray-700">
+            <p className="flex items-start gap-2">
+              <span className="text-[#006B3C]">→</span>
+              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">search_listings</code> found 4 covered spots &lt;5min walk</span>
+            </p>
+            <p className="flex items-start gap-2">
+              <span className="text-[#006B3C]">→</span>
+              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">get_quote</code> returned €7.20 for 3h on the closest match</span>
+            </p>
+            <p className="flex items-start gap-2">
+              <span className="text-[#006B3C]">→</span>
+              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">create_booking</code> confirmed, access code sent to your email 📨</span>
+            </p>
+            <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-800 shadow-sm">
+              ✅ Booked <strong>Rue de la Loi 178 (covered garage)</strong>, 4 min walk,
+              Thu 14:00–17:00, €7.20. Confirmation in your inbox.
+            </p>
           </div>
         </div>
       </div>
+
+      {/* Capabilities grid */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {[
+          { title: 'Search & quote', desc: 'Find matching spots and get tiered pricing instantly.' },
+          { title: 'Book & cancel', desc: 'Create, modify, and cancel bookings on user behalf.' },
+          { title: 'Chat & messages', desc: 'Relay messages between spotters and hosts.' },
+          { title: 'Webhooks & MCP', desc: 'Subscribe to events or plug into any MCP client.' },
+        ].map((c) => (
+          <div key={c.title} className="rounded-xl border border-[#006B3C]/15 bg-white p-5 shadow-sm">
+            <h3 className="mb-1 text-sm font-bold text-[#004526]">{c.title}</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">{c.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tech chips + waitlist CTA */}
+      <div className="mt-10 flex flex-col items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {['REST API', 'OpenAPI 3.1', 'MCP (stdio + hosted SSE)', 'API keys', 'HMAC webhooks'].map((tag) => (
+            <span key={tag} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <p className="text-center text-xs text-gray-500">
+          Launching in developer preview soon. Reach out to{' '}
+          <a href="mailto:dev@spotzy.be" className="font-medium text-[#006B3C] hover:underline">
+            dev@spotzy.be
+          </a>{' '}
+          to get an early API key.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Features() {
+  const { user, isLoading } = useAuth();
+  // When logged in, only show the Agent API announcement (drop the Spotter/Host
+  // onboarding cards since the user is already past that stage).
+  // When logged out, auto-rotate between the two panels every 8 seconds.
+  const loggedIn = !isLoading && !!user;
+  const [panel, setPanel] = useState<'builtForEveryone' | 'agentApi'>('builtForEveryone');
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (loggedIn) {
+      setPanel('agentApi');
+      return;
+    }
+    if (paused) return;
+    const interval = setInterval(() => {
+      setPanel((p) => (p === 'builtForEveryone' ? 'agentApi' : 'builtForEveryone'));
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [loggedIn, paused]);
+
+  return (
+    <section
+      className="bg-gradient-to-br from-[#F0F7F3] via-white to-[#F0F7F3] px-6 py-20"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="mx-auto max-w-5xl">
+        <div key={panel} className="animate-fade-in-soft">
+          {panel === 'builtForEveryone' ? <BuiltForEveryoneCards /> : <AgentApiAnnouncement />}
+        </div>
+
+        {/* Carousel dots — only when logged out */}
+        {!loggedIn && (
+          <div className="mt-10 flex items-center justify-center gap-3">
+            {(['builtForEveryone', 'agentApi'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPanel(p)}
+                aria-label={p === 'builtForEveryone' ? 'Show Spotzy features' : 'Show Agent API announcement'}
+                className={`h-2 rounded-full transition-all ${
+                  panel === p
+                    ? 'w-8 bg-[#006B3C]'
+                    : 'w-2 bg-[#006B3C]/30 hover:bg-[#006B3C]/60'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
     </section>
   );
 }

@@ -120,6 +120,15 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Soft fade-in for rotating showcase panels */
+@keyframes fadeInSoft {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-soft {
+  animation: fadeInSoft 0.6s ease-out;
+}
+
 /* Focus ring */
 *:focus-visible {
   outline: 2px solid var(--ring);

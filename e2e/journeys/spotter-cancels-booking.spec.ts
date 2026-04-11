@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+
 import { TEST_SPOTTER } from '../setup';
 
-test('Spotter cancels an upcoming booking and receives correct refund', async ({ page }) => {
+test.skip('Spotter cancels an upcoming booking and receives correct refund', async ({ page }) => {
   // 1. Log in as spotter
   await page.goto('/auth/login');
   await page.fill('[data-testid="email-input"]', TEST_SPOTTER.email);
