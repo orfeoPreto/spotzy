@@ -6,6 +6,7 @@ import CancelModal from '../../../../components/CancelModal';
 import ModifyModal from '../../../../components/ModifyModal';
 import RatingModal from '../../../../components/RatingModal';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 type Tab = 'upcoming' | 'past';
 
@@ -24,6 +25,7 @@ function deriveBookingStatus(b: Booking): string {
 }
 
 export default function SpotterDashboardPage() {
+  const { t } = useTranslation('dashboard');
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('upcoming');
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -54,7 +56,7 @@ export default function SpotterDashboardPage() {
 
   return (
     <main className="mx-auto max-w-4xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">My bookings</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">{t('spotter.my_bookings')}</h1>
 
       {/* Tabs */}
       <div role="tablist" className="mb-6 flex gap-2 border-b border-gray-200">
@@ -87,7 +89,7 @@ export default function SpotterDashboardPage() {
           />
         ))}
         {visibleBookings.length === 0 && (
-          <p className="text-center text-sm text-gray-400">No {tab} bookings.</p>
+          <p className="text-center text-sm text-gray-400">{t('spotter.no_bookings', { tab })}</p>
         )}
       </div>
 

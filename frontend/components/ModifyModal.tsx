@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
 interface ModifyBooking {
   bookingId: string;
@@ -47,6 +48,8 @@ function calcHours(start: string, end: string): number {
 }
 
 export default function ModifyModal({ booking, onClose, onModified }: ModifyModalProps) {
+  const { t } = useTranslation('booking');
+  const { t: tCommon } = useTranslation('common');
   const [changeType, setChangeType] = useState<ChangeType>(null);
   const [newValue, setNewValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -103,7 +106,7 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Modify booking</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t('modify.modal_title')}</h2>
 
         <div className="mb-4 flex gap-3">
           <button
@@ -112,21 +115,21 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
             onClick={() => { setChangeType('start'); setNewValue(toInputValue(bStartDate)); }}
             className={`flex-1 rounded-lg border py-2 text-sm font-medium ${startInPast ? 'border-gray-200 text-gray-300 cursor-not-allowed' : changeType === 'start' ? 'border-[#AD3614] bg-amber-50 text-[#AD3614]' : 'border-gray-300 text-gray-600'}`}
           >
-            Change start time
+            {t('modify.change_start')}
           </button>
           <button
             type="button"
             onClick={() => { setChangeType('end'); setNewValue(toInputValue(bEndDate)); }}
             className={`flex-1 rounded-lg border py-2 text-sm font-medium ${changeType === 'end' ? 'border-[#AD3614] bg-amber-50 text-[#AD3614]' : 'border-gray-300 text-gray-600'}`}
           >
-            Change end time
+            {t('modify.change_end')}
           </button>
         </div>
 
         {changeType && (
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-gray-600">
-              New {changeType} time
+              {t('modify.new_time_label', { changeType: changeType ?? '' })}
             </label>
             <input
               type="datetime-local"
@@ -152,7 +155,7 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
         <div className="flex gap-3">
           <button type="button" onClick={onClose}
             className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-700">
-            Cancel
+            {tCommon('buttons.cancel')}
           </button>
           <button
             type="button"
@@ -160,7 +163,7 @@ export default function ModifyModal({ booking, onClose, onModified }: ModifyModa
             disabled={!changeType || !newValue || saving}
             className="flex-1 rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white disabled:opacity-40"
           >
-            Save changes
+            {t('modify.save_button')}
           </button>
         </div>
       </div>

@@ -4,20 +4,21 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../hooks/useAuth';
 import AvailabilityGrid, { SaveAvailabilityPayload } from '../../../../components/AvailabilityGrid';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
-const SPOT_TYPES = [
-  { value: 'COVERED_GARAGE', label: 'Covered garage', icon: '🏠' },
-  { value: 'OPEN_SPACE', label: 'Open lot', icon: '🅿' },
-  { value: 'CARPORT', label: 'Carport', icon: '🛣' },
-  { value: 'DRIVEWAY', label: 'Private driveway', icon: '🚗' },
+const SPOT_TYPE_DEFS = [
+  { value: 'COVERED_GARAGE', key: 'create.spot_types.COVERED_GARAGE', icon: '🏠' },
+  { value: 'OPEN_SPACE', key: 'create.spot_types.OPEN_SPACE', icon: '🅿' },
+  { value: 'CARPORT', key: 'create.spot_types.CARPORT', icon: '🛣' },
+  { value: 'DRIVEWAY', key: 'create.spot_types.DRIVEWAY', icon: '🚗' },
 ];
 
-const STEPS = ['Location', 'Spot details', 'Photos', 'Availability'];
+const STEP_KEYS = ['create.steps.location', 'create.steps.details', 'create.steps.photos', 'create.steps.availability'];
 
 interface GeoSuggestion { place_name: string; center: [number, number] }
 interface PhotoSlot { file: File | null; status: 'idle' | 'uploading' | 'validating' | 'PASS' | 'FAIL'; reason?: string; thumbnail?: string }
@@ -35,6 +36,8 @@ interface WizardState {
 }
 
 export default function ListingWizardPage() {
+  const { t } = useTranslation('listings');
+  const { t: tCommon } = useTranslation('common');
   const router = useRouter();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
@@ -324,8 +327,8 @@ export default function ListingWizardPage() {
     <main className="mx-auto max-w-2xl p-8">
       {/* Step indicator */}
       <div className="mb-8 flex items-center justify-center gap-3">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex items-center gap-2">
+        {STEP_KEYS.map((key, i) => (
+          <div key={key} className="flex items-center gap-2">
             <button
               type="button"
               data-step={i + 1}
@@ -338,9 +341,9 @@ export default function ListingWizardPage() {
               {i + 1}
             </button>
             <span className={`hidden text-xs sm:block ${step === i + 1 ? 'font-semibold text-[#AD3614]' : 'text-gray-400'}`}>
-              {label}
+              {t(key)}
             </span>
-            {i < STEPS.length - 1 && <div className="h-px w-6 bg-gray-300" />}
+            {i < STEP_KEYS.length - 1 && <div className="h-px w-6 bg-gray-300" />}
           </div>
         ))}
       </div>
@@ -348,12 +351,12 @@ export default function ListingWizardPage() {
       {/* Step 1 — Location */}
       {step === 1 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">Where is your spot?</h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{t('create.location_heading')}</h2>
           <div className="relative">
             <input
               ref={addressInputRef}
               type="text"
-              placeholder="Enter address or street"
+              placeholder={t('create.address_placeholder')}
               value={addressQuery}
               onChange={(e) => { setAddressQuery(e.target.value); setState((p) => ({ ...p, address: '', lat: null, lng: null })); }}
               onBlur={() => setTimeout(() => setSuggestions([]), 200)}
@@ -385,37 +388,37 @@ export default function ListingWizardPage() {
       {/* Step 2 — Spot details */}
       {step === 2 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">Tell us about your spot</h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{t('create.details_heading')}</h2>
           <div className="mb-6 grid grid-cols-2 gap-3">
-            {SPOT_TYPES.map((t) => (
+            {SPOT_TYPE_DEFS.map((st) => (
               <button
-                key={t.value}
+                key={st.value}
                 type="button"
                 data-testid="spot-type-tile"
-                onClick={() => setState((p) => ({ ...p, spotType: t.value }))}
+                onClick={() => setState((p) => ({ ...p, spotType: st.value }))}
                 className={`rounded-xl border-2 p-4 text-left transition-colors ${
-                  state.spotType === t.value ? 'border-amber bg-amber-50' : 'border-gray-200 hover:border-gray-300'
+                  state.spotType === st.value ? 'border-amber bg-amber-50' : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="mb-1 text-2xl">{t.icon}</div>
-                <p className="text-sm font-medium text-gray-900">{t.label}</p>
+                <div className="mb-1 text-2xl">{st.icon}</div>
+                <p className="text-sm font-medium text-gray-900">{t(st.key)}</p>
               </button>
             ))}
           </div>
           <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Price per hour (€)</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.price_label')}</label>
             <input
               type="number"
               min={0.5}
               step={0.5}
               value={state.pricePerHour}
               onChange={(e) => setState((p) => ({ ...p, pricePerHour: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
-              placeholder="e.g. 3.50"
+              placeholder={t('create.price_placeholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
           <div data-testid="ev-charging-toggle">
-            <label className="mb-1 block text-sm font-medium text-gray-700">EV charging available?</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.ev_label')}</label>
             <div className="flex gap-3">
               <button type="button" onClick={() => setState((p) => ({ ...p, evCharging: true }))}
                 className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${state.evCharging ? 'border-[#059669] bg-[#EBF7F1] text-[#059669]' : 'border-gray-300 text-gray-600'}`}>
@@ -429,17 +432,17 @@ export default function ListingWizardPage() {
             {state.evCharging && (
               <div data-testid="ev-confirmed-icon" className="mt-2 flex items-center gap-1.5 text-sm text-[#059669]">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
-                EV charging confirmed
+                {t('create.ev_confirmed')}
               </div>
             )}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Description <span className="text-gray-400">(optional)</span></label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.description_label')} <span className="text-gray-400">{tCommon('labels.optional')}</span></label>
             <textarea
               rows={3}
               value={state.description}
               onChange={(e) => setState((p) => ({ ...p, description: e.target.value }))}
-              placeholder="Access instructions, restrictions, nearby landmarks…"
+              placeholder={t('create.description_placeholder')}
               className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
@@ -450,8 +453,8 @@ export default function ListingWizardPage() {
       {/* Step 3 — Photos */}
       {step === 3 && (
         <section>
-          <h2 className="mb-2 text-xl font-bold text-gray-900">Add photos</h2>
-          <p className="mb-4 text-sm text-gray-500">Upload photos of your parking spot. AI reviews them automatically — at least one must pass.</p>
+          <h2 className="mb-2 text-xl font-bold text-gray-900">{t('create.photos_heading')}</h2>
+          <p className="mb-4 text-sm text-gray-500">{t('create.photos_description')}</p>
           <div className="grid grid-cols-2 gap-4">
             {([0, 1] as const).map((idx) => {
               const slot = state.photos[idx];
@@ -470,13 +473,13 @@ export default function ListingWizardPage() {
                   ) : (
                     <div className="text-center">
                       <div className="text-3xl text-gray-400">📷</div>
-                      <p className="mt-1 text-xs text-gray-500">Photo {idx + 1}</p>
+                      <p className="mt-1 text-xs text-gray-500">{t('create.photo_slot', { index: String(idx + 1) })}</p>
                     </div>
                   )}
                   {busy && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
                       <span className="text-sm font-medium text-white">
-                        {slot.status === 'uploading' ? 'Uploading…' : 'Validating…'}
+                        {slot.status === 'uploading' ? tCommon('status.uploading') : tCommon('status.validating')}
                       </span>
                     </div>
                   )}
@@ -498,12 +501,12 @@ export default function ListingWizardPage() {
       {/* Step 4 — Availability */}
       {step === 4 && (
         <section>
-          <h2 className="mb-1 text-xl font-bold text-gray-900">Set your availability</h2>
-          <p className="mb-4 text-sm text-gray-500">Define when your spot is open for booking. You must save before publishing.</p>
+          <h2 className="mb-1 text-xl font-bold text-gray-900">{t('create.availability_heading')}</h2>
+          <p className="mb-4 text-sm text-gray-500">{t('create.availability_description')}</p>
 
           {availabilitySaved && (
             <div className="mb-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">
-              Availability saved. You can now publish your listing.
+              {t('create.availability_saved')}
             </div>
           )}
 
@@ -518,13 +521,13 @@ export default function ListingWizardPage() {
           )}
 
           <div className="mt-6 rounded-xl bg-green-50 p-4">
-            <p className="mb-2 text-sm font-semibold text-green-800">Pre-publish checklist</p>
+            <p className="mb-2 text-sm font-semibold text-green-800">{t('create.prepublish_title')}</p>
             {[
-              { label: 'Address verified', done: true },
-              { label: 'Spot type selected', done: true },
-              { label: 'Price set', done: true },
-              { label: 'Photos uploaded', done: true },
-              { label: 'Availability saved', done: availabilitySaved },
+              { label: t('create.checklist_address'), done: true },
+              { label: t('create.checklist_type'), done: true },
+              { label: t('create.checklist_price'), done: true },
+              { label: t('create.checklist_photos'), done: true },
+              { label: t('create.checklist_availability'), done: availabilitySaved },
             ].map((item) => (
               <div key={item.label} className={`flex items-center gap-2 text-sm ${item.done ? 'text-green-700' : 'text-gray-400'}`}>
                 <span>{item.done ? '✓' : '○'}</span> {item.label}
@@ -537,7 +540,7 @@ export default function ListingWizardPage() {
           )}
           <button type="button" onClick={() => void handlePublish()} disabled={publishing || !availabilitySaved}
             className="mt-6 w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-40">
-            {publishing ? 'Publishing…' : 'Publish listing'}
+            {publishing ? tCommon('status.publishing') : t('create.publish_button')}
           </button>
         </section>
       )}
@@ -548,12 +551,12 @@ export default function ListingWizardPage() {
           {step > 1 && (
             <button type="button" onClick={handleBack}
               className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700">
-              Back
+              {tCommon('buttons.back')}
             </button>
           )}
           <button type="button" onClick={() => void handleNext()} disabled={!isStepValid() || creating}
             className="flex-1 rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white disabled:opacity-40">
-            {creating ? 'Saving…' : 'Next'}
+            {creating ? tCommon('status.saving') : tCommon('buttons.next')}
           </button>
         </div>
       )}

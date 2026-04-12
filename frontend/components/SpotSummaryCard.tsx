@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { spotTypeDisplay } from '../lib/spotTypeDisplay';
 import { UserAvatar } from './UserAvatar';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
 
@@ -34,6 +35,7 @@ interface SpotSummaryCardProps {
 }
 
 export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, startDate, endDate, highlighted, onHover }: SpotSummaryCardProps) {
+  const { t } = useTranslation('search');
   const [cardHovered, setCardHovered] = useState(false);
   const router = useRouter();
   const navigate = () => {
@@ -82,7 +84,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
         )}
         {spot.covered && (
           <span className="absolute left-2 top-2 rounded-full bg-[#004526] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-            Covered
+            {t('spot_card.covered_badge')}
           </span>
         )}
       </div>
@@ -95,7 +97,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
           {spot.evCharging && (
             <span data-testid="ev-badge" className="inline-flex items-center gap-0.5 rounded-full bg-[#059669] px-1.5 py-0.5 text-[10px] font-semibold text-white">
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
-              EV
+              {t('spot_card.ev_badge')}
             </span>
           )}
         </div>
@@ -111,7 +113,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
             </span>
           )}
           {walkingDistance !== undefined && (
-            <span>{walkingDistance} min walk</span>
+            <span>{walkingDistance} {t('spot_card.walking_distance')}</span>
           )}
         </div>
 
@@ -120,7 +122,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
           onClick={(e) => { e.stopPropagation(); navigate(); }}
           className="grow-btn mt-1 w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526]"
         >
-          Book this spot
+          {t('spot_card.book_button')}
         </button>
       </div>
 

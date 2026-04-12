@@ -6,6 +6,7 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { useChat } from '../../../../hooks/useChat';
 import ChatBubble from '../../../../components/ChatBubble';
 import { AccessCodeMessage } from '../../../../components/chat/AccessCodeMessage';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 interface BookingContext {
   bookingId: string;
@@ -20,6 +21,7 @@ interface BookingContext {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default function ChatPage() {
+  const { t } = useTranslation('chat');
   const _pathname = usePathname();
   const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
   const router = useRouter();
@@ -106,7 +108,7 @@ export default function ChatPage() {
       {/* Header with back button and booking context */}
       <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => router.back()} className="text-[#004526] hover:text-[#006B3C]" aria-label="Back to bookings">
+          <button type="button" onClick={() => router.back()} className="text-[#004526] hover:text-[#006B3C]" aria-label={t('back_to_bookings')}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
@@ -120,7 +122,7 @@ export default function ChatPage() {
                   </p>
                 )}
                 <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>
-                <p className="text-xs text-gray-500">Booking {booking.reference}</p>
+                <p className="text-xs text-gray-500">{t('booking_reference', { reference: booking.reference })}</p>
               </>
             )}
           </div>
@@ -130,7 +132,7 @@ export default function ChatPage() {
       {/* Messages */}
       <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
-          <p className="text-center text-sm text-gray-400">No messages yet — start the conversation</p>
+          <p className="text-center text-sm text-gray-400">{t('no_messages')}</p>
         ) : (
           messages.map((m) => (
             m.type === 'ACCESS_CODE' ? (
@@ -149,7 +151,7 @@ export default function ChatPage() {
           <img
             data-testid="image-preview"
             src={pendingImage.preview}
-            alt="Image preview"
+            alt={t('image_preview_alt')}
             className="h-20 w-20 rounded-lg object-cover"
           />
         </div>
@@ -160,7 +162,7 @@ export default function ChatPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Attach image"
+            aria-label={t('attach_image')}
             onClick={() => fileInputRef.current?.click()}
             className="rounded-lg p-2 text-gray-400 hover:text-gray-600"
           >
@@ -175,7 +177,7 @@ export default function ChatPage() {
           />
           <input
             type="text"
-            placeholder="Type a message here..."
+            placeholder={t('message_placeholder')}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {
@@ -185,12 +187,12 @@ export default function ChatPage() {
           />
           <button
             type="button"
-            aria-label="Send"
+            aria-label={t('send_button')}
             onClick={() => void handleSend()}
             disabled={!inputText.trim() && !pendingImage}
             className="rounded-lg bg-[#006B3C] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
           >
-            Send
+            {t('send_button')}
           </button>
         </div>
       </div>

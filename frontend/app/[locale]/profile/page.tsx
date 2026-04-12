@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { UserAvatar } from '../../../components/UserAvatar';
 import { resolveDisplayName } from '../../../lib/resolveDisplayName';
 import { DeleteAccountModal } from '../../../components/DeleteAccountModal';
+import { useTranslation } from '../../../lib/locales/TranslationProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -47,6 +48,8 @@ async function getAuthToken(): Promise<string> {
 }
 
 export default function ProfilePage() {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editingName, setEditingName] = useState(false);
@@ -268,7 +271,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-gray-400">Loading profile…</p>
+        <p className="text-sm text-gray-400">{t('loading')}</p>
       </main>
     );
   }
@@ -294,7 +297,7 @@ export default function ProfilePage() {
                   aria-label="first name"
                   value={firstNameValue}
                   onChange={(e) => setFirstNameValue(e.target.value)}
-                  placeholder="First name"
+                  placeholder={t('first_name_label')}
                   className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
                   autoFocus
                 />
@@ -302,7 +305,7 @@ export default function ProfilePage() {
                   aria-label="last name"
                   value={lastNameValue}
                   onChange={(e) => setLastNameValue(e.target.value)}
-                  placeholder="Last name"
+                  placeholder={t('last_name_label')}
                   className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
                 />
               </div>
@@ -313,10 +316,10 @@ export default function ProfilePage() {
                   disabled={saving || !firstNameValue.trim()}
                   className="btn-gold rounded-lg px-3 py-1 text-xs"
                 >
-                  {saving ? 'Saving…' : 'Save'}
+                  {saving ? tCommon('status.saving') : tCommon('buttons.save')}
                 </button>
                 <button type="button" onClick={() => setEditingName(false)} className="text-xs text-gray-400">
-                  Cancel
+                  {tCommon('buttons.cancel')}
                 </button>
               </div>
             </div>
@@ -346,22 +349,22 @@ export default function ProfilePage() {
                 data-testid="host-badge"
                 className="rounded-full bg-[#004526] px-2 py-0.5 text-xs font-medium text-white"
               >
-                Host
+                {t('host_badge')}
               </span>
             )}
             <span
               data-testid="spotter-badge"
               className="rounded-full bg-[#006B3C] px-2 py-0.5 text-xs font-medium text-white"
             >
-              Spotter
+              {t('spotter_badge')}
             </span>
             {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
               <span
                 data-testid="spot-manager-badge"
                 className={`rounded-full px-2 py-0.5 text-xs font-medium text-white ${user.spotManagerStatus === 'ACTIVE' ? 'bg-gradient-to-r from-[#004526] to-[#006B3C]' : 'bg-amber-600'}`}
-                title={user.spotManagerStatus === 'ACTIVE' ? 'Spot Manager — block reservations enabled' : 'Spot Manager (pending RC review)'}
+                title={user.spotManagerStatus === 'ACTIVE' ? t('spot_manager_active_tooltip') : t('spot_manager_staged_tooltip')}
               >
-                Spot Manager{user.spotManagerStatus === 'STAGED' ? ' (pending)' : ''}
+                {t('spot_manager_badge')}{user.spotManagerStatus === 'STAGED' ? t('spot_manager_pending_suffix') : ''}
               </span>
             )}
           </div>
@@ -370,27 +373,27 @@ export default function ProfilePage() {
 
       {/* Display name (pseudo) */}
       <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#004526]">Display name</h3>
+        <h3 className="text-sm font-semibold text-[#004526]">{t('display_name.heading')}</h3>
         {editingPseudo ? (
           <div className="flex items-center gap-2">
             <input
               aria-label="display name"
               value={pseudoValue}
               onChange={(e) => setPseudoValue(e.target.value)}
-              placeholder="e.g. SpotKing"
+              placeholder={t('display_name.placeholder')}
               className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
               autoFocus
             />
             <button type="button" onClick={() => void handleSavePseudo()} disabled={saving}
-              className="btn-gold rounded-lg px-3 py-1 text-xs">{saving ? 'Saving...' : 'Save'}</button>
-            <button type="button" onClick={() => setEditingPseudo(false)} className="text-xs text-gray-400">Cancel</button>
+              className="btn-gold rounded-lg px-3 py-1 text-xs">{saving ? tCommon('status.saving') : tCommon('buttons.save')}</button>
+            <button type="button" onClick={() => setEditingPseudo(false)} className="text-xs text-gray-400">{tCommon('buttons.cancel')}</button>
           </div>
         ) : (
           <div className="flex items-center gap-2">
             <p className="text-sm text-gray-900">
               {resolveDisplayName({ pseudo: user.pseudo, firstName: user.name.split(' ')[0] || user.name })}
             </p>
-            {user.pseudo && <span className="text-xs text-gray-400">(display name)</span>}
+            {user.pseudo && <span className="text-xs text-gray-400">{t('display_name.note')}</span>}
             <button type="button" data-testid="edit-pseudo" onClick={() => setEditingPseudo(true)} aria-label="Edit display name"
               className="text-gray-400 hover:text-[#004526]">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
@@ -407,23 +410,23 @@ export default function ProfilePage() {
             onChange={(e) => void handleToggleFullName(e.target.checked)}
             className="h-4 w-4 rounded border-gray-300 text-[#006B3C] focus:ring-[#006B3C]"
           />
-          <label htmlFor="showFullName" className="text-sm text-gray-600">Show my full name publicly</label>
+          <label htmlFor="showFullName" className="text-sm text-gray-600">{t('show_full_name')}</label>
         </div>
       </div>
 
       {/* Contact info */}
       <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#004526]">Contact info</h3>
+        <h3 className="text-sm font-semibold text-[#004526]">{t('contact_info.heading')}</h3>
 
         {/* Email (read-only) */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Email</label>
-          <p className="text-sm text-gray-900">{user.email || 'Not set'}</p>
+          <label className="mb-1 block text-xs font-medium text-gray-600">{tCommon('labels.email')}</label>
+          <p className="text-sm text-gray-900">{user.email || tCommon('labels.not_set')}</p>
         </div>
 
         {/* Phone */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Phone</label>
+          <label className="mb-1 block text-xs font-medium text-gray-600">{tCommon('labels.phone')}</label>
           {editingPhone ? (
             <div className="flex items-center gap-2">
               <select
@@ -440,7 +443,7 @@ export default function ProfilePage() {
                 type="tel"
                 value={phoneValue}
                 onChange={(e) => setPhoneValue(e.target.value)}
-                placeholder="471234567"
+                placeholder={t('contact_info.phone_placeholder')}
                 className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
                 autoFocus
               />
@@ -450,15 +453,15 @@ export default function ProfilePage() {
                 disabled={saving}
                 className="btn-gold rounded-lg px-3 py-1 text-xs"
               >
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? tCommon('status.saving') : tCommon('buttons.save')}
               </button>
               <button type="button" onClick={() => setEditingPhone(false)} className="text-xs text-gray-400">
-                Cancel
+                {tCommon('buttons.cancel')}
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-900">{user.phone || 'Not set'}</p>
+              <p className="text-sm text-gray-900">{user.phone || tCommon('labels.not_set')}</p>
               <button
                 type="button"
                 data-testid="edit-phone"
@@ -478,18 +481,18 @@ export default function ProfilePage() {
       {/* Summary cards */}
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div data-testid="spots-summary" className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">My spots</p>
-          <p className="text-lg font-bold text-[#004526]">{user.listingCount ?? 0} live listing{(user.listingCount ?? 0) !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-gray-500">{t('my_spots.label')}</p>
+          <p className="text-lg font-bold text-[#004526]">{(user.listingCount ?? 0) !== 1 ? t('my_spots.live_listings_other', { count: String(user.listingCount ?? 0) }) : t('my_spots.live_listings_one', { count: String(user.listingCount ?? 0) })}</p>
           <Link href="/dashboard/host" className="mt-1 block text-xs text-[#006B3C] hover:underline">
-            View listings →
+            {t('my_spots.view_link')}
           </Link>
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">My bookings</p>
-          <p className="text-lg font-bold text-[#004526]">{user.bookingCount ?? 0} active</p>
+          <p className="text-xs text-gray-500">{t('my_bookings.label')}</p>
+          <p className="text-lg font-bold text-[#004526]">{t('my_bookings.active_count', { count: String(user.bookingCount ?? 0) })}</p>
           <Link href="/dashboard/spotter" className="mt-1 block text-xs text-[#006B3C] hover:underline">
-            View bookings →
+            {t('my_bookings.view_link')}
           </Link>
         </div>
       </div>
@@ -498,24 +501,24 @@ export default function ProfilePage() {
       {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
         <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-[#004526]">Spot Manager</p>
+            <p className="text-sm font-semibold text-[#004526]">{t('spot_manager.heading')}</p>
             <Link href="/spot-manager/portfolio" className="text-xs text-[#006B3C] hover:underline">
-              Open portfolio →
+              {t('spot_manager.portfolio_link')}
             </Link>
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">Status:</span>
+              <span className="text-gray-500 w-32">{t('spot_manager.status_label')}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                 user.spotManagerStatus === 'ACTIVE'
                   ? 'bg-green-100 text-green-700'
                   : 'bg-amber-100 text-amber-700'
               }`}>
-                {user.spotManagerStatus === 'ACTIVE' ? 'Active' : 'Staged (pending)'}
+                {user.spotManagerStatus === 'ACTIVE' ? t('spot_manager.status_active') : t('spot_manager.status_staged')}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">RC insurance:</span>
+              <span className="text-gray-500 w-32">{t('spot_manager.rc_insurance_label')}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                 user.rcInsuranceStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
                 user.rcInsuranceStatus === 'PENDING_REVIEW' ? 'bg-blue-100 text-blue-700' :
@@ -523,22 +526,22 @@ export default function ProfilePage() {
                 user.rcInsuranceStatus === 'EXPIRED' ? 'bg-red-100 text-red-700' :
                 'bg-gray-100 text-gray-600'
               }`}>
-                {user.rcInsuranceStatus === 'PENDING_REVIEW' ? 'Pending review' :
-                 user.rcInsuranceStatus === 'APPROVED' ? 'Approved' :
-                 user.rcInsuranceStatus === 'REJECTED' ? 'Rejected' :
-                 user.rcInsuranceStatus === 'EXPIRED' ? 'Expired' : 'Not submitted'}
+                {user.rcInsuranceStatus === 'PENDING_REVIEW' ? t('spot_manager.rc_pending') :
+                 user.rcInsuranceStatus === 'APPROVED' ? t('spot_manager.rc_approved') :
+                 user.rcInsuranceStatus === 'REJECTED' ? t('spot_manager.rc_rejected') :
+                 user.rcInsuranceStatus === 'EXPIRED' ? t('spot_manager.rc_expired') : t('spot_manager.rc_not_submitted')}
               </span>
             </div>
             {user.rcInsuranceExpiryDate && (
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 w-32">Expires on:</span>
+                <span className="text-gray-500 w-32">{t('spot_manager.rc_expires_label')}</span>
                 <span className="text-gray-700">{new Date(user.rcInsuranceExpiryDate).toLocaleDateString()}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">Block reservations:</span>
+              <span className="text-gray-500 w-32">{t('spot_manager.block_reservations_label')}</span>
               <span className={user.blockReservationCapable ? 'text-green-700' : 'text-gray-500'}>
-                {user.blockReservationCapable ? 'Enabled' : 'Disabled'}
+                {user.blockReservationCapable ? t('spot_manager.block_enabled') : t('spot_manager.block_disabled')}
               </span>
             </div>
           </div>
@@ -549,8 +552,8 @@ export default function ProfilePage() {
       <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[#004526]">Payment info</p>
-            <p className="text-xs text-gray-500">Manage via Stripe</p>
+            <p className="text-sm font-medium text-[#004526]">{t('payment_info.heading')}</p>
+            <p className="text-xs text-gray-500">{t('payment_info.manage_via_stripe')}</p>
           </div>
           <a
             href="https://dashboard.stripe.com"
@@ -558,30 +561,30 @@ export default function ProfilePage() {
             rel="noopener noreferrer"
             className="text-xs text-[#006B3C] hover:underline"
           >
-            Open →
+            {t('payment_info.open_link')}
           </a>
         </div>
       </div>
 
       {/* Invoicing details — only shown for hosts */}
       {isHost && <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-        <h3 className="mb-3 text-sm font-semibold text-[#004526]">Invoicing details</h3>
+        <h3 className="mb-3 text-sm font-semibold text-[#004526]">{t('invoicing.heading')}</h3>
         <div className="space-y-3">
           <div>
-            <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-gray-600">VAT number</label>
-            <input id="vatNumber" type="text" placeholder="BE0123456789" value={vatNumber}
+            <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.vat_label')}</label>
+            <input id="vatNumber" type="text" placeholder={t('invoicing.vat_placeholder')} value={vatNumber}
               onChange={(e) => setVatNumber(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
           <div>
-            <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-gray-600">Company name</label>
-            <input id="companyName" type="text" placeholder="Company name" value={companyName}
+            <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.company_label')}</label>
+            <input id="companyName" type="text" placeholder={t('invoicing.company_placeholder')} value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
           <div>
-            <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-gray-600">Billing address</label>
-            <input id="billingAddress" type="text" placeholder="Street, City, Postcode" value={billingAddress}
+            <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.address_label')}</label>
+            <input id="billingAddress" type="text" placeholder={t('invoicing.address_placeholder')} value={billingAddress}
               onChange={(e) => setBillingAddress(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
           </div>
@@ -589,18 +592,18 @@ export default function ProfilePage() {
             onClick={() => void handleSaveInvoicing()}
             disabled={saving}
             className="w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40">
-            {saving ? 'Saving...' : 'Save invoicing details'}
+            {saving ? tCommon('status.saving') : t('invoicing.save_button')}
           </button>
-          {invoicingSaved && <p className="text-center text-xs text-green-600">Invoicing details saved</p>}
+          {invoicingSaved && <p className="text-center text-xs text-green-600">{t('invoicing.saved_success')}</p>}
         </div>
       </div>}
 
       {/* Privacy & Data */}
       <div className="rounded-2xl border border-[#C8DDD2] bg-white p-6 space-y-4" data-testid="privacy-section">
-        <h2 className="text-sm font-semibold text-[#004526]">Privacy & Data</h2>
+        <h2 className="text-sm font-semibold text-[#004526]">{t('privacy.heading')}</h2>
         <div className="flex flex-col gap-3">
           <Link href="/privacy" className="text-sm text-[#006B3C] underline" target="_blank">
-            View Privacy Policy
+            {t('privacy.view_policy')}
           </Link>
           <button
             type="button"
@@ -623,12 +626,12 @@ export default function ProfilePage() {
             disabled={exportLoading}
             className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] disabled:opacity-40"
           >
-            {exportLoading ? 'Preparing...' : 'Download my data'}
+            {exportLoading ? t('privacy.download_preparing') : t('privacy.download_data')}
           </button>
           {exportUrl && (
             <a href={exportUrl} target="_blank" rel="noopener noreferrer"
               className="text-sm text-[#006B3C] underline text-center">
-              Download ready (valid 24h)
+              {t('privacy.download_ready')}
             </a>
           )}
           <button
@@ -656,7 +659,7 @@ export default function ProfilePage() {
             }}
             className="w-full rounded-lg border border-[#AD3614] py-2.5 text-sm font-medium text-[#AD3614] hover:bg-red-50"
           >
-            Delete my account
+            {t('privacy.delete_account')}
           </button>
           {deleteBlockError && (
             <p data-testid="blocking-bookings-banner" className="text-sm text-[#AD3614] bg-red-50 p-3 rounded-lg">
@@ -681,7 +684,7 @@ export default function ProfilePage() {
         onClick={handleSignOut}
         className="w-full rounded-xl border border-red-200 py-3 text-sm font-medium text-red-600 hover:bg-red-50"
       >
-        Log out
+        {t('logout')}
       </button>
     </main>
   );

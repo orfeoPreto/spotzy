@@ -6,6 +6,7 @@ import Link from 'next/link';
 import BookingCard, { type Booking } from '../../../../components/BookingCard';
 import StatusBadge from '../../../../components/StatusBadge';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 interface Metrics { activeBookings: number; mtdEarnings: number; liveListings: number; avgRating: number }
 interface Listing { listingId: string; address: string; status: string; bookingCount: number }
@@ -39,6 +40,7 @@ function deriveBookingStatus(booking: Booking): string {
 }
 
 export default function HostDashboardPage() {
+  const { t } = useTranslation('dashboard');
   const router = useRouter();
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -101,7 +103,7 @@ export default function HostDashboardPage() {
 
   return (
     <main className="mx-auto max-w-6xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Host Dashboard</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">{t('host.title')}</h1>
 
       {/* Metrics row */}
       {loadingMetrics ? (
@@ -112,29 +114,29 @@ export default function HostDashboardPage() {
         </div>
       ) : metrics && (
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <MetricCard label="Active bookings" value={metrics.activeBookings} />
-          <MetricCard label="MTD earnings" value={`€${(metrics.mtdEarnings ?? 0).toFixed(2)}`} />
-          <MetricCard label="Live listings" value={metrics.liveListings} />
-          <MetricCard label="Avg rating" value={(metrics.avgRating ?? 0).toFixed(1)} />
+          <MetricCard label={t('host.active_bookings')} value={metrics.activeBookings} />
+          <MetricCard label={t('host.mtd_earnings')} value={`€${(metrics.mtdEarnings ?? 0).toFixed(2)}`} />
+          <MetricCard label={t('host.live_listings')} value={metrics.liveListings} />
+          <MetricCard label={t('host.avg_rating')} value={(metrics.avgRating ?? 0).toFixed(1)} />
         </div>
       )}
 
       {/* Listings section */}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">My listings</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('host.my_listings')}</h2>
           <button type="button" onClick={() => router.push('/listings/new')}
             className="grow-btn rounded-lg bg-[#006B3C] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#004526]">
-            + Add listing
+            {t('host.add_listing')}
           </button>
         </div>
 
         {listings !== null && listings.length === 0 && (
           <div className="rounded-xl border-2 border-dashed border-gray-300 p-8 text-center">
-            <p className="mb-3 text-gray-500">You haven&apos;t listed any spots yet.</p>
+            <p className="mb-3 text-gray-500">{t('host.no_listings')}</p>
             <button type="button" onClick={() => router.push('/listings/new')}
               className="grow-btn rounded-lg bg-[#006B3C] px-5 py-2 text-sm font-medium text-white hover:bg-[#004526]">
-              Add your first spot
+              {t('host.add_first_spot')}
             </button>
           </div>
         )}
@@ -148,7 +150,7 @@ export default function HostDashboardPage() {
                   <Link href={`/listing/${l.listingId}`} className="font-medium text-[#004526] hover:underline">
                     {l.address}
                   </Link>
-                  <p className="text-xs text-gray-500">{l.bookingCount} bookings</p>
+                  <p className="text-xs text-gray-500">{t('host.bookings_count', { count: String(l.bookingCount) })}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {/* Issue #23: Add edit listing button */}
@@ -156,13 +158,13 @@ export default function HostDashboardPage() {
                     href={`/listing/${l.listingId}/edit`}
                     className="text-xs text-[#004526] hover:underline"
                   >
-                    Edit listing
+                    {t('host.edit_listing')}
                   </Link>
                   <Link
                     href={`/listing/${l.listingId}/availability`}
                     className="text-xs text-[#004526] hover:underline"
                   >
-                    Edit availability
+                    {t('host.edit_availability')}
                   </Link>
                   <StatusBadge status={l.status} />
                 </div>
@@ -174,9 +176,9 @@ export default function HostDashboardPage() {
 
       {/* Upcoming bookings */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">Upcoming bookings</h2>
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">{t('host.upcoming_bookings')}</h2>
         {bookings.length === 0 && (
-          <p className="text-sm text-gray-400">No upcoming bookings.</p>
+          <p className="text-sm text-gray-400">{t('host.no_upcoming')}</p>
         )}
         <div className="space-y-3">
           {bookings.map((b) => (

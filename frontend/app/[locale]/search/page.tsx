@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from '../../../lib/locales/TranslationProvider';
 import SearchBar, { type Destination } from '../../../components/SearchBar';
 import SpotMap, { type SpotListing } from '../../../components/SpotMap';
 import SpotSummaryCard from '../../../components/SpotSummaryCard';
@@ -30,6 +31,7 @@ interface BBox {
 }
 
 export default function SearchPage() {
+  const { t } = useTranslation('search');
   const [spots, setSpots] = useState<SpotListing[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedSpotId, setSelectedSpotId] = useState<string | undefined>();
@@ -142,7 +144,7 @@ export default function SearchPage() {
 
   return (
     <main className="flex h-screen flex-col overflow-hidden">
-      <h1 className="sr-only">Search parking spots</h1>
+      <h1 className="sr-only">{t('heading')}</h1>
 
       {/* Search bar — centered, 50% max width on desktop */}
       <div className="z-10 flex justify-center p-3 shadow-sm">
@@ -178,7 +180,7 @@ export default function SearchPage() {
                 onClick={handleSearchThisArea}
                 className="rounded-full bg-white px-4 py-2 text-sm font-medium text-[#004526] shadow-md hover:shadow-lg"
               >
-                Search this area
+                {t('search_this_area')}
               </button>
             </div>
           )}
@@ -191,7 +193,7 @@ export default function SearchPage() {
           className="flex-1 overflow-y-auto p-3"
         >
           {loading && (
-            <p className="text-center text-sm text-gray-500" role="status">Loading...</p>
+            <p className="text-center text-sm text-gray-500" role="status">{t('loading')}</p>
           )}
           {/* 1 col mobile → 2 col sm → 3 col lg */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -209,7 +211,7 @@ export default function SearchPage() {
           </div>
           {!loading && spots.length === 0 && (
             <p className="mt-8 text-center text-sm text-gray-400">
-              No spots found. Try a different location or adjust your filters.
+              {t('no_results')}
             </p>
           )}
         </aside>

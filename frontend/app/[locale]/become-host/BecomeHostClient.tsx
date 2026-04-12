@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
+import { useTranslation } from '../../../lib/locales/TranslationProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default function BecomeHostClient() {
+  const { t } = useTranslation('notifications');
   const router = useRouter();
   const params = useSearchParams();
   const { user } = useAuth();
@@ -49,8 +51,8 @@ export default function BecomeHostClient() {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <p className="text-lg font-semibold text-[#004526]">Payout account connected!</p>
-          <p className="text-sm text-gray-500">Taking you to create your listing…</p>
+          <p className="text-lg font-semibold text-[#004526]">{t('become_host.connected_title')}</p>
+          <p className="text-sm text-gray-500">{t('become_host.redirecting')}</p>
         </div>
       </main>
     );
@@ -70,10 +72,9 @@ export default function BecomeHostClient() {
         </div>
 
         <div>
-          <h1 className="text-2xl font-bold text-[#004526]">Finish setting up your host account</h1>
+          <h1 className="text-2xl font-bold text-[#004526]">{t('become_host.setup_title')}</h1>
           <p className="mt-2 text-sm text-gray-500">
-            Connecting a Stripe payout account is required before you can list parking spots. This is a one-time
-            setup and takes about 2 minutes.
+            {t('become_host.setup_description')}
           </p>
         </div>
 
@@ -83,18 +84,17 @@ export default function BecomeHostClient() {
           disabled={loading}
           className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-semibold text-white hover:bg-[#004526] disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Opening Stripe…' : 'Set up payouts with Stripe'}
+          {loading ? t('become_host.opening_stripe') : t('become_host.setup_button')}
         </button>
 
         <div className="rounded-lg bg-[#FFF4E5] border border-[#FFD89A] p-3 text-left">
           <p className="text-xs text-[#8C5A00]">
-            <strong>Required step.</strong> Until you complete Stripe onboarding, you won't be able to create
-            listings or receive payouts. You'll remain on this screen whenever you try to access host features.
+            {t('become_host.required_label')} {t('become_host.required_description')}
           </p>
         </div>
 
         <p className="text-xs text-gray-400">
-          Powered by Stripe Connect — your banking details are handled securely by Stripe, not stored by Spotzy.
+          {t('become_host.stripe_note')}
         </p>
       </div>
       <style>{`@keyframes spin360 { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>

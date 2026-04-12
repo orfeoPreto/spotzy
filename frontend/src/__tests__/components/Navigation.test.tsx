@@ -14,23 +14,7 @@ vi.mock('next/link', () => ({
     <a href={href} {...props}>{children}</a>,
 }));
 
-// Mock translation provider — return the key's last segment as the label
-vi.mock('../../../lib/locales/TranslationProvider', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const labels: Record<string, string> = {
-        'nav.search': 'Search', 'nav.bookings': 'Bookings', 'nav.messages': 'Messages',
-        'nav.mySpots': 'My spots', 'nav.profile': 'Profile', 'nav.login': 'Sign in',
-        'nav.register': 'Register', 'nav.backoffice': 'Backoffice',
-        'nav.becomeHost': 'List your spot', 'nav.hostDashboard': 'Host dashboard',
-        'nav.becomeSpotManager': 'Become Spot Manager', 'nav.portfolio': 'Portfolio',
-        'nav.blockRequests': 'Block requests',
-      };
-      return labels[key] ?? key.split('.').pop() ?? key;
-    },
-    locale: 'en',
-  }),
-}));
+// Translation mock is provided globally via test/mock-translations.ts
 
 import Navigation from '../../../components/Navigation';
 
@@ -54,10 +38,10 @@ describe('<Navigation />', () => {
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
   });
 
-  test('unauthenticated user sees Sign in and Register', () => {
+  test('unauthenticated user sees Log in and Sign up', () => {
     render(<Navigation user={null} />);
-    expect(screen.getByText('Sign in')).toBeInTheDocument();
-    expect(screen.getByText('Register')).toBeInTheDocument();
+    expect(screen.getByText('Log in')).toBeInTheDocument();
+    expect(screen.getByText('Sign up')).toBeInTheDocument();
   });
 
   test('authenticated user does not see Sign in', () => {

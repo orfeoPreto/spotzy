@@ -6,6 +6,7 @@ import { useListing } from '../../../../hooks/useListing';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useBookingIntent } from '../../../../hooks/useBookingIntent';
 import { spotTypeDisplay } from '../../../../lib/spotTypeDisplay';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 function calcPrice(pricePerHour: number, startDate: string, endDate: string): number {
   if (!startDate || !endDate) return 0;
@@ -17,6 +18,7 @@ function calcPrice(pricePerHour: number, startDate: string, endDate: string): nu
 }
 
 export default function ListingPage() {
+  const { t } = useTranslation('listings');
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const id = pathname.split('/').filter(Boolean)[1] ?? '';
@@ -75,11 +77,11 @@ export default function ListingPage() {
   if (error || !listing) {
     return (
       <main className="mx-auto max-w-5xl p-8 text-center">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">This spot is no longer available</h1>
-        <p className="mb-6 text-gray-500">The listing you are looking for has been removed.</p>
+        <h1 className="mb-4 text-2xl font-bold text-gray-900">{t('detail.unavailable_title')}</h1>
+        <p className="mb-6 text-gray-500">{t('detail.unavailable_message')}</p>
         <button type="button" onClick={() => router.push('/search')}
           className="grow-btn rounded-lg bg-[#006B3C] px-6 py-2 font-medium text-white hover:bg-[#004526]">
-          Search for other spots
+          {t('detail.search_other')}
         </button>
       </main>
     );
@@ -114,15 +116,15 @@ export default function ListingPage() {
                 {listing.spotTypeLabel ?? spotTypeDisplay(listing.spotType)}
               </span>
               {listing.covered && (
-                <span className="rounded-full bg-[#004526] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">Covered</span>
+                <span className="rounded-full bg-[#004526] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">{t('detail.feature_covered')}</span>
               )}
               {listing.accessible && (
-                <span className="rounded-full bg-[#006B3C] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">Accessible</span>
+                <span className="rounded-full bg-[#006B3C] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">{t('detail.feature_accessible')}</span>
               )}
               {listing.evCharging && (
                 <span className="inline-flex items-center gap-0.5 rounded-full bg-[#059669] px-2.5 py-0.5 text-[11px] font-semibold uppercase text-white">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
-                  EV Charging
+                  {t('detail.feature_ev')}
                 </span>
               )}
               {listing.avgRating != null && (
@@ -160,14 +162,14 @@ export default function ListingPage() {
           <p className="mb-4 text-xl font-bold text-[#004526]">€{(listing.pricePerHour ?? 0).toFixed(2)}/hr</p>
           <div className="mb-4 flex flex-col gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Start</label>
+              <label className="mb-1 block text-xs font-medium text-gray-600">{t('detail.start_label')}</label>
               <input type="datetime-local" value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 disabled={isOwnListing}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">End</label>
+              <label className="mb-1 block text-xs font-medium text-gray-600">{t('detail.end_label')}</label>
               <input type="datetime-local" value={endDate} min={startDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 disabled={isOwnListing}
@@ -185,17 +187,17 @@ export default function ListingPage() {
               className="py-3 text-center text-sm text-[#4B6354] select-none"
               style={{ cursor: 'default' }}
             >
-              This is your listing
+              {t('detail.own_listing')}
             </p>
           ) : user ? (
             <button type="button" disabled={!hasValidDates} onClick={handleBook}
               className="grow-btn w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40">
-              Book this spot
+              {t('detail.book_button')}
             </button>
           ) : (
             <button type="button" data-testid="book-this-spot" onClick={handleBook}
               className="grow-btn w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526]">
-              Sign in to book
+              {t('detail.sign_in_to_book')}
             </button>
           )}
         </div>

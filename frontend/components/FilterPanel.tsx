@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
-const SPOT_TYPES = [
-  { value: 'COVERED_GARAGE', label: 'Covered garage' },
-  { value: 'OPEN_LOT', label: 'Open lot' },
-  { value: 'STREET', label: 'Street' },
-  { value: 'PRIVATE_DRIVEWAY', label: 'Private driveway' },
+const SPOT_TYPE_KEYS: Array<{ value: string; key: string }> = [
+  { value: 'COVERED_GARAGE', key: 'filter.types.COVERED_GARAGE' },
+  { value: 'OPEN_LOT', key: 'filter.types.OPEN_SPACE' },
+  { value: 'STREET', key: 'filter.types.STREET' },
+  { value: 'PRIVATE_DRIVEWAY', key: 'filter.types.DRIVEWAY' },
 ];
 
 export interface FilterState {
@@ -32,6 +33,7 @@ interface FilterPanelProps {
 }
 
 export default function FilterPanel({ resultCount, onApply, onClear }: FilterPanelProps) {
+  const { t } = useTranslation('notifications');
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS });
 
   const toggleSpotType = (value: string) => {
@@ -52,13 +54,13 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
     <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-md">
       {/* Availability section */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">Availability</h3>
+        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('filter.availability')}</h3>
         {/* Availability filters would go here */}
       </section>
 
       {/* Price section */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">Price</h3>
+        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('filter.price')}</h3>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -67,7 +69,7 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
             value={filters.minPrice}
             onChange={(e) => setFilters((p) => ({ ...p, minPrice: Number(e.target.value) }))}
             className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
-            aria-label="Minimum price"
+            aria-label={t('filter.min_price')}
           />
           <span className="text-gray-500">—</span>
           <input
@@ -76,16 +78,16 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
             value={filters.maxPrice}
             onChange={(e) => setFilters((p) => ({ ...p, maxPrice: Number(e.target.value) }))}
             className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
-            aria-label="Maximum price"
+            aria-label={t('filter.max_price')}
           />
         </div>
       </section>
 
       {/* Spot type section */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">Spot type</h3>
+        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('filter.spot_type')}</h3>
         <div className="flex flex-wrap gap-2">
-          {SPOT_TYPES.map((type) => {
+          {SPOT_TYPE_KEYS.map((type) => {
             const selected = filters.spotTypes.includes(type.value);
             return (
               <button
@@ -99,7 +101,7 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
                     : 'border-gray-300 text-gray-600 hover:border-gray-400'
                 }`}
               >
-                {type.label}
+                {t(type.key)}
               </button>
             );
           })}
@@ -108,25 +110,25 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
 
       {/* Features section */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">Features</h3>
+        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('filter.features')}</h3>
         <div className="flex flex-col gap-2">
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={filters.covered}
               onChange={(e) => setFilters((p) => ({ ...p, covered: e.target.checked }))}
-              aria-label="Covered"
+              aria-label={t('filter.covered')}
             />
-            Covered
+            {t('filter.covered')}
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={filters.privatelyOwned}
               onChange={(e) => setFilters((p) => ({ ...p, privatelyOwned: e.target.checked }))}
-              aria-label="Privately owned"
+              aria-label={t('filter.privately_owned')}
             />
-            Privately owned
+            {t('filter.privately_owned')}
           </label>
         </div>
       </section>
@@ -138,14 +140,14 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
           onClick={handleClear}
           className="flex-1 rounded-lg border border-gray-300 py-2 text-sm hover:bg-gray-50"
         >
-          Clear all
+          {t('filter.clear_all')}
         </button>
         <button
           type="button"
           onClick={() => onApply(filters)}
           className="flex-1 rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526]"
         >
-          Show {resultCount} spots
+          {t('filter.show_spots', { count: String(resultCount) })}
         </button>
       </div>
     </div>

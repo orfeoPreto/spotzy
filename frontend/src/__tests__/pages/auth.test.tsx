@@ -29,26 +29,7 @@ vi.mock('../../../hooks/useBookingIntent', () => ({
   useBookingIntent: () => ({ readIntent: () => null, clearIntent: vi.fn(), saveIntent: vi.fn() }),
 }));
 
-vi.mock('../../../lib/locales/TranslationProvider', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const labels: Record<string, string> = {
-        'login.heading': 'Sign in to Spotzy',
-        'login.email_label': 'Email',
-        'login.password_label': 'Password',
-        'login.submit_button': 'Sign in',
-        'login.submit_loading': 'Signing in…',
-        'login.register_prompt': "Don't have an account?",
-        'login.register_link': 'Register',
-        'login.forgot_password_link': 'Forgot password?',
-        'login.error_incorrect': 'Incorrect email or password.',
-        'login.error_generic': 'Sign in failed. Please try again.',
-      };
-      return labels[key] ?? key;
-    },
-    locale: 'en',
-  }),
-}));
+// Translation mock is provided globally via test/mock-translations.ts
 
 beforeEach(() => {
   vi.clearAllMocks();

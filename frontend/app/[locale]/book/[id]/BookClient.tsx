@@ -8,24 +8,26 @@ import { useBookingFlow } from '../../../../hooks/useBookingFlow';
 import { useAuth } from '../../../../hooks/useAuth';
 import { getStripe } from '../../../../lib/stripe';
 import { formatDateTime } from '../../../../lib/formatDate';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
-const STEP_LABELS = ['Review', 'Payment', 'Confirmation'];
+const STEP_KEYS = ['steps.review', 'steps.payment', 'steps.confirmation'];
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 function StepIndicator({ step }: { step: number }) {
+  const { t } = useTranslation('booking');
   return (
     <div className="mb-8 flex items-center justify-center gap-4">
-      {STEP_LABELS.map((label, i) => (
-        <div key={label} className="flex items-center gap-2">
+      {STEP_KEYS.map((key, i) => (
+        <div key={key} className="flex items-center gap-2">
           <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
             step === i + 1 ? 'bg-[#006B3C] text-white' : step > i + 1 ? 'bg-[#004526] text-white' : 'bg-gray-200 text-gray-500'
           }`}>
             {i + 1}
           </div>
           <span className={`text-sm font-medium ${step === i + 1 ? 'text-[#AD3614]' : 'text-gray-500'}`}>
-            {label}
+            {t(key)}
           </span>
-          {i < STEP_LABELS.length - 1 && <div className="h-px w-8 bg-gray-300" />}
+          {i < STEP_KEYS.length - 1 && <div className="h-px w-8 bg-gray-300" />}
         </div>
       ))}
     </div>
@@ -39,6 +41,8 @@ function ReviewStep({
   address: string; spotType: string; startDate: string; endDate: string;
   subtotal: number; platformFee: number; total: number; onProceed: () => void; disabled?: boolean;
 }) {
+  const { t } = useTranslation('booking');
+  const { t: tCommon } = useTranslation('common');
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-gray-200 p-4">
@@ -47,29 +51,29 @@ function ReviewStep({
       </div>
 
       <div className="rounded-xl border border-gray-200 p-4">
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">Your dates</h3>
+        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('review.dates_heading')}</h3>
         <p className="text-sm text-gray-600">{formatDateTime(startDate)}</p>
-        <p className="text-sm text-gray-600">to {formatDateTime(endDate)}</p>
+        <p className="text-sm text-gray-600">{t('review.dates_separator')} {formatDateTime(endDate)}</p>
       </div>
 
       <div className="rounded-xl border border-gray-200 p-4 space-y-2">
         <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
+          <span>{t('review.subtotal')}</span>
           <span>€{subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>Service fee (15%)</span>
+          <span>{t('review.service_fee')}</span>
           <span>€{platformFee.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
-          <span>Total</span>
+          <span>{t('review.total')}</span>
           <span>€{total.toFixed(2)}</span>
         </div>
       </div>
 
       <div className="rounded-xl bg-amber-50 p-4">
-        <p className="text-xs font-semibold text-amber-800 mb-1">Cancellation policy</p>
-        <p className="text-xs text-amber-700">Full refund if cancelled 24h+ before start. 50% refund within 12–24h. No refund within 12h.</p>
+        <p className="text-xs font-semibold text-amber-800 mb-1">{t('review.cancellation_heading')}</p>
+        <p className="text-xs text-amber-700">{t('review.cancellation_policy')}</p>
       </div>
 
       <button
@@ -78,7 +82,7 @@ function ReviewStep({
         disabled={disabled}
         className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-50"
       >
-        {disabled ? 'Processing…' : 'Proceed to payment'}
+        {disabled ? tCommon('status.processing') : t('review.proceed_button')}
       </button>
     </div>
   );
@@ -126,7 +130,7 @@ function PaymentForm({
         disabled={paying}
         className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-50"
       >
-        {paying ? 'Processing…' : `Pay €${total.toFixed(2)}`}
+        {paying ? 'Processing\u2026' : `Pay €${total.toFixed(2)}`}
       </button>
     </div>
   );
@@ -134,6 +138,7 @@ function PaymentForm({
 
 // ─── Step 3: Confirmation ─────────────────────────────────────────────────
 function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookingRef: string }) {
+  const { t } = useTranslation('booking');
   const router = useRouter();
   return (
     <div className="space-y-6 text-center">
@@ -145,8 +150,8 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
         </div>
       </div>
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Booking confirmed!</h2>
-        <p className="mt-1 text-sm text-gray-500">Your reference</p>
+        <h2 className="text-xl font-bold text-gray-900">{t('confirmation.title')}</h2>
+        <p className="mt-1 text-sm text-gray-500">{t('confirmation.reference_label')}</p>
         <p className="mt-1 font-mono text-lg font-bold text-[#004526]">{bookingRef}</p>
       </div>
       <div className="flex flex-col gap-3">
@@ -154,14 +159,14 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
           href={`/chat/${bookingId}`}
           className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] text-center"
         >
-          Message host
+          {t('confirmation.message_host')}
         </a>
         <button
           type="button"
           onClick={() => router.push('/dashboard/spotter')}
           className="w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white"
         >
-          View booking
+          {t('confirmation.view_booking')}
         </button>
       </div>
     </div>
@@ -170,6 +175,7 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
 
 // ─── Main page ────────────────────────────────────────────────────────────
 export default function BookPage() {
+  const { t: tBooking } = useTranslation('booking');
   const pathname = usePathname();
   const id = pathname.split('/').filter(Boolean)[1] ?? '';
   const router = useRouter();
@@ -215,7 +221,7 @@ export default function BookPage() {
         if (res.status === 401) { router.push('/auth/login'); return; }
         if (!res.ok) {
           const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
-          setProceedError(err?.message ?? err?.error ?? 'Could not create booking. Please try again.');
+          setProceedError(err?.message ?? err?.error ?? tBooking('create_error'));
           return;
         }
         const booking = await res.json() as { bookingId: string; reference?: string };
@@ -232,7 +238,7 @@ export default function BookPage() {
       });
       if (!piRes.ok) {
         const err = await piRes.json().catch(() => null) as { message?: string } | null;
-        setProceedError(err?.message ?? 'Could not initialise payment. Please try again.');
+        setProceedError(err?.message ?? tBooking('payment_init_error'));
         return;
       }
       const pi = await piRes.json() as { clientSecret: string };

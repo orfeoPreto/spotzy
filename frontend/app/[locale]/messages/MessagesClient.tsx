@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../../hooks/useAuth';
 import { ConversationRow, ConversationItem } from '../../../components/ConversationRow';
+import { useTranslation } from '../../../lib/locales/TranslationProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -18,6 +19,7 @@ interface DisputeItem {
 }
 
 export default function MessagesClient() {
+  const { t } = useTranslation('notifications');
   const { user, isLoading } = useAuth();
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [disputes, setDisputes] = useState<DisputeItem[]>([]);
@@ -43,7 +45,7 @@ export default function MessagesClient() {
   if (isLoading || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-400">Loading messages...</p>
+        <p className="text-sm text-gray-400">{t('messages.loading')}</p>
       </main>
     );
   }
@@ -51,11 +53,11 @@ export default function MessagesClient() {
   return (
     <main className="min-h-screen bg-gray-50 py-6">
       <div className="mx-auto max-w-2xl">
-        <h1 className="px-4 text-xl font-semibold text-[#1C2B1A] mb-4">Messages</h1>
+        <h1 className="px-4 text-xl font-semibold text-[#1C2B1A] mb-4">{t('messages.page_title')}</h1>
 
         {conversations.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm text-gray-400">No active conversations</p>
+            <p className="text-sm text-gray-400">{t('messages.no_conversations')}</p>
           </div>
         ) : (
           <div className="divide-y divide-[#EBF7F1] rounded-xl border border-[#EBF7F1] bg-white shadow-sm">
@@ -68,7 +70,7 @@ export default function MessagesClient() {
         {/* Disputes section */}
         {disputes.length > 0 && (
           <div className="mt-8">
-            <h2 className="px-4 text-lg font-semibold text-[#1C2B1A] mb-3">Disputes</h2>
+            <h2 className="px-4 text-lg font-semibold text-[#1C2B1A] mb-3">{t('messages.disputes_heading')}</h2>
             <div className="divide-y divide-[#EBF7F1] rounded-xl border border-[#EBF7F1] bg-white shadow-sm">
               {disputes.map((d) => (
                 <Link
@@ -96,7 +98,7 @@ export default function MessagesClient() {
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs text-[#006B3C] hover:underline flex-shrink-0"
                       >
-                        View booking
+                        {t('messages.view_booking')}
                       </Link>
                     </div>
                   </div>
@@ -114,7 +116,7 @@ export default function MessagesClient() {
             href="/messages?archived=true"
             className="text-sm text-[#4B6354] hover:text-[#004526] hover:underline"
           >
-            View archived conversations
+            {t('messages.view_archived')}
           </Link>
         </div>
       </div>

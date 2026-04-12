@@ -1,13 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
-const SPOTTER_SECTIONS = [
-  { key: 'LOCATION', label: 'Location accuracy' },
-  { key: 'CLEANLINESS', label: 'Cleanliness' },
-  { key: 'VALUE', label: 'Value for money' },
-  { key: 'ACCESS', label: 'Ease of access' },
-];
+const SPOTTER_SECTION_KEYS = ['LOCATION', 'CLEANLINESS', 'VALUE', 'ACCESS'];
 
 interface ReviewData {
   rating?: number;
@@ -30,6 +26,14 @@ interface RatingModalProps {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default function RatingModal({ bookingId, onClose, onSubmitted, token, existingReview }: RatingModalProps) {
+  const { t } = useTranslation('booking');
+  const { t: tCommon } = useTranslation('common');
+
+  // Build section labels from YAML array
+  const SPOTTER_SECTIONS = SPOTTER_SECTION_KEYS.map((key, i) => ({
+    key,
+    label: t(`rating.spotter_sections.${i}`),
+  }));
   const isLocked = existingReview && existingReview.isEditable === false;
   const isUpdate = existingReview && existingReview.isEditable !== false;
 
@@ -73,8 +77,8 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
         const err = await res.json().catch(() => null) as { message?: string; error?: string; reason?: string } | null;
         if (err?.error === 'REVIEW_LOCKED') {
           setError(err.reason === 'OTHER_PARTY_REVIEWED'
-            ? 'This review is now locked because both parties have reviewed.'
-            : 'The review window has closed.');
+            ? t('rating.error_other_party')
+            : t('rating.error_window_closed'));
         } else {
           setError(err?.message ?? err?.error ?? 'Could not submit review. Please try again.');
         }
@@ -91,7 +95,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
     return (
       <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-          <h2 className="mb-4 text-lg font-bold text-gray-900">Your review</h2>
+          <h2 className="mb-4 text-lg font-bold text-gray-900">{t('rating.locked_title')}</h2>
 
           <div className="space-y-4">
             {SPOTTER_SECTIONS.map((section) => (
@@ -116,14 +120,14 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
 
           <div data-testid="lock-notice" className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
             {existingReview?.lockReason === 'OTHER_PARTY_REVIEWED'
-              ? 'Both parties have reviewed. This review is now locked.'
-              : 'The review window has closed. This review is now locked.'}
+              ? t('rating.locked_both')
+              : t('rating.locked_window')}
           </div>
 
           <div className="mt-6">
             <button type="button" onClick={onClose}
               className="w-full rounded-lg border border-gray-300 py-2 text-sm text-gray-700">
-              Close
+              {tCommon('buttons.close')}
             </button>
           </div>
         </div>
@@ -135,7 +139,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <h2 className="mb-4 text-lg font-bold text-gray-900">
-          {isUpdate ? 'Update your review' : 'Leave a review'}
+          {isUpdate ? t('rating.update_title') : t('rating.create_title')}
         </h2>
 
         <div className="space-y-4">
@@ -168,7 +172,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onClose}
             className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-700">
-            Cancel
+            {tCommon('buttons.cancel')}
           </button>
           <button
             type="button"
@@ -176,7 +180,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
             disabled={!canSubmit || submitting}
             className="flex-1 rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white disabled:opacity-40"
           >
-            {isUpdate ? 'Update review' : 'Submit rating'}
+            {isUpdate ? t('rating.update_button') : t('rating.submit_button')}
           </button>
         </div>
       </div>

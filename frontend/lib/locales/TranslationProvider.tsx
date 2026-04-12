@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, ReactNode, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from './constants';
 
@@ -44,38 +44,63 @@ function interpolate(template: string, params?: Record<string, string | number>)
   });
 }
 
+function extractLocaleFromPath(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments[0] && (SUPPORTED_LOCALES as readonly string[]).includes(segments[0])) {
+    return segments[0];
+  }
+  return DEFAULT_LOCALE;
+}
+
+// In-memory cache so switching back to a previously loaded locale is instant
+const messageCache: Record<string, Messages> = {};
+
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [messages, setMessages] = useState<Messages>({});
-  const [locale, setLocale] = useState(DEFAULT_LOCALE);
+  const locale = extractLocaleFromPath(pathname);
+  const [messages, setMessages] = useState<Messages>(() => messageCache[locale] ?? {});
+  const fetchingRef = useRef<string | null>(null);
 
-  // Extract locale from URL
   useEffect(() => {
-    const segments = pathname.split('/').filter(Boolean);
-    const urlLocale = (SUPPORTED_LOCALES as readonly string[]).includes(segments[0])
-      ? segments[0]
-      : DEFAULT_LOCALE;
-    setLocale(urlLocale);
-  }, [pathname]);
+    // Already cached in memory
+    if (messageCache[locale]) {
+      setMessages(messageCache[locale]);
+      return;
+    }
 
-  // Load translations when locale changes
-  useEffect(() => {
-    if (!locale) return;
-    fetch(`/_translations/${locale}.json`)
+    // Prevent duplicate fetches for the same locale
+    if (fetchingRef.current === locale) return;
+    fetchingRef.current = locale;
+
+    fetch(`/_translations/${locale}.json?v=${Date.now()}`)
       .then(res => res.ok ? res.json() : {})
-      .then(setMessages)
-      .catch(() => setMessages({}));
+      .then(data => {
+        messageCache[locale] = data;
+        // Only apply if locale hasn't changed during fetch
+        if (fetchingRef.current === locale) {
+          setMessages(data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (fetchingRef.current === locale) {
+          fetchingRef.current = null;
+        }
+      });
   }, [locale]);
 
-  const t = (key: string, params?: Record<string, string | number>): string => {
-    const value = getNestedValue(messages, key);
-    if (value) return interpolate(value, params);
-    // Fallback: return the last segment of the key as readable text
-    return key.split('.').pop() ?? key;
-  };
+  const t = useMemo(() => {
+    return (key: string, params?: Record<string, string | number>): string => {
+      const value = getNestedValue(messages, key);
+      if (value) return interpolate(value, params);
+      return key.split('.').pop() ?? key;
+    };
+  }, [messages]);
+
+  const contextValue = useMemo(() => ({ locale, messages, t }), [locale, messages, t]);
 
   return (
-    <TranslationContext.Provider value={{ locale, messages, t }}>
+    <TranslationContext.Provider value={contextValue}>
       {children}
     </TranslationContext.Provider>
   );

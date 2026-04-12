@@ -3,17 +3,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
-const QUICK_REPLIES = [
-  'Damage to my vehicle',
-  'Spot was unavailable',
-  'Incorrect listing info',
-  'Billing issue',
+const QUICK_REPLY_KEYS = [
+  'quick_replies.damage',
+  'quick_replies.unavailable',
+  'quick_replies.incorrect_info',
+  'quick_replies.billing',
 ];
-
-const INITIAL_AI_MESSAGE = 'Hello! I\'m the Spotzy Support assistant. How can I help you today?';
 
 interface AiMessage {
   messageId: string;
@@ -26,6 +25,8 @@ interface AiMessage {
 }
 
 export default function DisputePage() {
+  const { t } = useTranslation('disputes');
+  const { t: tCommon } = useTranslation('common');
   const _pathname = usePathname();
   const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
   const { user } = useAuth();
@@ -196,7 +197,7 @@ export default function DisputePage() {
       {/* Header */}
       <div className="border-b border-blue-200 bg-[#004526] px-4 py-3 text-white">
         <h1 className="flex items-center gap-2 text-base font-semibold">
-          Spotzy Support
+          {t('page_title')}
         </h1>
       </div>
 
@@ -210,9 +211,9 @@ export default function DisputePage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
           </svg>
           <div>
-            <p className="text-sm font-semibold text-[#004526]">Transferred to our support team</p>
+            <p className="text-sm font-semibold text-[#004526]">{t('escalation.title')}</p>
             <p className="text-xs text-[#4B6354] mt-0.5">
-              A Spotzy agent will review your case and respond shortly.
+              {t('escalation.message')}
             </p>
           </div>
         </div>
@@ -222,29 +223,29 @@ export default function DisputePage() {
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {loadingExisting ? (
           <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-gray-400">Loading conversation...</p>
+            <p className="text-sm text-gray-400">{t('loading')}</p>
           </div>
         ) : (
           <>
             {/* Initial AI message */}
             <div data-testid="ai-message-initial" className="mb-4 flex justify-start">
               <div className="max-w-[75%] rounded-2xl bg-white px-4 py-2 shadow-sm">
-                <p className="text-sm text-gray-800">{INITIAL_AI_MESSAGE}</p>
+                <p className="text-sm text-gray-800">{t('initial_message')}</p>
               </div>
             </div>
 
             {/* Quick reply chips */}
             {!hasSentFirst && (
               <div className="mb-4 flex flex-wrap gap-2">
-                {QUICK_REPLIES.map((reply) => (
+                {QUICK_REPLY_KEYS.map((key) => (
                   <button
-                    key={reply}
+                    key={key}
                     type="button"
                     data-testid="quick-reply-chip"
-                    onClick={() => void sendMessage(reply)}
+                    onClick={() => void sendMessage(t(key))}
                     className="rounded-full border border-[#004526] px-3 py-1 text-xs font-medium text-[#004526] hover:bg-blue-50"
                   >
-                    {reply}
+                    {t(key)}
                   </button>
                 ))}
               </div>
@@ -255,7 +256,7 @@ export default function DisputePage() {
               <div key={m.messageId} className={`mb-3 flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'}`}>
                 {m.contentType === 'SUMMARY' && m.summary ? (
                   <div data-testid="dispute-summary-card" className="w-full max-w-sm rounded-xl border border-blue-200 bg-white p-4 shadow-sm">
-                    <p className="mb-1 text-xs font-semibold uppercase text-[#004526]">Summary</p>
+                    <p className="mb-1 text-xs font-semibold uppercase text-[#004526]">{t('summary_label')}</p>
                     <p className="text-sm font-medium text-gray-900">{m.summary.category}</p>
                     <p className="mt-1 text-sm text-gray-600">{m.summary.description}</p>
                     <p className="mt-1 text-xs text-gray-400">{m.summary.photoCount} photo{m.summary.photoCount !== 1 ? 's' : ''} attached</p>
@@ -266,17 +267,17 @@ export default function DisputePage() {
                         disabled={submitting}
                         className="mt-3 w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white disabled:opacity-40"
                       >
-                        {submitting ? 'Submitting\u2026' : 'Confirm and submit'}
+                        {submitting ? tCommon('status.submitting') : t('confirm_submit')}
                       </button>
                     )}
-                    {submitted && <p className="mt-2 text-center text-sm text-green-600">Dispute submitted</p>}
+                    {submitted && <p className="mt-2 text-center text-sm text-green-600">{t('submitted_success')}</p>}
                   </div>
                 ) : m.contentType === 'ESCALATED' ? (
                   <div className="flex flex-col items-start gap-2">
-                    <p className="text-sm text-gray-600">Transferring to agent\u2026</p>
+                    <p className="text-sm text-gray-600">{t('transferring')}</p>
                     {agentConnected && (
                       <>
-                        <p className="text-sm font-semibold text-green-700">Agent connected</p>
+                        <p className="text-sm font-semibold text-green-700">{t('agent_connected')}</p>
                         <span data-testid="escalation-reference" className="font-mono rounded bg-gray-100 px-2 py-0.5 text-xs">
                           {escalationRef}
                         </span>
@@ -311,7 +312,7 @@ export default function DisputePage() {
             onClick={() => fileInputRef.current?.click()}
             className="rounded-lg border border-[#004526] px-3 py-1.5 text-sm font-medium text-[#004526]"
           >
-            Add photos
+            {t('add_photos')}
           </button>
           <input
             ref={fileInputRef}
@@ -331,7 +332,7 @@ export default function DisputePage() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !escalated) { e.preventDefault(); void sendMessage(inputText); } }}
-            placeholder={escalated ? 'Case transferred to support team' : 'Describe your issue\u2026'}
+            placeholder={escalated ? t('case_transferred_placeholder') : t('input_placeholder')}
             disabled={escalated}
             data-testid="dispute-input"
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400"
@@ -343,7 +344,7 @@ export default function DisputePage() {
             disabled={!inputText.trim() || escalated}
             className="rounded-lg bg-[#006B3C] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
           >
-            Send
+            {t('send_button')}
           </button>
         </div>
       </div>

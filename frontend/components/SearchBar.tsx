@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
 export interface Destination {
   label: string;
@@ -28,6 +29,7 @@ export default function SearchBar({
   onDatesChange,
   activeFilterCount = 0,
 }: SearchBarProps) {
+  const { t } = useTranslation('search');
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [startDate, setStartDate] = useState('');
@@ -85,7 +87,7 @@ export default function SearchBar({
 
   const validateDates = (start: string, end: string) => {
     if (start && end && new Date(end) < new Date(start)) {
-      setDateError('End date cannot be before start date');
+      setDateError(t('search_bar.date_error'));
     } else {
       setDateError('');
     }
@@ -97,7 +99,7 @@ export default function SearchBar({
       <div className="relative">
         <input
           type="text"
-          placeholder="Where are you going?"
+          placeholder={t('search_bar.destination_placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onBlur={() => setTimeout(() => setSuggestions([]), 200)}
@@ -152,7 +154,7 @@ export default function SearchBar({
           <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
             <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L13 10.414V17a1 1 0 01-1.447.894l-4-2A1 1 0 017 15v-4.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
           </svg>
-          Filter
+          {t('search_bar.filter_button')}
           {activeFilterCount > 0 && (
             <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#006B3C] text-[10px] font-bold text-white">
               {activeFilterCount}

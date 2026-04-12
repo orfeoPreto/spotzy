@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 
 interface CancelBooking {
   bookingId: string;
@@ -45,6 +46,7 @@ async function getAuthToken(): Promise<string> {
 }
 
 export default function CancelModal({ booking, refundAmount: _refundAmountProp, onClose, onCancelled }: CancelModalProps) {
+  const { t } = useTranslation('booking');
   const startDate = booking.startDate ?? booking.startTime ?? '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,10 +59,10 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
 
   // Determine refund tier label
   const refundTierLabel = hoursLeft > 24
-    ? 'More than 24h before start — full refund'
+    ? t('cancel.tier_full')
     : hoursLeft >= 12
-      ? '12–24h before start — 50% refund'
-      : 'Less than 12h before start — no refund';
+      ? t('cancel.tier_half')
+      : t('cancel.tier_none');
 
   const withinDeadline = new Date(startDate).getTime() - Date.now() < WITHIN_48H_MS &&
     new Date(startDate).getTime() > Date.now();
@@ -99,7 +101,7 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Cancel booking?</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t('cancel.modal_title')}</h2>
 
         {withinDeadline && (
           <p className="mb-3 text-sm text-amber-700">
@@ -109,19 +111,19 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
 
         {isActive ? (
           <div className="mb-4 rounded-xl bg-red-50 p-4 text-center">
-            <p className="text-sm font-medium text-red-700">Cannot cancel an active booking</p>
-            <p className="text-xs text-gray-500 mt-1">This booking is currently in progress.</p>
+            <p className="text-sm font-medium text-red-700">{t('cancel.active_error')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('cancel.active_message')}</p>
           </div>
         ) : refundAmount > 0 ? (
           <div className="mb-4 rounded-xl bg-green-50 p-4 text-center">
-            <p className="text-xs text-gray-500">You will receive</p>
+            <p className="text-xs text-gray-500">{t('cancel.will_receive')}</p>
             <p className="text-2xl font-bold text-green-700">€{refundAmount.toFixed(2)}</p>
-            <p className="text-xs text-gray-500">refund</p>
+            <p className="text-xs text-gray-500">{t('cancel.refund_label')}</p>
             <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
           </div>
         ) : (
           <div className="mb-4 rounded-xl bg-gray-100 p-4 text-center">
-            <p className="text-sm text-gray-500">No refund applies</p>
+            <p className="text-sm text-gray-500">{t('cancel.no_refund')}</p>
             <p className="text-xl font-bold text-gray-400">€0.00</p>
             <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
           </div>
@@ -148,7 +150,7 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
             onClick={onClose}
             className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:opacity-50"
           >
-            Keep my booking
+            {t('cancel.keep_button')}
           </button>
           <button
             type="button"
@@ -160,7 +162,7 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
             {loading ? (
               <span data-testid="spinner" className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              'Yes, cancel'
+              t('cancel.confirm_button')
             )}
           </button>
         </div>
