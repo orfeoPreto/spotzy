@@ -14,6 +14,24 @@ vi.mock('next/link', () => ({
     <a href={href} {...props}>{children}</a>,
 }));
 
+// Mock translation provider — return the key's last segment as the label
+vi.mock('../../../lib/locales/TranslationProvider', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const labels: Record<string, string> = {
+        'nav.search': 'Search', 'nav.bookings': 'Bookings', 'nav.messages': 'Messages',
+        'nav.mySpots': 'My spots', 'nav.profile': 'Profile', 'nav.login': 'Sign in',
+        'nav.register': 'Register', 'nav.backoffice': 'Backoffice',
+        'nav.becomeHost': 'List your spot', 'nav.hostDashboard': 'Host dashboard',
+        'nav.becomeSpotManager': 'Become Spot Manager', 'nav.portfolio': 'Portfolio',
+        'nav.blockRequests': 'Block requests',
+      };
+      return labels[key] ?? key.split('.').pop() ?? key;
+    },
+    locale: 'en',
+  }),
+}));
+
 import Navigation from '../../../components/Navigation';
 
 const mockUser = { userId: 'u1', name: 'Jean Dupont', hasListings: false };

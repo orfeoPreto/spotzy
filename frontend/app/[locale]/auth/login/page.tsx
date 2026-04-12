@@ -6,11 +6,13 @@ import Link from 'next/link';
 import { signIn } from 'aws-amplify/auth';
 import { useBookingIntent, BookingIntent } from '../../../../hooks/useBookingIntent';
 import { BookingSummaryStrip } from '../../../../components/BookingSummaryStrip';
+import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { readIntent, clearIntent } = useBookingIntent();
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,54 +36,48 @@ export default function LoginPage() {
         return;
       }
       if (isSignedIn) {
-        // 1. Booking intent wins over everything — preserve the user's original goal
         const currentIntent = readIntent();
         if (currentIntent) {
           clearIntent();
           router.push(`/book/${currentIntent.listingId}?startDate=${encodeURIComponent(currentIntent.startTime)}&endDate=${encodeURIComponent(currentIntent.endTime)}`);
           return;
         }
-        // 2. Explicit `next` query param (e.g. from the post-OTP host flow that
-        //    needs to land on /become-host before Stripe is set up)
         const nextParam = searchParams.get('next');
         if (nextParam) {
-          // Only allow safe internal paths
           if (nextParam.startsWith('/') && !nextParam.startsWith('//')) {
             router.push(nextParam);
             return;
           }
         }
-        // 3. Default landing
         router.push('/search');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('Incorrect') || msg.includes('incorrect') || msg.includes('password')) {
-        setError('Incorrect email or password.');
+        setError(t('login.error_incorrect'));
       } else if (msg.includes('not confirmed') || msg.includes('UserNotConfirmedException')) {
         router.push('/auth/confirm?email=' + encodeURIComponent(email.trim()));
       } else {
-        setError(msg || 'Sign in failed. Please try again.');
+        setError(msg || t('login.error_generic'));
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Preserve intent params in register link
   const registerHref = intent
     ? `/auth/register?next=checkout&listingId=${intent.listingId}&start=${encodeURIComponent(intent.startTime)}&end=${encodeURIComponent(intent.endTime)}`
     : '/auth/register';
 
   return (
     <main className="mx-auto max-w-sm px-4 py-16">
-      <h1 className="mb-6 text-2xl font-bold text-[#004526]">Sign in to Spotzy</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[#004526]">{t('login.heading')}</h1>
 
       {intent && <BookingSummaryStrip intent={intent} />}
 
       <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">{t('login.email_label')}</label>
           <input
             id="email"
             data-testid="email-input"
@@ -92,7 +88,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">{t('login.password_label')}</label>
           <input
             id="password"
             data-testid="password-input"
@@ -111,19 +107,19 @@ export default function LoginPage() {
           disabled={!canSubmit || loading}
           className="w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40"
         >
-          {loading ? 'Signing in…' : 'Sign in'}
+          {loading ? t('login.submit_loading') : t('login.submit_button')}
         </button>
       </form>
 
       <p className="mt-4 text-center text-sm text-gray-500">
-        Don&apos;t have an account?{' '}
+        {t('login.register_prompt')}{' '}
         <Link href={registerHref} data-testid="create-account-link" className="font-medium text-[#AD3614] hover:underline">
-          Register
+          {t('login.register_link')}
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-gray-500">
         <Link href="/auth/forgot-password" className="text-[#AD3614] hover:underline">
-          Forgot password?
+          {t('login.forgot_password_link')}
         </Link>
       </p>
     </main>

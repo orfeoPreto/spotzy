@@ -5,25 +5,26 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
 import { useListYourSpotDestination } from '../../hooks/useListYourSpotDestination';
+import { useTranslation } from '../../lib/locales/TranslationProvider';
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 function Hero() {
   const router = useRouter();
-  const { destination: listSpotDest } = useListYourSpotDestination();
+  const { t } = useTranslation('landing');
 
   return (
     <section data-testid="hero-section" className="bg-[#F0F7F3] px-6 py-20 text-center md:py-32">
       <div className="mx-auto max-w-3xl">
         <span className="mb-4 inline-block rounded-full bg-[#F0F7F3] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#004526]">
-          Private parking, on demand
+          {t('hero.badge')}
         </span>
         <h1 className="mt-4 text-4xl font-bold leading-tight text-[#004526] md:text-6xl">
-          Find parking.<br />
-          <span className="text-[#AD3614]">Fast.</span>
+          {t('hero.title_1')}<br />
+          <span className="text-[#AD3614]">{t('hero.title_2')}</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-gray-600">
-          Book private parking spots by the hour — directly from local hosts near your destination.
+          {t('hero.description')}
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
@@ -31,7 +32,7 @@ function Hero() {
             onClick={() => router.push('/search')}
             className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#005A30]"
           >
-            Search parking spots
+            {t('hero.cta_button')}
           </button>
         </div>
       </div>
@@ -41,55 +42,32 @@ function Hero() {
 
 // ─── How it works ────────────────────────────────────────────────────────────
 
-const HOW_STEPS = [
-  {
-    step: '01',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10">
-        <path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" />
-      </svg>
-    ),
-    title: 'Search',
-    desc: 'Enter your destination and dates. Browse spots on a live map with real-time availability.',
-  },
-  {
-    step: '02',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10">
-        <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" />
-        <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" />
-      </svg>
-    ),
-    title: 'Book',
-    desc: 'Select your slot, review the price breakdown, and pay securely in a few taps.',
-  },
-  {
-    step: '03',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10">
-        <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" />
-        <path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" />
-        <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
-      </svg>
-    ),
-    title: 'Park',
-    desc: 'Get directions, message your host if needed, and park with confidence.',
-  },
+const HOW_STEP_ICONS = [
+  <svg key="s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" /></svg>,
+  <svg key="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" /><path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" /></svg>,
+  <svg key="p" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" /><path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" /><path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" /></svg>,
 ];
 
 function HowItWorks() {
+  const { t } = useTranslation('landing');
+  const steps = [
+    { step: '01', icon: HOW_STEP_ICONS[0], titleKey: 'how_it_works.step_1_title', descKey: 'how_it_works.step_1_desc' },
+    { step: '02', icon: HOW_STEP_ICONS[1], titleKey: 'how_it_works.step_2_title', descKey: 'how_it_works.step_2_desc' },
+    { step: '03', icon: HOW_STEP_ICONS[2], titleKey: 'how_it_works.step_3_title', descKey: 'how_it_works.step_3_desc' },
+  ];
+
   return (
     <section className="bg-white px-6 py-20">
       <div className="mx-auto max-w-5xl">
-        <h2 className="mb-2 text-center text-3xl font-bold text-[#004526]">How it works</h2>
-        <p className="mb-12 text-center text-gray-500">Book a spot in under 2 minutes</p>
+        <h2 className="mb-2 text-center text-3xl font-bold text-[#004526]">{t('how_it_works.heading')}</h2>
+        <p className="mb-12 text-center text-gray-500">{t('how_it_works.subheading')}</p>
         <div className="grid gap-8 md:grid-cols-3">
-          {HOW_STEPS.map((s) => (
+          {steps.map((s) => (
             <div key={s.step} className="grow group flex flex-col items-center rounded-2xl border border-[#F0F7F3] bg-[#F0F7F3] p-8 text-center">
               <div className="card-icon-spin mb-4 text-[#004526]">{s.icon}</div>
               <span className="mb-1 font-mono text-xs font-semibold text-[#AD3614]">{s.step}</span>
-              <h3 className="mb-2 text-lg font-bold text-[#004526]">{s.title}</h3>
-              <p className="text-sm leading-relaxed text-gray-600">{s.desc}</p>
+              <h3 className="mb-2 text-lg font-bold text-[#004526]">{t(s.titleKey)}</h3>
+              <p className="text-sm leading-relaxed text-gray-600">{t(s.descKey)}</p>
             </div>
           ))}
         </div>
@@ -100,78 +78,51 @@ function HowItWorks() {
 
 // ─── Features / Agent API rotating showcase ─────────────────────────────────
 
-const SPOTTER_FEATURES = [
-  'Real-time map search',
-  'Hourly or daily bookings',
-  'Secure Stripe payments',
-  'Instant booking confirmation',
-  'Modify or cancel anytime',
-  'Rate your experience',
-];
-
-const HOST_FEATURES = [
-  'List in under 5 minutes',
-  'Set your own availability & price',
-  'Automatic payouts via Stripe',
-  'Review incoming bookings',
-  'Chat directly with spotters',
-  'Earnings dashboard',
-];
-
 function BuiltForEveryoneCards() {
   const { destination: listSpotDest } = useListYourSpotDestination();
+  const { t } = useTranslation('landing');
+  const spotterFeatureKeys = ['features.spotter_1', 'features.spotter_2', 'features.spotter_3', 'features.spotter_4', 'features.spotter_5', 'features.spotter_6'];
+  const hostFeatureKeys = ['features.host_1', 'features.host_2', 'features.host_3', 'features.host_4', 'features.host_5', 'features.host_6'];
+
   return (
     <div>
-      <h2 className="mb-12 text-center text-3xl font-bold text-[#004526] md:text-4xl">Built for everyone</h2>
+      <h2 className="mb-12 text-center text-3xl font-bold text-[#004526] md:text-4xl">{t('built_for_everyone.heading')}</h2>
       <div className="grid gap-8 md:grid-cols-2">
         {/* Spotter card */}
         <div className="grow group rounded-2xl bg-white p-8 shadow-sm">
           <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" />
-              <path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" />
-              <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" /><path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" /><path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" /></svg>
           </div>
-          <h3 className="mb-1 text-xl font-bold text-[#004526]">Find a spot</h3>
-          <p className="mb-6 text-sm text-gray-500">For drivers looking for reliable, affordable parking</p>
+          <h3 className="mb-1 text-xl font-bold text-[#004526]">{t('built_for_everyone.spotter_title')}</h3>
+          <p className="mb-6 text-sm text-gray-500">{t('built_for_everyone.spotter_description')}</p>
           <ul className="mb-8 space-y-2">
-            {SPOTTER_FEATURES.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-[#006B3C]">✓</span> {f}
+            {spotterFeatureKeys.map((k) => (
+              <li key={k} className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="text-[#006B3C]">✓</span> {t(k)}
               </li>
             ))}
           </ul>
-          <Link
-            href="/search"
-            className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
-          >
-            Search parking now
+          <Link href="/search" className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
+            {t('built_for_everyone.spotter_button')}
           </Link>
         </div>
 
         {/* Host card */}
         <div className="grow group rounded-2xl bg-[#006B3C]/10 border border-[#006B3C]/20 p-8 shadow-sm">
           <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
-              <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" /><path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" /></svg>
           </div>
-          <h3 className="mb-1 text-xl font-bold text-[#004526]">List your spot</h3>
-          <p className="mb-6 text-sm text-gray-500">For property owners who want to earn from unused space</p>
+          <h3 className="mb-1 text-xl font-bold text-[#004526]">{t('built_for_everyone.host_title')}</h3>
+          <p className="mb-6 text-sm text-gray-500">{t('built_for_everyone.host_description')}</p>
           <ul className="mb-8 space-y-2">
-            {HOST_FEATURES.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-[#006B3C]">✓</span> {f}
+            {hostFeatureKeys.map((k) => (
+              <li key={k} className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="text-[#006B3C]">✓</span> {t(k)}
               </li>
             ))}
           </ul>
-          <Link
-            href={listSpotDest}
-            className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]"
-          >
-            Start earning
+          <Link href={listSpotDest} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
+            {t('built_for_everyone.host_button')}
           </Link>
         </div>
       </div>
@@ -180,105 +131,64 @@ function BuiltForEveryoneCards() {
 }
 
 function AgentApiAnnouncement() {
+  const { t } = useTranslation('landing');
   return (
     <div>
-      {/* Announcement badge */}
       <div className="mb-6 flex justify-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#006B3C]/30 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#006B3C] shadow-sm">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#006B3C]"></span>
-          Coming soon · Developer preview
+          {t('agent_api.badge')}
         </span>
       </div>
+      <h2 className="mb-4 text-center text-3xl font-bold text-[#004526] md:text-4xl">{t('agent_api.heading')}</h2>
+      <p className="mx-auto mb-12 max-w-2xl text-center text-base text-gray-600">{t('agent_api.description')}</p>
 
-      <h2 className="mb-4 text-center text-3xl font-bold text-[#004526] md:text-4xl">
-        Book parking with a single prompt.
-      </h2>
-      <p className="mx-auto mb-12 max-w-2xl text-center text-base text-gray-600">
-        The Spotzy Agent API lets AI assistants like Claude, ChatGPT, and custom
-        LangChain agents find, book, and manage parking on your behalf — through
-        a natural-language interface backed by the same platform that powers spotzy.com.
-      </p>
-
-      {/* Prompt demo card */}
       <div className="mx-auto mb-12 max-w-3xl overflow-hidden rounded-2xl border border-[#006B3C]/20 bg-white shadow-lg">
-        {/* Terminal-like header */}
         <div className="flex items-center gap-2 border-b border-gray-100 bg-[#F0F7F3] px-4 py-2">
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
             <div className="h-2.5 w-2.5 rounded-full bg-amber-400"></div>
             <div className="h-2.5 w-2.5 rounded-full bg-green-400"></div>
           </div>
-          <span className="ml-2 text-xs font-mono text-gray-500">claude.ai · spotzy mcp</span>
+          <span className="ml-2 text-xs font-mono text-gray-500">{t('agent_api.terminal_header')}</span>
         </div>
-
-        {/* User prompt */}
         <div className="border-b border-gray-100 bg-white px-6 py-4">
-          <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">You</div>
-          <p className="text-sm text-gray-800">
-            I&apos;m driving to a meeting near Rue de la Loi 175 on Thursday 2–5pm.
-            Book me a covered spot within 5 min walk, under €8 total. Use Spotzy.
-          </p>
+          <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">{t('agent_api.prompt_label')}</div>
+          <p className="text-sm text-gray-800">{t('agent_api.example_prompt')}</p>
         </div>
-
-        {/* Agent response */}
         <div className="bg-gradient-to-b from-white to-[#F0F7F3] px-6 py-4">
           <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#004526]">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.8l7 3.5v7.4l-7 3.5-7-3.5V8.3l7-3.5z" />
-            </svg>
-            Claude · via Spotzy MCP
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.8l7 3.5v7.4l-7 3.5-7-3.5V8.3l7-3.5z" /></svg>
+            {t('agent_api.response_label')}
           </div>
           <div className="space-y-2 text-sm text-gray-700">
-            <p className="flex items-start gap-2">
-              <span className="text-[#006B3C]">→</span>
-              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">search_listings</code> found 4 covered spots &lt;5min walk</span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-[#006B3C]">→</span>
-              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">get_quote</code> returned €7.20 for 3h on the closest match</span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-[#006B3C]">→</span>
-              <span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">create_booking</code> confirmed, access code sent to your email 📨</span>
-            </p>
-            <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-800 shadow-sm">
-              ✅ Booked <strong>Rue de la Loi 178 (covered garage)</strong>, 4 min walk,
-              Thu 14:00–17:00, €7.20. Confirmation in your inbox.
-            </p>
+            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_1_name')}</code> {t('agent_api.api_call_1_result')}</span></p>
+            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_2_name')}</code> {t('agent_api.api_call_2_result')}</span></p>
+            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_3_name')}</code> {t('agent_api.api_call_3_result')}</span></p>
+            <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-800 shadow-sm">{t('agent_api.confirmation')}</p>
           </div>
         </div>
       </div>
 
-      {/* Capabilities grid */}
       <div className="grid gap-4 md:grid-cols-4">
-        {[
-          { title: 'Search & quote', desc: 'Find matching spots and get tiered pricing instantly.' },
-          { title: 'Book & cancel', desc: 'Create, modify, and cancel bookings on user behalf.' },
-          { title: 'Chat & messages', desc: 'Relay messages between spotters and hosts.' },
-          { title: 'Webhooks & MCP', desc: 'Subscribe to events or plug into any MCP client.' },
-        ].map((c) => (
-          <div key={c.title} className="rounded-xl border border-[#006B3C]/15 bg-white p-5 shadow-sm">
-            <h3 className="mb-1 text-sm font-bold text-[#004526]">{c.title}</h3>
-            <p className="text-xs text-gray-600 leading-relaxed">{c.desc}</p>
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="rounded-xl border border-[#006B3C]/15 bg-white p-5 shadow-sm">
+            <h3 className="mb-1 text-sm font-bold text-[#004526]">{t(`agent_api.capability_${i}_title`)}</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">{t(`agent_api.capability_${i}_desc`)}</p>
           </div>
         ))}
       </div>
 
-      {/* Tech chips + waitlist CTA */}
       <div className="mt-10 flex flex-col items-center gap-4">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {['REST API', 'OpenAPI 3.1', 'MCP (stdio + hosted SSE)', 'API keys', 'HMAC webhooks'].map((tag) => (
-            <span key={tag} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-              {tag}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <span key={i} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
+              {t(`agent_api.tech_chip_${i}`)}
             </span>
           ))}
         </div>
         <p className="text-center text-xs text-gray-500">
-          Launching in developer preview soon. Reach out to{' '}
-          <a href="mailto:dev@spotzy.be" className="font-medium text-[#006B3C] hover:underline">
-            dev@spotzy.be
-          </a>{' '}
-          to get an early API key.
+          {t('agent_api.waitlist_cta')}
         </p>
       </div>
     </div>
@@ -287,18 +197,12 @@ function AgentApiAnnouncement() {
 
 function Features() {
   const { user, isLoading } = useAuth();
-  // When logged in, only show the Agent API announcement (drop the Spotter/Host
-  // onboarding cards since the user is already past that stage).
-  // When logged out, auto-rotate between the two panels every 8 seconds.
   const loggedIn = !isLoading && !!user;
   const [panel, setPanel] = useState<'builtForEveryone' | 'agentApi'>('builtForEveryone');
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (loggedIn) {
-      setPanel('agentApi');
-      return;
-    }
+    if (loggedIn) { setPanel('agentApi'); return; }
     if (paused) return;
     const interval = setInterval(() => {
       setPanel((p) => (p === 'builtForEveryone' ? 'agentApi' : 'builtForEveryone'));
@@ -307,35 +211,19 @@ function Features() {
   }, [loggedIn, paused]);
 
   return (
-    <section
-      className="bg-gradient-to-br from-[#F0F7F3] via-white to-[#F0F7F3] px-6 py-20"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <section className="bg-gradient-to-br from-[#F0F7F3] via-white to-[#F0F7F3] px-6 py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="mx-auto max-w-5xl">
         <div key={panel} className="animate-fade-in-soft">
           {panel === 'builtForEveryone' ? <BuiltForEveryoneCards /> : <AgentApiAnnouncement />}
         </div>
-
-        {/* Carousel dots — only when logged out */}
         {!loggedIn && (
           <div className="mt-10 flex items-center justify-center gap-3">
             {(['builtForEveryone', 'agentApi'] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPanel(p)}
-                aria-label={p === 'builtForEveryone' ? 'Show Spotzy features' : 'Show Agent API announcement'}
-                className={`h-2 rounded-full transition-all ${
-                  panel === p
-                    ? 'w-8 bg-[#006B3C]'
-                    : 'w-2 bg-[#006B3C]/30 hover:bg-[#006B3C]/60'
-                }`}
-              />
+              <button key={p} onClick={() => setPanel(p)} aria-label={p} className={`h-2 rounded-full transition-all ${panel === p ? 'w-8 bg-[#006B3C]' : 'w-2 bg-[#006B3C]/30 hover:bg-[#006B3C]/60'}`} />
             ))}
           </div>
         )}
       </div>
-
     </section>
   );
 }
@@ -354,6 +242,7 @@ const ICONS = {
 function QuickLinks() {
   const { user } = useAuth();
   const { destination: listSpotDest } = useListYourSpotDestination();
+  const { t } = useTranslation('landing');
   const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
@@ -362,41 +251,35 @@ function QuickLinks() {
       headers: { Authorization: `Bearer ${user.token}` },
     })
       .then((r) => r.json())
-      .then((p) => {
-        setIsHost((p as Record<string, unknown>).isHost === true);
-      })
+      .then((p) => { setIsHost((p as Record<string, unknown>).isHost === true); })
       .catch(() => {});
   }, [user?.userId]);
 
   const cards = !user
     ? [
-        { href: '/search', label: 'Search spots', desc: 'Find parking near any destination', icon: ICONS.search },
-        { href: '/auth/login', label: 'Sign in', desc: 'Access your Spotzy account', icon: ICONS.signIn },
-        { href: '/auth/register', label: 'Create account', desc: 'Get started as a spotter or host', icon: ICONS.register },
+        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
+        { href: '/auth/login', label: t('quick_links.login_label'), desc: t('quick_links.login_desc'), icon: ICONS.signIn },
+        { href: '/auth/register', label: t('quick_links.register_label'), desc: t('quick_links.register_desc'), icon: ICONS.register },
       ]
     : isHost
     ? [
-        { href: '/search', label: 'Search spots', desc: 'Find parking near any destination', icon: ICONS.search },
-        { href: '/listings/new', label: 'Add a listing', desc: 'List your parking space in minutes', icon: ICONS.add },
-        { href: '/dashboard/spotter', label: 'My bookings', desc: 'View and manage your reservations', icon: ICONS.bookings },
+        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
+        { href: '/listings/new', label: t('quick_links.host_listing_label'), desc: t('quick_links.host_listing_desc'), icon: ICONS.add },
+        { href: '/dashboard/spotter', label: t('quick_links.bookings_label'), desc: t('quick_links.bookings_desc'), icon: ICONS.bookings },
       ]
     : [
-        { href: '/search', label: 'Search spots', desc: 'Find parking near any destination', icon: ICONS.search },
-        { href: listSpotDest, label: 'List your spot', desc: 'Start earning from your parking space', icon: ICONS.listSpot },
-        { href: '/dashboard/spotter', label: 'My bookings', desc: 'View and manage your reservations', icon: ICONS.bookings },
+        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
+        { href: listSpotDest, label: t('quick_links.list_spot_label'), desc: t('quick_links.list_spot_desc'), icon: ICONS.listSpot },
+        { href: '/dashboard/spotter', label: t('quick_links.bookings_label'), desc: t('quick_links.bookings_desc'), icon: ICONS.bookings },
       ];
 
   return (
     <section className="bg-white px-6 py-16">
       <div className="mx-auto max-w-5xl">
-        <h2 className="mb-8 text-center text-2xl font-bold text-[#004526]">Quick access</h2>
+        <h2 className="mb-8 text-center text-2xl font-bold text-[#004526]">{t('quick_links.heading')}</h2>
         <div className="grid grid-cols-3 gap-4">
           {cards.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              className="grow group flex flex-col gap-2 rounded-xl border border-[#F0F7F3] bg-[#F0F7F3] p-5 hover:border-[#AD3614] hover:shadow-sm"
-            >
+            <Link key={l.label} href={l.href} className="grow group flex flex-col gap-2 rounded-xl border border-[#F0F7F3] bg-[#F0F7F3] p-5 hover:border-[#AD3614] hover:shadow-sm">
               <span className="wiggle text-[#004526]">{l.icon}</span>
               <span className="font-semibold text-[#004526] group-hover:text-[#AD3614]">{l.label}</span>
               <span className="text-xs text-gray-500">{l.desc}</span>
@@ -412,28 +295,20 @@ function QuickLinks() {
 
 function CallToAction() {
   const { user } = useAuth();
-
+  const { t } = useTranslation('landing');
   if (user) return null;
 
   return (
     <section className="bg-[#F0F7F3] px-6 py-20 text-center border-t border-[#006B3C]/10">
       <div className="mx-auto max-w-2xl">
-        <h2 className="mb-4 text-3xl font-bold text-[#004526]">Ready to find your spot?</h2>
-        <p className="mb-8 text-gray-600">
-          Join thousands of drivers and hosts already using Spotzy.
-        </p>
+        <h2 className="mb-4 text-3xl font-bold text-[#004526]">{t('cta.heading')}</h2>
+        <p className="mb-8 text-gray-600">{t('cta.description')}</p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/search"
-            className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white hover:bg-[#005A30]"
-          >
-            Find parking
+          <Link href="/search" className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white hover:bg-[#005A30]">
+            {t('cta.button_find')}
           </Link>
-          <Link
-            href="/auth/register"
-            className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]"
-          >
-            Create account
+          <Link href="/auth/register" className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]">
+            {t('cta.button_register')}
           </Link>
         </div>
       </div>

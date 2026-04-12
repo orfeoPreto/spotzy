@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useListYourSpotDestination } from '../hooks/useListYourSpotDestination';
+import { useTranslation } from '../lib/locales/TranslationProvider';
 import LocaleSwitcher from './LocaleSwitcher';
 
 interface NavUser {
@@ -21,41 +22,41 @@ interface NavigationProps {
   unreadCount?: number;
 }
 
-const SPOTTER_LINKS = [
-  { href: '/search', label: 'Search' },
-  { href: '/dashboard/spotter', label: 'Bookings' },
-  { href: '/messages', label: 'Messages' },
+const SPOTTER_LINK_KEYS = [
+  { href: '/search', key: 'nav.search' },
+  { href: '/dashboard/spotter', key: 'nav.bookings' },
+  { href: '/messages', key: 'nav.messages' },
 ];
 
-const HOST_LINKS = [
-  { href: '/search', label: 'Search' },
-  { href: '/dashboard/spotter', label: 'Bookings' },
-  { href: '/messages', label: 'Messages' },
-  { href: '/dashboard/host', label: 'My spots' },
+const HOST_LINK_KEYS = [
+  { href: '/search', key: 'nav.search' },
+  { href: '/dashboard/spotter', key: 'nav.bookings' },
+  { href: '/messages', key: 'nav.messages' },
+  { href: '/dashboard/host', key: 'nav.mySpots' },
 ];
 
 const MOBILE_TABS = [
-  { href: '/search', label: 'Search', icon: (
+  { href: '/search', key: 'nav.search', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
     </svg>
   )},
-  { href: '/dashboard/spotter', label: 'Bookings', icon: (
+  { href: '/dashboard/spotter', key: 'nav.bookings', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
     </svg>
   )},
-  { href: '/dashboard/host', label: 'Host', icon: (
+  { href: '/dashboard/host', key: 'nav.hostDashboard', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
     </svg>
   )},
-  { href: '/messages', label: 'Messages', icon: (
+  { href: '/messages', key: 'nav.messages', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
     </svg>
   )},
-  { href: '/profile', label: 'Profile', icon: (
+  { href: '/profile', key: 'nav.profile', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
     </svg>
@@ -64,14 +65,14 @@ const MOBILE_TABS = [
 
 export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
   const pathname = usePathname();
-  const baseLinks = user?.isHost ? HOST_LINKS : SPOTTER_LINKS;
-  // Append v2.x persona-gated tabs
-  const navLinks = [...baseLinks];
+  const { t } = useTranslation('common');
+  const baseLinkKeys = user?.isHost ? HOST_LINK_KEYS : SPOTTER_LINK_KEYS;
+  const navLinks = [...baseLinkKeys];
   if (user?.isSpotManager) {
-    navLinks.push({ href: '/spot-manager/portfolio', label: 'Portfolio' });
+    navLinks.push({ href: '/spot-manager/portfolio', key: 'nav.portfolio' });
   }
   if (user?.isBlockSpotter || user?.isHost) {
-    navLinks.push({ href: '/block-requests', label: 'Block requests' });
+    navLinks.push({ href: '/block-requests', key: 'nav.blockRequests' });
   }
   const { destination: listSpotDest } = useListYourSpotDestination();
 
@@ -119,7 +120,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                         active ? 'text-[#004526]' : 'text-gray-500 hover:text-[#004526]'
                       }`}
                     >
-                      {l.label}
+                      {t(l.key)}
                       {l.href === '/messages' && <UnreadBadge />}
                       {active && (
                         <span className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-[#AD3614]" />
@@ -134,7 +135,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                       pathname.startsWith('/backoffice') ? 'text-[#AD3614]' : 'text-gray-500 hover:text-[#AD3614]'
                     }`}
                   >
-                    Backoffice
+                    {t('nav.backoffice')}
                     {pathname.startsWith('/backoffice') && (
                       <span className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-[#AD3614]" />
                     )}
@@ -144,10 +145,10 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
             ) : (
               <>
                 <Link href="/auth/login" className="text-sm font-medium text-gray-500 hover:text-[#004526]">
-                  Sign in
+                  {t('nav.login')}
                 </Link>
                 <Link href="/auth/register" className="text-sm font-medium text-gray-500 hover:text-[#004526]">
-                  Register
+                  {t('nav.register')}
                 </Link>
               </>
             )}
@@ -160,7 +161,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                 href={listSpotDest}
                 className="btn-gold grow-btn rounded-lg px-3 py-1.5 text-sm"
               >
-                List your spot
+                {t('nav.becomeHost')}
               </Link>
             )}
             {user?.isHost && (
@@ -169,7 +170,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                   href="/dashboard/host"
                   className="rounded-lg border border-[#004526] px-3 py-1.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors"
                 >
-                  Host dashboard
+                  {t('nav.hostDashboard')}
                 </Link>
               ) : (
                 <Link
@@ -177,7 +178,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                   className="rounded-lg bg-gradient-to-r from-[#004526] to-[#006B3C] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-opacity"
                   title="Unlock multi-bay pools and block reservations"
                 >
-                  Become Spot Manager
+                  {t('nav.becomeSpotManager')}
                 </Link>
               )
             )}
@@ -218,7 +219,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                   {tab.icon}
                   {tab.href === '/messages' && <UnreadBadge />}
                 </span>
-                {tab.label}
+                {t(tab.key)}
               </Link>
             );
           })}

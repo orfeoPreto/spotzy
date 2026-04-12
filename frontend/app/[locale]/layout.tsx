@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { SUPPORTED_LOCALES } from '../../lib/locales/constants';
+import { TranslationProvider } from '../../lib/locales/TranslationProvider';
 
 const AmplifyProvider = dynamic(() => import('../../components/AmplifyProvider'), { ssr: false });
 const NavigationWrapper = dynamic(() => import('../../components/NavigationWrapper'), { ssr: false });
@@ -16,11 +16,13 @@ export default function LocaleLayout({
   params: { locale: string };
 }) {
   return (
-    <AmplifyProvider>
-      <NavigationWrapper />
-      <StripeSetupGuard />
-      {children}
-      <FooterWrapper />
-    </AmplifyProvider>
+    <TranslationProvider>
+      <AmplifyProvider>
+        <NavigationWrapper />
+        <StripeSetupGuard />
+        {children}
+        <FooterWrapper />
+      </AmplifyProvider>
+    </TranslationProvider>
   );
 }

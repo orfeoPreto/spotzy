@@ -54,7 +54,7 @@ export default function LocaleSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[#004526] hover:text-[#006B3C] transition-colors"
         aria-label="Change language"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
