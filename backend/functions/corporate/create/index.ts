@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const { companyName, vatNumber, billingAddress } = JSON.parse(event.body ?? '{}');
   if (!companyName?.trim() || !vatNumber?.trim() || !billingAddress?.trim()) {
-    return badRequest('companyName, vatNumber, and billingAddress are required');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'companyName, vatNumber, billingAddress' });
   }
 
   if (!BELGIAN_VAT_REGEX.test(vatNumber)) {

@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, TransactWriteCommand } from '@aws-s
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, badRequest, unauthorized } from '../../../shared/utils/response';
+import { created, badRequest, unauthorized, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { validateInsurer, validatePolicyNumber, validateExpiryDate, validateRCDocument, validateChecklistAcceptance } from '../../../shared/spot-manager/validation';
 import { SPOT_MANAGER_TCS_VERSION } from '../../../shared/spot-manager/constants';
@@ -14,12 +14,6 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const eb = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
-
-const forbidden = (message: string) => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -94,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }));
   if (!userResult.Item?.stripeConnectEnabled) {
     log.warn('stripe connect required', { userId: claims.userId });
-    return forbidden('STRIPE_CONNECT_REQUIRED');
+    return forbidden();
   }
 
   const submissionId = ulid();

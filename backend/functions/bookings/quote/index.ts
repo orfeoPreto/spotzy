@@ -21,30 +21,30 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return badRequest('Invalid JSON body');
+    return badRequest('INVALID_JSON_BODY');
   }
 
   const { listingId, startTime, endTime } = body;
 
   if (!listingId || typeof listingId !== 'string') {
-    return badRequest('Missing listingId');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' });
   }
   if (!startTime || typeof startTime !== 'string') {
-    return badRequest('Missing startTime');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'startTime' });
   }
   if (!endTime || typeof endTime !== 'string') {
-    return badRequest('Missing endTime');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'endTime' });
   }
 
   const start = new Date(startTime as string);
   const end = new Date(endTime as string);
 
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return badRequest('Invalid date format');
+    return badRequest('INVALID_DATE_FORMAT');
   }
 
   if (end.getTime() <= start.getTime()) {
-    return badRequest('endTime must be after startTime');
+    return badRequest('INVALID_TIME_RANGE');
   }
 
   // Load listing

@@ -114,7 +114,7 @@ describe('admin-rc-review-decide', () => {
       () => {},
     );
     expect(result!.statusCode).toBe(400);
-    expect(JSON.parse(result!.body).error).toContain('decision must be');
+    expect(JSON.parse(result!.body).error).toBe('INVALID_FIELD');
   });
 
   it('returns 409 LOCK_NOT_HELD when lock missing', async () => {
@@ -179,7 +179,7 @@ describe('admin-rc-review-decide', () => {
       () => {},
     );
     expect(result!.statusCode).toBe(400);
-    expect(JSON.parse(result!.body).error).toContain('not reviewable');
+    expect(JSON.parse(result!.body).error).toBe('SUBMISSION_NOT_REVIEWABLE');
   });
 
   // ---------------------------------------------------------------

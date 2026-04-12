@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import BookPage from '../../../app/book/[id]/BookClient';
+import BookPage from '../../../app/[locale]/book/[id]/BookClient';
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({

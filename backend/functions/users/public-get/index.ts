@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) return unauthorized();
 
   const userId = event.pathParameters?.id;
-  if (!userId) return badRequest('Missing user id');
+  if (!userId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'userId' });
 
   // Fetch user profile
   const userRes = await ddb.send(new GetCommand({

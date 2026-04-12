@@ -90,14 +90,14 @@ describe('pool-listing-create', () => {
     ddbMock.on(GetCommand).resolves({ Item: { PK: `USER#${TEST_USER_ID}`, SK: 'PROFILE' } });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: validBody }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('Spot Manager status');
+    expect(JSON.parse(res!.body).error).toBe('SPOT_MANAGER_STATUS_REQUIRED');
   });
 
   it('bayCount below 2 -> 400', async () => {
     setupActiveSpotManager();
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { ...validBody, bayCount: 1 } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('bayCount');
+    expect(JSON.parse(res!.body).error).toBe('INVALID_BAY_COUNT');
   });
 
   it('bayCount above 200 -> 400', async () => {
@@ -117,21 +117,21 @@ describe('pool-listing-create', () => {
     const { address, ...body } = validBody;
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('address');
+    expect(JSON.parse(res!.body).error).toBe('MISSING_REQUIRED_FIELD');
   });
 
   it('bayLabels length mismatch -> 400', async () => {
     setupActiveSpotManager();
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { ...validBody, bayLabels: ['A', 'B'] } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('bayLabels');
+    expect(JSON.parse(res!.body).error).toBe('BAY_LABELS_COUNT_MISMATCH');
   });
 
   it('duplicate bayLabels -> 400', async () => {
     setupActiveSpotManager();
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { ...validBody, bayLabels: ['A', 'A', 'B', 'C', 'D'] } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('unique');
+    expect(JSON.parse(res!.body).error).toBe('DUPLICATE_BAY_LABELS');
   });
 
   it('TransactWriteCommand is called', async () => {

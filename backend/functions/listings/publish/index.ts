@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { listingMetadataKey } from '../../../shared/db/keys';
 
@@ -12,7 +12,6 @@ const eb = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -21,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('Missing listing id'); }
+  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' }); }
 
   log.info('publish attempt', { listingId });
 

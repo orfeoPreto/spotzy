@@ -1,0 +1,147 @@
+# Spotzy error codes — Belgian Dutch translations
+
+UNKNOWN_ERROR: "Er is een onverwachte fout opgetreden. Probeer het opnieuw of neem contact op met de ondersteuning."
+UNAUTHORIZED: "U moet ingelogd zijn om deze actie uit te voeren."
+FORBIDDEN: "U heeft geen toestemming om deze actie uit te voeren."
+NOT_FOUND: "De gevraagde bron werd niet gevonden."
+INTERNAL_ERROR: "Er is iets misgegaan aan onze kant. Probeer het later opnieuw."
+
+# Auth
+MISSING_CREDENTIALS: "Voer uw e-mailadres en wachtwoord in."
+MISSING_REQUIRED_FIELDS: "Vul alle verplichte velden in."
+EMAIL_ALREADY_EXISTS: "Er bestaat al een account met dit e-mailadres."
+INVALID_CREDENTIALS: "Ongeldig e-mailadres of wachtwoord."
+MISSING_REQUIRED_FIELD: "Het veld {field} is verplicht."
+MISSING_EMAIL: "Voer uw e-mailadres in."
+
+# Listings
+INVALID_SPOT_TYPE: "Ongeldig type parkeerplaats."
+PRICE_REQUIRED: "Er moet minstens één prijs worden ingesteld."
+FIELD_TOO_LONG: "Het veld {field} overschrijdt de maximale lengte van {maxLength} tekens."
+NO_PRICE_CONFIGURED: "Er is geen prijs geconfigureerd voor deze advertentie."
+LISTING_UNAVAILABLE: "Deze advertentie is niet beschikbaar voor de geselecteerde data."
+INVALID_PRICE_PER_HOUR: "De uurprijs moet een getal zijn tussen 0 en 1000."
+INVALID_DISCOUNT_VALUE: "De kortingswaarde voor {field} is niet geldig."
+
+# Bookings
+BOOKING_NOT_FOUND: "Boeking niet gevonden."
+BOOKING_NOT_COMPLETED: "Deze boeking is nog niet voltooid."
+BOOKING_ALREADY_ACTIVE: "Deze boeking is al actief."
+BOOKING_ALREADY_ENDED: "Deze boeking is al beëindigd."
+CANNOT_CANCEL_COMPLETED: "Voltooide boekingen kunnen niet worden geannuleerd."
+CANNOT_CHANGE_START_ACTIVE: "De starttijd van een actieve boeking kan niet worden gewijzigd."
+BELOW_MINIMUM_DURATION: "De boekingsduur is lager dan het minimum."
+EXCEEDS_MAXIMUM_DURATION: "De boekingsduur overschrijdt het maximum."
+START_TIME_IN_PAST: "De starttijd kan niet in het verleden liggen."
+SLOT_UNAVAILABLE: "Het geselecteerde tijdslot is niet beschikbaar."
+INVALID_TIME_RANGE: "De eindtijd moet na de starttijd liggen."
+INVALID_DATE_FORMAT: "Ongeldig datumformaat."
+OUTSIDE_AVAILABILITY_WINDOW: "De geselecteerde tijd valt buiten het beschikbaarheidsvenster."
+ALREADY_CANCELLED: "Deze boeking is al geannuleerd."
+INVALID_BOOKING_STATUS: "Ongeldige boekingsstatus voor deze bewerking."
+
+# Availability
+OVERLAPPING_RULES: "Beschikbaarheidsregels mogen niet overlappen."
+NO_RULES_PROVIDED: "Er is minstens één beschikbaarheidsregel vereist."
+TOO_MANY_RULES: "Te veel beschikbaarheidsregels."
+
+# Photos
+PHOTO_INDEX_OUT_OF_RANGE: "Foto-index valt buiten het bereik."
+INVALID_PHOTO_INDEX: "Ongeldige foto-index."
+MINIMUM_PHOTO_REQUIRED: "Het minimale aantal foto's is vereist."
+ORDER_MISMATCH: "De fotovolgorde komt niet overeen."
+
+# Vehicles
+MAX_VEHICLES_EXCEEDED: "U kunt maximaal {maxVehicles} voertuigen hebben."
+VEHICLE_PLATE_EMPTY: "De nummerplaat mag niet leeg zijn."
+VEHICLE_PLATE_TOO_LONG: "De nummerplaat mag maximaal {maxLength} tekens bevatten."
+
+# Reviews & Disputes
+INVALID_RATING: "Selecteer een geldige beoordeling."
+DISPUTE_WINDOW_EXPIRED: "De termijn voor betwisting is verlopen."
+REVIEW_LOCKED: "Deze beoordeling is vergrendeld."
+REVIEW_WINDOW_EXPIRED: "De termijn voor beoordeling is verlopen."
+
+# Spot Manager
+SPOT_MANAGER_STATUS_REQUIRED: "U moet een actieve Spotbeheerder zijn om deze actie uit te voeren."
+SPOT_MANAGER_NOT_ACTIVE: "Uw Spotbeheerder-status is niet actief."
+RC_INSURANCE_NOT_APPROVED: "Uw BA-verzekering is niet goedgekeurd."
+DOCUMENT_REQUIRED: "Een document is vereist."
+CHECKLIST_REQUIRED: "Gelieve de checklist te voltooien."
+TCS_VERSION_REQUIRED: "U moet de laatste algemene voorwaarden accepteren."
+SUBMISSION_NOT_REVIEWABLE: "Deze inzending kan niet worden beoordeeld."
+INVALID_INSURER: "Ongeldige verzekeraar."
+SOFT_VERIFICATION_REQUIRED: "Verificatie is vereist."
+INVALID_SECTION_FOR_ROLE: "Dit onderdeel is niet beschikbaar voor uw rol."
+
+# Pool / Bay
+NOT_A_POOL_LISTING: "Deze advertentie is geen Parkeerpool."
+NOT_A_POOL_BOOKING: "Deze boeking is geen poolboeking."
+INVALID_BAY_COUNT: "Ongeldig aantal Bay."
+BAY_LABELS_COUNT_MISMATCH: "Het aantal Bay-labels moet overeenkomen met het aantal Bay."
+DUPLICATE_BAY_LABELS: "Bay-labels moeten uniek zijn."
+DUPLICATE_BAY_LABEL: "Dit Bay-label is al in gebruik."
+BAY_ACCESS_INSTRUCTIONS_COUNT_MISMATCH: "Het aantal toegangsinstructies moet overeenkomen met het aantal Bay."
+BAY_NOT_FOUND: "Bay niet gevonden in deze pool."
+BAY_NOT_ACTIVE: "Deze Bay is niet actief."
+BAY_NOT_AVAILABLE: "Deze Bay is niet beschikbaar voor de geselecteerde periode."
+BAY_HAS_ACTIVE_BOOKINGS: "Kan deze Bay niet sluiten omdat er actieve boekingen zijn."
+BAY_HAS_BOOKINGS: "Kan deze Bay niet verwijderen omdat er actieve of toekomstige boekingen zijn."
+BAY_OCCUPIED: "Deze Bay is momenteel bezet."
+BAY_NOT_IN_RESERVATION: "Deze Bay maakt geen deel uit van de reservering."
+INVALID_BAY_STATUS: "Ongeldige Bay-status."
+NO_UPDATE_FIELDS: "Geen updatevelden opgegeven."
+POOL_FULLY_BOOKED: "Deze pool is volzet."
+SPOT_ALREADY_IN_POOL: "Deze plaats zit al in de pool."
+SPOT_UNAVAILABLE: "Deze plaats is niet beschikbaar."
+
+# Block Reservations
+DUPLICATE_GUEST_EMAIL: "Een gast met dit e-mailadres is al toegevoegd."
+INVALID_GUEST_EMAIL: "Ongeldig e-mailadres van de gast."
+INVALID_GUEST_PHONE: "Ongeldig telefoonnummer van de gast."
+GUEST_NAME_REQUIRED: "De naam van de gast is verplicht."
+GUESTS_REQUIRED: "Er is minstens één gast vereist."
+OVER_ALLOCATION: "Niet genoeg beschikbare Bay voor alle gasten."
+NO_PLANS_AVAILABLE: "Er zijn geen plannen beschikbaar."
+PLANS_EXPIRED: "De voorgestelde plannen zijn verlopen."
+PLAN_STALE: "Het plan is gewijzigd. Vernieuw de pagina en probeer opnieuw."
+INVALID_PLAN_INDEX: "Ongeldige planselectie."
+REQUEST_NOT_CONFIRMED: "Dit verzoek is niet bevestigd."
+REQUEST_NOT_IN_PLANS_PROPOSED: "Dit verzoek bevindt zich niet in de status van voorgestelde plannen."
+REQUEST_NOT_CANCELLABLE: "Dit verzoek kan niet worden geannuleerd."
+REQUEST_TERMINAL: "Dit verzoek bevindt zich in een eindstatus."
+REQUEST_LOCKED: "Dit verzoek is momenteel vergrendeld door een andere bewerking."
+TOO_CLOSE_TO_START: "Te dicht bij de startdatum om deze wijziging door te voeren."
+WINDOW_CLOSED: "Het bewerkingsvenster is gesloten."
+NO_SELF_SERVICE_CANCEL: "Zelfbedieningsannulering is niet beschikbaar."
+ACTIVE_BOOKING_EXISTS: "Er bestaat een actieve boeking voor deze advertentie."
+ACTIVE_BOOKINGS_EXIST: "Er bestaan actieve boekingen die eerst moeten worden opgelost."
+OPEN_DISPUTES_EXIST: "Er bestaan openstaande geschillen die eerst moeten worden opgelost."
+
+# Payments
+MISSING_STRIPE_SIGNATURE: "Stripe-handtekening ontbreekt."
+INVALID_STRIPE_SIGNATURE: "Ongeldige Stripe-handtekening."
+PAYMENT_ALREADY_PROCESSED: "Deze betaling is al verwerkt."
+
+# Locks
+LOCK_HELD: "Deze bron is momenteel vergrendeld."
+LOCK_NOT_HELD: "De vergrendeling op deze bron is verlopen of was nooit verkregen."
+CONCURRENT_MODIFICATION: "Er is een gelijktijdige wijziging gedetecteerd. Probeer het opnieuw."
+
+# Platform
+PLATFORM_FEE_OUT_OF_BOUNDS: "De platformcommissie moet tussen 0% en 100% liggen."
+NO_UPDATE_PROVIDED: "Er is geen update opgegeven."
+INVALID_CONTENT_TYPE: "Ongeldig inhoudstype."
+INVALID_JSON: "Ongeldige JSON."
+INVALID_JSON_BODY: "De aanvraagtekst is geen geldige JSON."
+INVALID_FIELD: "De waarde voor {field} is niet geldig."
+INVALID_VAT_NUMBER: "Ongeldig btw-nummer."
+UNSUPPORTED_METHOD: "Deze methode wordt niet ondersteund."
+MISSING_LOCATION_PARAMS: "Locatieparameters zijn vereist (lat/lng of begrenzing)."
+REASON_REQUIRED: "Een reden is vereist."
+
+# Locale
+INVALID_LOCALE: "De geselecteerde taal wordt niet ondersteund."
+
+# Corporate
+ALREADY_CORPORATE_ADMIN: "Deze gebruiker is al een corporate beheerder."

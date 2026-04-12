@@ -12,7 +12,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const log = createLogger('listing-get', event.requestContext.requestId);
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('Missing listing id'); }
+  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' }); }
 
   const key = listingMetadataKey(listingId);
   const result = await client.send(new GetCommand({ TableName: TABLE, Key: key, ConsistentRead: true }));

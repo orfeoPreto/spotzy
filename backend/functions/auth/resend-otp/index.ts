@@ -15,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body ?? '{}') as { email?: string };
   if (!body.email) {
     log.warn('validation failed', { reason: 'missing email' });
-    return badRequest('Missing email');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'email' });
   }
 
   log.info('resend-otp attempt', { email: body.email });

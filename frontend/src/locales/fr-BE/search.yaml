@@ -1,0 +1,24 @@
+# Spotzy search translations (fr-BE)
+heading: "Rechercher des places de parking"
+search_this_area: "Rechercher dans cette zone"
+loading: "Chargement..."
+no_results: "Aucune place trouvée. Essayez un autre lieu ou ajustez vos filtres."
+search_bar:
+  destination_placeholder: "Où allez-vous ?"
+  date_error: "La date de fin ne peut pas être antérieure à la date de début"
+  filter_button: "Filtrer"
+spot_card:
+  covered_badge: "Couvert"
+  ev_badge: "VE"
+  walking_distance: "min à pied"
+  book_button: "Réserver cette place"
+booking_card:
+  ending_soon: "Se termine bientôt — fin dans moins de 24h"
+  fallback_address: "Voir l'annonce"
+  message_button: "Message"
+  modify_button: "Modifier"
+  cancel_button: "Annuler"
+  leave_review: "Laisser un avis"
+  review_submitted: "Avis envoyé"
+  update_review: "Modifier l'avis"
+  report_button: "Signaler un problème"

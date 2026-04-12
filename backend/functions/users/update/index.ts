@@ -5,6 +5,7 @@ import { extractClaims } from '../../../shared/utils/auth';
 import { ok, badRequest, unauthorized } from '../../../shared/utils/response';
 import { userProfileKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
+import { SUPPORTED_LOCALES } from '../../../shared/locales/constants';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
@@ -21,12 +22,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (body.pseudo !== undefined && body.pseudo.trim() === '') body.pseudo = null;
   log.info('update attempt', { fields: Object.keys(body) });
 
+  // Validate preferredLocale if present
+  if (body.preferredLocale !== undefined) {
+    if (!(SUPPORTED_LOCALES as readonly string[]).includes(body.preferredLocale)) {
+      return badRequest('INVALID_LOCALE');
+    }
+    body.preferredLocaleSetAt = new Date().toISOString();
+  }
+
   // Validate vehicles
   if (body.vehicles !== undefined) {
-    if (body.vehicles.length > 5) return badRequest(JSON.stringify({ code: 'MAX_VEHICLES_EXCEEDED', message: 'Maximum 5 vehicles allowed' }));
+    if (body.vehicles.length > 5) return badRequest('MAX_VEHICLES_EXCEEDED', { maxVehicles: 5 });
     for (const v of body.vehicles) {
-      if (!v.plate || v.plate.trim() === '') return badRequest('Vehicle plate cannot be empty');
-      if (v.plate.length > 15) return badRequest('Vehicle plate must be 15 characters or less');
+      if (!v.plate || v.plate.trim() === '') return badRequest('VEHICLE_PLATE_EMPTY');
+      if (v.plate.length > 15) return badRequest('VEHICLE_PLATE_TOO_LONG', { maxLength: 15 });
     }
   }
 

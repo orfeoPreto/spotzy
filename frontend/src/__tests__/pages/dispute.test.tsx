@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import DisputePage from '../../../app/dispute/[bookingId]/DisputeClient';
+import DisputePage from '../../../app/[locale]/dispute/[bookingId]/DisputeClient';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),

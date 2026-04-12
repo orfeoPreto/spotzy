@@ -14,8 +14,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const listingId = event.pathParameters?.listingId ?? event.pathParameters?.id;
   const { startTime, endTime } = event.queryStringParameters ?? {};
 
-  if (!startTime || !endTime) return badRequest('startTime and endTime are required');
-  if (new Date(endTime) <= new Date(startTime)) return badRequest('endTime must be after startTime');
+  if (!startTime || !endTime) return badRequest('MISSING_REQUIRED_FIELD', { field: 'startTime, endTime' });
+  if (new Date(endTime) <= new Date(startTime)) return badRequest('INVALID_TIME_RANGE');
 
   // Fetch listing
   const listingResult = await ddb.send(new QueryCommand({

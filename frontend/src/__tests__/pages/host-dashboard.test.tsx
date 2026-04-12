@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import HostDashboardPage from '../../../app/dashboard/host/page';
+import HostDashboardPage from '../../../app/[locale]/dashboard/host/page';
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({

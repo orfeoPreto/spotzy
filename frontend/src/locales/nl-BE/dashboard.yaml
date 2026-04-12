@@ -1,0 +1,18 @@
+spotter:
+  my_bookings: Mijn boekingen
+  no_bookings: Geen {tab} boekingen.
+host:
+  title: Dashboard Gastheer
+  active_bookings: Actieve boekingen
+  mtd_earnings: Verdiensten deze maand
+  live_listings: Actieve advertenties
+  avg_rating: Gemiddelde beoordeling
+  my_listings: Mijn advertenties
+  add_listing: + Advertentie toevoegen
+  no_listings: Je hebt nog geen parkeerplaatsen toegevoegd.
+  add_first_spot: Voeg uw eerste parkeerplaats toe
+  bookings_count: "{count} boekingen"
+  edit_listing: Advertentie bewerken
+  edit_availability: Beschikbaarheid bewerken
+  upcoming_bookings: Aankomende boekingen
+  no_upcoming: Geen komende boekingen.

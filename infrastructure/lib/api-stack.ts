@@ -6,6 +6,7 @@ import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as events from 'aws-cdk-lib/aws-events';
+import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -114,6 +115,9 @@ export const LAMBDA_NAMES = {
   rcExpiryReminder30d: 'rc-expiry-reminder-30d',
   rcExpiryReminder7d: 'rc-expiry-reminder-7d',
   rcExpirySuspend: 'rc-expiry-suspend',
+  // Session 29 — Localization
+  listingTranslate: 'listing-translate',
+  translateOnDemand: 'translate-on-demand',
 } as const;
 
 export class ApiStack extends cdk.Stack {
@@ -308,6 +312,9 @@ export class ApiStack extends cdk.Stack {
         'rc-expiry-reminder-30d': 'spot-manager/rc-expiry-reminder-30d',
         'rc-expiry-reminder-7d': 'spot-manager/rc-expiry-reminder-7d',
         'rc-expiry-suspend': 'spot-manager/rc-expiry-suspend',
+        // Session 29 — Localization
+        'listing-translate': 'listings/listing-translate',
+        'translate-on-demand': 'translate/translate-on-demand',
       };
       const dir = dirMap[shortName];
       if (!dir) throw new Error(`No handler path for Lambda: ${shortName}`);
@@ -627,6 +634,31 @@ export class ApiStack extends cdk.Stack {
     }));
 
     // -----------------------------------------------------------------------
+    // Session 29 — Localization Lambdas
+    // -----------------------------------------------------------------------
+    const listingTranslateFn = mkFn('listing-translate');
+    listingTranslateFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['translate:TranslateText'],
+      resources: ['*'],
+    }));
+
+    const translateOnDemandFn = mkFn('translate-on-demand');
+    translateOnDemandFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['translate:TranslateText'],
+      resources: ['*'],
+    }));
+
+    // EventBridge rule: listing.translation_required → listing-translate Lambda
+    const listingTranslationRule = new events.Rule(this, 'ListingTranslationRule', {
+      eventBus,
+      eventPattern: {
+        source: ['spotzy.listings'],
+        detailType: ['listing.translation_required'],
+      },
+    });
+    listingTranslationRule.addTarget(new eventsTargets.LambdaFunction(listingTranslateFn));
+
+    // -----------------------------------------------------------------------
     // API Gateway access log group
     // -----------------------------------------------------------------------
     const accessLogGroup = new logs.LogGroup(this, 'ApiAccessLogs', {
@@ -794,6 +826,9 @@ export class ApiStack extends cdk.Stack {
     const adminCustomerById = adminCustomers.addResource('{userId}');
     adminCustomerById.addMethod('GET', integ(adminCustomerGetFn), authOpts);
     adminCustomerById.addResource('suspend').addMethod('POST', integ(adminCustomerSuspendFn), authOpts);
+
+    // /api/v1/translate — Session 29 on-demand translation
+    v1.addResource('translate').addMethod('POST', integ(translateOnDemandFn), authOpts);
 
     // Session 26 Spot Manager routes are in SpotManagerStack.
 

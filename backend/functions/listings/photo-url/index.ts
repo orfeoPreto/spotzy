@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { listingMetadataKey } from '../../../shared/db/keys';
 
@@ -14,7 +14,6 @@ const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const UPLOADS_BUCKET = process.env.UPLOADS_BUCKET ?? 'spotzy-media-uploads';
 const VALID_CONTENT_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -23,17 +22,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) return badRequest('Missing listing id');
+  if (!listingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const photoIndex = parseInt(String(body.photoIndex), 10);
   const contentType: string = body.contentType ?? '';
 
   if (isNaN(photoIndex) || photoIndex < 0 || photoIndex > 1) {
-    return badRequest('photoIndex must be 0 or 1 (max 2 photos per listing in MVP)');
+    return badRequest('INVALID_PHOTO_INDEX');
   }
   if (!VALID_CONTENT_TYPES.has(contentType)) {
-    return badRequest(`Invalid contentType. Must be one of: ${[...VALID_CONTENT_TYPES].join(', ')}`);
+    return badRequest('INVALID_CONTENT_TYPE');
   }
 
   const key = listingMetadataKey(listingId);

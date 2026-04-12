@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const log = createLogger('dispute-escalate', event.requestContext.requestId);
 
   const disputeId = event.pathParameters?.id;
-  if (!disputeId) return badRequest('Missing dispute id');
+  if (!disputeId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'disputeId' });
   log.info('escalate attempt', { disputeId });
 
   const result = await ddb.send(new GetCommand({ TableName: TABLE, Key: disputeMetadataKey(disputeId) }));

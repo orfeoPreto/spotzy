@@ -19,10 +19,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!userId) return { statusCode: 401, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Unauthorized' }) };
 
   const poolId = event.pathParameters?.poolId;
-  if (!poolId) return badRequest('poolId required');
+  if (!poolId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'poolId' });
 
   const { startTime, endTime } = JSON.parse(event.body ?? '{}');
-  if (!startTime || !endTime) return badRequest('startTime and endTime are required');
+  if (!startTime || !endTime) return badRequest('MISSING_REQUIRED_FIELD', { field: 'startTime, endTime' });
 
   const pool = await ddb.send(new GetCommand({ TableName: TABLE, Key: { PK: `POOL#${poolId}`, SK: 'METADATA' } }));
   if (!pool.Item) return notFound();

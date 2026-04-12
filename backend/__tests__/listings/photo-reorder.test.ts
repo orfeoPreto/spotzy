@@ -67,8 +67,7 @@ describe('listing-photo-reorder', () => {
     const res = await handler(makeEvent(LISTING_ID, HOST_ID, { order: [0, 1] }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('ORDER_MISMATCH');
+    expect(body.error).toBe('ORDER_MISMATCH');
   });
 
   test('order array with invalid indices → 400 ORDER_MISMATCH', async () => {

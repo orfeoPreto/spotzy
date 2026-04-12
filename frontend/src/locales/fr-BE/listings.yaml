@@ -1,0 +1,55 @@
+detail:
+  unavailable_title: Cette place de stationnement n'est plus disponible
+  unavailable_message: Cette annonce a été supprimée.
+  search_other: Rechercher d'autres places de stationnement
+  feature_covered: Couvert
+  feature_accessible: Accessible
+  feature_ev: Recharge VE
+  host_rating: ★ {rating} évaluation de l'Hôte
+  price_per_hour: €{price}/h
+  start_label: Début
+  end_label: Fin
+  total_price: "Total : €{total}"
+  own_listing: C'est votre annonce
+  book_button: Réserver cette place
+  sign_in_to_book: Se connecter pour réserver
+create:
+  spot_types:
+    COVERED_GARAGE: Garage couvert
+    OPEN_SPACE: Parking en plein air
+    CARPORT: Carport
+    DRIVEWAY: Allée privée
+  steps:
+    location: Localisation
+    details: Détails du Spot
+    photos: Photos
+    availability: Disponibilité
+  location_heading: Où se trouve votre place de stationnement ?
+  address_placeholder: Entrez une adresse ou une rue
+  details_heading: Parlez-nous de votre place de stationnement
+  price_label: Prix par heure (€)
+  price_placeholder: p.ex. 3,50
+  ev_label: Recharge électrique disponible ?
+  ev_confirmed: Recharge électrique confirmée
+  description_label: Description
+  description_placeholder: Instructions d'accès, restrictions, points de repère à proximité…
+  photos_heading: Ajouter des photos
+  photos_description: Téléchargez des photos de votre place de stationnement. Elles sont analysées automatiquement par IA — au moins une doit être validée.
+  photo_slot: Photo {index}
+  photo_too_large: L'image est trop grande. Veuillez utiliser une photo de moins de 20 Mo.
+  photo_validation_timeout: La validation a expiré. Veuillez essayer avec une autre photo.
+  photo_validation_failed: La validation a échoué — essayez avec une photo plus nette
+  availability_heading: Définissez vos disponibilités
+  availability_description: Définissez quand votre place de stationnement est disponible à la réservation. Vous devez sauvegarder avant de publier.
+  availability_saved: Disponibilité enregistrée. Vous pouvez maintenant publier votre annonce.
+  availability_save_error: Impossible d'enregistrer les disponibilités. Veuillez réessayer.
+  prepublish_title: Liste de contrôle avant publication
+  checklist_address: Adresse vérifiée
+  checklist_type: Type de place sélectionné
+  checklist_price: Prix défini
+  checklist_photos: Photos téléchargées
+  checklist_availability: Disponibilité enregistrée
+  publish_button: Publier l'annonce
+  create_error: Impossible d'enregistrer l'annonce. Veuillez réessayer.
+  publish_incomplete: "Annonce incomplète : {checks}"
+  publish_error: La publication a échoué. Veuillez réessayer.

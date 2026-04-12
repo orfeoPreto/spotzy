@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const poolId = event.pathParameters?.poolId;
   const bayId = event.pathParameters?.bayId;
-  if (!poolId || !bayId) return badRequest('Missing poolId or bayId');
+  if (!poolId || !bayId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'poolId, bayId' });
 
   // Verify pool ownership
   const listingResult = await client.send(new GetCommand({
@@ -36,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     log.warn('not pool owner', { poolId, userId: claims.userId });
     return unauthorized();
   }
-  if (!listing.isPool) return badRequest('Listing is not a pool');
+  if (!listing.isPool) return badRequest('NOT_A_POOL_LISTING');
 
   // Verify bay existence
   const bayResult = await client.send(new GetCommand({
@@ -50,14 +50,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return badRequest('Invalid JSON body');
+    return badRequest('INVALID_JSON_BODY');
   }
 
   const { label, accessInstructions, status } = body;
 
   // Validate status if provided
   if (status !== undefined && !VALID_BAY_STATUSES.includes(status)) {
-    return badRequest(`Invalid status. Must be one of: ${VALID_BAY_STATUSES.join(', ')}`);
+    return badRequest('INVALID_BAY_STATUS');
   }
 
   // Label uniqueness check within pool
@@ -71,7 +71,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       (b) => b.label === label && b.bayId !== bayId
     );
     if (existingBay) {
-      return conflict(`Label "${label}" is already in use by another bay`);
+      return conflict('DUPLICATE_BAY_LABEL');
     }
   }
 
@@ -91,7 +91,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         (b) => b.poolSpotId === bayId && ACTIVE_BOOKING_STATUSES.has(b.status) && b.endTime > now
       );
       if (activeBooking) {
-        return conflict('Cannot close bay: there are active bookings on this bay');
+        return conflict('BAY_HAS_ACTIVE_BOOKINGS');
       }
     }
 
@@ -101,7 +101,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         (b) => b.poolSpotId === bayId && UPCOMING_BOOKING_STATUSES.has(b.status) && b.endTime > now
       );
       if (blockingBooking) {
-        return conflict('Cannot permanently remove bay: there are active or upcoming bookings');
+        return conflict('BAY_HAS_BOOKINGS');
       }
     }
   }
@@ -128,7 +128,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   if (updateExprParts.length === 0) {
-    return badRequest('No update fields provided');
+    return badRequest('NO_UPDATE_FIELDS');
   }
 
   updateExprParts.push('updatedAt = :now');

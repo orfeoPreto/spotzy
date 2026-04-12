@@ -1,0 +1,12 @@
+# Spotzy chat translations (en)
+back_to_bookings: "Back to bookings"
+booking_reference: "Booking {reference}"
+no_messages: "No messages yet — start the conversation"
+image_preview_alt: "Image preview"
+attach_image: "Attach image"
+message_placeholder: "Type a message here..."
+send_button: "Send"
+translate: "Translate"
+translating: "Translating..."
+translated_from: "Translated from {locale}"
+view_original: "View original"

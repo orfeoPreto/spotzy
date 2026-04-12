@@ -73,7 +73,7 @@ describe('listing-delete', () => {
     const res = await handler(makeEvent(LISTING_ID, HOST_ID), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
     const body = JSON.parse(res!.body);
-    expect(body.code).toBe('ACTIVE_BOOKING_EXISTS');
+    expect(body.error).toBe('ACTIVE_BOOKING_EXISTS');
   });
 
   test('listing with ACTIVE booking → 409 ACTIVE_BOOKING_EXISTS', async () => {

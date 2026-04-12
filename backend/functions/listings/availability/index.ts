@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { listingMetadataKey, availRuleKey } from '../../../shared/db/keys';
 import { AvailabilityRule } from '../../../shared/types/availability';
@@ -15,11 +15,6 @@ import { isWithinAvailabilityRules } from '../../../shared/availability/resolver
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/listings/{id}/availability  (public)
@@ -27,7 +22,7 @@ const forbidden = () => ({
 export const getHandler: APIGatewayProxyHandler = async (event) => {
   const log = createLogger('listing-availability-get', event.requestContext.requestId);
   const listingId = event.pathParameters?.id;
-  if (!listingId) return badRequest('Missing listing id');
+  if (!listingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' });
 
   // Verify listing exists
   const meta = await ddb.send(new GetCommand({ TableName: TABLE, Key: listingMetadataKey(listingId) }));
@@ -52,7 +47,7 @@ export const putHandler: APIGatewayProxyHandler = async (event) => {
   if (!claims) return unauthorized();
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) return badRequest('Missing listing id');
+  if (!listingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' });
 
   const body = JSON.parse(event.body ?? '{}') as {
     type?: string;
@@ -77,10 +72,10 @@ export const putHandler: APIGatewayProxyHandler = async (event) => {
   // WEEKLY validation
   const inputRules = body.rules ?? [];
   if (inputRules.length === 0) {
-    return badRequest(JSON.stringify({ code: 'NO_RULES_PROVIDED', message: 'At least one rule is required for WEEKLY type' }));
+    return badRequest('NO_RULES_PROVIDED');
   }
   if (inputRules.length > 14) {
-    return badRequest(JSON.stringify({ code: 'TOO_MANY_RULES', message: 'Maximum 14 rules allowed' }));
+    return badRequest('TOO_MANY_RULES', { maxRules: 14 });
   }
 
   // Validate each rule
@@ -88,10 +83,10 @@ export const putHandler: APIGatewayProxyHandler = async (event) => {
     const start = parseTime(r.startTime);
     const end = parseTime(r.endTime);
     if (isNaN(start) || isNaN(end)) {
-      return badRequest(JSON.stringify({ code: 'INVALID_TIME_RANGE', message: 'Invalid time format. Use HH:mm' }));
+      return badRequest('INVALID_TIME_RANGE');
     }
     if (end <= start) {
-      return badRequest(JSON.stringify({ code: 'INVALID_TIME_RANGE', message: `endTime must be after startTime (got ${r.startTime}–${r.endTime})` }));
+      return badRequest('INVALID_TIME_RANGE');
     }
   }
 
@@ -105,10 +100,7 @@ export const putHandler: APIGatewayProxyHandler = async (event) => {
       const aStart = parseTime(a.startTime); const aEnd = parseTime(a.endTime);
       const bStart = parseTime(b.startTime); const bEnd = parseTime(b.endTime);
       if (aStart < bEnd && aEnd > bStart) {
-        return badRequest(JSON.stringify({
-          code: 'OVERLAPPING_RULES',
-          message: `Rules overlap on day(s) ${sharedDays.join(', ')}: ${a.startTime}–${a.endTime} and ${b.startTime}–${b.endTime}`,
-        }));
+        return badRequest('OVERLAPPING_RULES');
       }
     }
   }

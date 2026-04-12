@@ -1,0 +1,91 @@
+version: "1.0"
+lastUpdated: "2026-04-12"
+
+terms:
+  Spotzy:
+    rule: never_translate
+    all_locales: Spotzy
+
+  Spotter:
+    rule: never_translate
+    all_locales: Spotter
+
+  Block Spotter:
+    rule: never_translate
+    all_locales: Block Spotter
+
+  Bay:
+    rule: never_translate
+    all_locales: Bay
+
+  Spot Pool:
+    rule: translate
+    fr-BE: Pool de Stationnement
+    nl-BE: Parkeerpool
+    en: Spot Pool
+
+  Spot Manager:
+    rule: translate
+    fr-BE: Gestionnaire de Spots
+    nl-BE: Spotbeheerder
+    en: Spot Manager
+
+  Block Reservation:
+    rule: translate
+    fr-BE: Réservation Bloc
+    nl-BE: Blokreservering
+    en: Block Reservation
+
+  Block Allocation:
+    rule: translate
+    fr-BE: Allocation Bloc
+    nl-BE: Blokallocatie
+    en: Block Allocation
+
+  Magic Link:
+    rule: translate
+    fr-BE: Lien Magique
+    nl-BE: Magische Link
+    en: Magic Link
+
+  RC Insurance:
+    rule: translate
+    fr-BE: Assurance RC
+    nl-BE: BA-verzekering
+    en: RC Insurance
+
+  Commitment Gate:
+    rule: translate
+    fr-BE: Engagement
+    nl-BE: Toezegging
+    en: Commitment Gate
+
+  Booking:
+    rule: translate
+    fr-BE: Réservation
+    nl-BE: Boeking
+    en: Booking
+
+  Host:
+    rule: translate
+    fr-BE: Hôte
+    nl-BE: Gastheer
+    en: Host
+
+  Guest:
+    rule: translate
+    fr-BE: Invité
+    nl-BE: Gast
+    en: Guest
+
+  Dashboard:
+    rule: translate
+    fr-BE: Tableau de bord
+    nl-BE: Dashboard
+    en: Dashboard
+
+  Parking Spot:
+    rule: translate
+    fr-BE: Place de stationnement
+    nl-BE: Parkeerplaats
+    en: Parking Spot

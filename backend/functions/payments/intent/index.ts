@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import Stripe from 'stripe';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, internalError } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, internalError, forbidden } from '../../../shared/utils/response';
 import { bookingMetadataKey, userProfileKey } from '../../../shared/db/keys';
 import { toStripeAmount, calculatePlatformFee, getStripeSecretKey } from '../shared/stripe-helpers';
 import { createLogger } from '../../../shared/utils/logger';
@@ -11,7 +11,6 @@ import { createLogger } from '../../../shared/utils/logger';
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -21,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const body = JSON.parse(event.body ?? '{}');
   const { bookingId } = body;
-  if (!bookingId) return badRequest('bookingId is required');
+  if (!bookingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bookingId' });
 
   log.info('payment intent attempt', { bookingId });
 
@@ -31,8 +30,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   if (claims.userId !== booking.spotterId) return forbidden();
 
-  if (booking.status === 'CONFIRMED') return badRequest(JSON.stringify({ code: 'PAYMENT_ALREADY_PROCESSED', message: 'Payment has already been processed' }));
-  if (booking.status !== 'PENDING_PAYMENT') return badRequest(JSON.stringify({ code: 'INVALID_BOOKING_STATUS', message: `Cannot create payment for booking in status: ${booking.status}` }));
+  if (booking.status === 'CONFIRMED') return badRequest('PAYMENT_ALREADY_PROCESSED');
+  if (booking.status !== 'PENDING_PAYMENT') return badRequest('INVALID_BOOKING_STATUS', { status: booking.status });
 
   const hostResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: userProfileKey(booking.hostId) }));
   const host = hostResult.Item;

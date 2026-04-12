@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, DeleteCom
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, badRequest, unauthorized } from '../../../shared/utils/response';
+import { created, badRequest, unauthorized, forbidden } from '../../../shared/utils/response';
 import { bookingMetadataKey } from '../../../shared/db/keys';
 import { stripEmoji } from '../shared/emoji-filter';
 import { createLogger } from '../../../shared/utils/logger';
@@ -12,12 +12,6 @@ import { createLogger } from '../../../shared/utils/logger';
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const WS_ENDPOINT = process.env.WS_ENDPOINT ?? 'https://localhost';
-
-const forbidden = (code: string, message: string) => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message, code }),
-});
 
 const ACTIVE_BOOKING_STATUSES = new Set(['CONFIRMED', 'ACTIVE']);
 
@@ -28,30 +22,30 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const bookingId = event.pathParameters?.bookingId;
-  if (!bookingId) return badRequest('Missing bookingId');
+  if (!bookingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bookingId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { type, content, imageUrl } = body;
 
   // Validate message
   if (type === 'TEXT') {
-    if (!content || content.length > 2000) return badRequest(JSON.stringify({ code: 'MESSAGE_TOO_LONG', message: 'Text messages must be under 2000 characters' }));
+    if (!content || content.length > 2000) return badRequest('MESSAGE_TOO_LONG', { maxLength: 2000 });
   } else if (type === 'IMAGE') {
-    if (!imageUrl) return badRequest('IMAGE messages require imageUrl');
+    if (!imageUrl) return badRequest('MISSING_REQUIRED_FIELD', { field: 'imageUrl' });
   }
 
   // Fetch booking and check active status
   const bookingResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: bookingMetadataKey(bookingId) }));
-  if (!bookingResult.Item) return badRequest('Booking not found');
+  if (!bookingResult.Item) return badRequest('BOOKING_NOT_FOUND');
   const booking = bookingResult.Item;
 
   if (!ACTIVE_BOOKING_STATUSES.has(booking.status)) {
-    return forbidden('NO_ACTIVE_BOOKING', 'No active booking found');
+    return forbidden();
   }
 
   const isSpotter = claims.userId === booking.spotterId;
   const isHost = claims.userId === booking.hostId;
-  if (!isSpotter && !isHost) return forbidden('NO_ACTIVE_BOOKING', 'No active booking found');
+  if (!isSpotter && !isHost) return forbidden();
 
   // Determine recipient
   const recipientId = isSpotter ? booking.hostId : booking.spotterId;

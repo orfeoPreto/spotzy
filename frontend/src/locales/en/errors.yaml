@@ -1,0 +1,149 @@
+# Spotzy error codes — English translations
+# Each key maps to a SCREAMING_SNAKE_CASE error code returned by the backend.
+# ICU MessageFormat syntax: {field} for interpolation.
+
+UNKNOWN_ERROR: "An unexpected error occurred. Please try again or contact support."
+UNAUTHORIZED: "You must be logged in to perform this action."
+FORBIDDEN: "You do not have permission to perform this action."
+NOT_FOUND: "The requested resource was not found."
+INTERNAL_ERROR: "Something went wrong on our end. Please try again later."
+
+# Auth
+MISSING_CREDENTIALS: "Please enter your email and password."
+MISSING_REQUIRED_FIELDS: "Please fill in all required fields."
+EMAIL_ALREADY_EXISTS: "An account with this email already exists."
+INVALID_CREDENTIALS: "Invalid email or password."
+MISSING_REQUIRED_FIELD: "The field {field} is required."
+MISSING_EMAIL: "Please enter your email address."
+
+# Listings
+INVALID_SPOT_TYPE: "Invalid spot type."
+PRICE_REQUIRED: "At least one price must be set."
+FIELD_TOO_LONG: "The field {field} exceeds the maximum length of {maxLength} characters."
+NO_PRICE_CONFIGURED: "No price is configured for this listing."
+LISTING_UNAVAILABLE: "This listing is not available for the selected dates."
+INVALID_PRICE_PER_HOUR: "The hourly price must be a number between 0 and 1000."
+INVALID_DISCOUNT_VALUE: "The discount value for {field} is not valid."
+
+# Bookings
+BOOKING_NOT_FOUND: "Booking not found."
+BOOKING_NOT_COMPLETED: "This booking has not been completed yet."
+BOOKING_ALREADY_ACTIVE: "This booking is already active."
+BOOKING_ALREADY_ENDED: "This booking has already ended."
+CANNOT_CANCEL_COMPLETED: "Completed bookings cannot be cancelled."
+CANNOT_CHANGE_START_ACTIVE: "Cannot change the start time of an active booking."
+BELOW_MINIMUM_DURATION: "The booking duration is below the minimum."
+EXCEEDS_MAXIMUM_DURATION: "The booking duration exceeds the maximum."
+START_TIME_IN_PAST: "The start time cannot be in the past."
+SLOT_UNAVAILABLE: "The selected time slot is not available."
+INVALID_TIME_RANGE: "The end time must be after the start time."
+INVALID_DATE_FORMAT: "Invalid date format."
+OUTSIDE_AVAILABILITY_WINDOW: "The selected time is outside the availability window."
+ALREADY_CANCELLED: "This booking has already been cancelled."
+INVALID_BOOKING_STATUS: "Invalid booking status for this operation."
+
+# Availability
+OVERLAPPING_RULES: "Availability rules cannot overlap."
+NO_RULES_PROVIDED: "At least one availability rule is required."
+TOO_MANY_RULES: "Too many availability rules."
+
+# Photos
+PHOTO_INDEX_OUT_OF_RANGE: "Photo index is out of range."
+INVALID_PHOTO_INDEX: "Invalid photo index."
+MINIMUM_PHOTO_REQUIRED: "At least the minimum number of photos is required."
+ORDER_MISMATCH: "The photo order does not match."
+
+# Vehicles
+MAX_VEHICLES_EXCEEDED: "You can have a maximum of {maxVehicles} vehicles."
+VEHICLE_PLATE_EMPTY: "Vehicle plate cannot be empty."
+VEHICLE_PLATE_TOO_LONG: "Vehicle plate must be {maxLength} characters or less."
+
+# Reviews & Disputes
+INVALID_RATING: "Please select a valid rating."
+DISPUTE_WINDOW_EXPIRED: "The dispute window has expired."
+REVIEW_LOCKED: "This review is locked."
+REVIEW_WINDOW_EXPIRED: "The review window has expired."
+
+# Spot Manager
+SPOT_MANAGER_STATUS_REQUIRED: "You must be an active Spot Manager to perform this action."
+SPOT_MANAGER_NOT_ACTIVE: "Your Spot Manager status is not active."
+RC_INSURANCE_NOT_APPROVED: "Your RC insurance has not been approved."
+DOCUMENT_REQUIRED: "A document is required."
+CHECKLIST_REQUIRED: "Please complete the checklist."
+TCS_VERSION_REQUIRED: "You must accept the latest Terms & Conditions."
+SUBMISSION_NOT_REVIEWABLE: "This submission is not reviewable."
+INVALID_INSURER: "Invalid insurer."
+SOFT_VERIFICATION_REQUIRED: "Verification is required."
+INVALID_SECTION_FOR_ROLE: "This section is not available for your role."
+
+# Pool / Bay
+NOT_A_POOL_LISTING: "This listing is not a spot pool."
+NOT_A_POOL_BOOKING: "This booking is not a pool booking."
+INVALID_BAY_COUNT: "Invalid bay count."
+BAY_LABELS_COUNT_MISMATCH: "The number of bay labels must match the bay count."
+DUPLICATE_BAY_LABELS: "Bay labels must be unique."
+DUPLICATE_BAY_LABEL: "This bay label is already in use."
+BAY_ACCESS_INSTRUCTIONS_COUNT_MISMATCH: "The number of access instructions must match the bay count."
+BAY_NOT_FOUND: "Bay not found in this pool."
+BAY_NOT_ACTIVE: "This bay is not active."
+BAY_NOT_AVAILABLE: "This bay is not available for the selected period."
+BAY_HAS_ACTIVE_BOOKINGS: "Cannot close this bay because it has active bookings."
+BAY_HAS_BOOKINGS: "Cannot remove this bay because it has active or upcoming bookings."
+BAY_OCCUPIED: "This bay is currently occupied."
+BAY_NOT_IN_RESERVATION: "This bay is not part of the reservation."
+INVALID_BAY_STATUS: "Invalid bay status."
+NO_UPDATE_FIELDS: "No update fields provided."
+POOL_FULLY_BOOKED: "This pool is fully booked."
+SPOT_ALREADY_IN_POOL: "This spot is already in the pool."
+SPOT_UNAVAILABLE: "This spot is not available."
+
+# Block Reservations
+DUPLICATE_GUEST_EMAIL: "A guest with this email has already been added."
+INVALID_GUEST_EMAIL: "Invalid guest email address."
+INVALID_GUEST_PHONE: "Invalid guest phone number."
+GUEST_NAME_REQUIRED: "Guest name is required."
+GUESTS_REQUIRED: "At least one guest is required."
+OVER_ALLOCATION: "Not enough available bays for all guests."
+NO_PLANS_AVAILABLE: "No plans are available."
+PLANS_EXPIRED: "The proposed plans have expired."
+PLAN_STALE: "The plan has changed. Please refresh and try again."
+INVALID_PLAN_INDEX: "Invalid plan selection."
+REQUEST_NOT_CONFIRMED: "This request has not been confirmed."
+REQUEST_NOT_IN_PLANS_PROPOSED: "This request is not in the plans proposed state."
+REQUEST_NOT_CANCELLABLE: "This request cannot be cancelled."
+REQUEST_TERMINAL: "This request is in a terminal state."
+REQUEST_LOCKED: "This request is currently locked by another operation."
+TOO_CLOSE_TO_START: "Too close to the start date to make this change."
+WINDOW_CLOSED: "The operation window has closed."
+NO_SELF_SERVICE_CANCEL: "Self-service cancellation is not available."
+ACTIVE_BOOKING_EXISTS: "An active booking exists for this listing."
+ACTIVE_BOOKINGS_EXIST: "Active bookings exist and must be resolved first."
+OPEN_DISPUTES_EXIST: "Open disputes exist and must be resolved first."
+
+# Payments
+MISSING_STRIPE_SIGNATURE: "Missing Stripe signature."
+INVALID_STRIPE_SIGNATURE: "Invalid Stripe signature."
+PAYMENT_ALREADY_PROCESSED: "This payment has already been processed."
+
+# Locks
+LOCK_HELD: "This resource is currently locked."
+LOCK_NOT_HELD: "The lock on this resource has expired or was never acquired."
+CONCURRENT_MODIFICATION: "A concurrent modification was detected. Please try again."
+
+# Platform
+PLATFORM_FEE_OUT_OF_BOUNDS: "Platform fee must be between 0% and 100%."
+NO_UPDATE_PROVIDED: "No update was provided."
+INVALID_CONTENT_TYPE: "Invalid content type."
+INVALID_JSON: "Invalid JSON."
+INVALID_JSON_BODY: "The request body is not valid JSON."
+INVALID_FIELD: "The value for {field} is not valid."
+INVALID_VAT_NUMBER: "Invalid VAT number."
+UNSUPPORTED_METHOD: "This method is not supported."
+MISSING_LOCATION_PARAMS: "Location parameters are required (lat/lng or bounding box)."
+REASON_REQUIRED: "A reason is required."
+
+# Locale
+INVALID_LOCALE: "The selected language is not supported."
+
+# Corporate
+ALREADY_CORPORATE_ADMIN: "This user is already a corporate admin."

@@ -77,8 +77,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     cells = geohashCellsForBbox(swLat, swLng, neLat, neLng);
     log.info('bbox search', { swLat, swLng, neLat, neLng, cells: cells.length });
   } else {
-    if (!qs.lat) { log.warn('validation failed', { reason: 'missing lat' }); return badRequest('Missing required query param: lat or bbox params (swLat, swLng, neLat, neLng)'); }
-    if (!qs.lng) { log.warn('validation failed', { reason: 'missing lng' }); return badRequest('Missing required query param: lng'); }
+    if (!qs.lat) { log.warn('validation failed', { reason: 'missing lat' }); return badRequest('MISSING_LOCATION_PARAMS'); }
+    if (!qs.lng) { log.warn('validation failed', { reason: 'missing lng' }); return badRequest('MISSING_REQUIRED_FIELD', { field: 'lng' }); }
     searchLat = parseFloat(qs.lat);
     searchLng = parseFloat(qs.lng);
     const geohash = ngeohash.encode(searchLat, searchLng, 5);

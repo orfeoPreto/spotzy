@@ -1,0 +1,18 @@
+spotter:
+  my_bookings: Mes réservations
+  no_bookings: Aucune réservation {tab}.
+host:
+  title: Tableau de bord de l'Hôte
+  active_bookings: Réservations actives
+  mtd_earnings: Gains du mois en cours
+  live_listings: Annonces actives
+  avg_rating: Note moyenne
+  my_listings: Mes annonces
+  add_listing: + Ajouter une annonce
+  no_listings: Vous n'avez pas encore publié de places de stationnement.
+  add_first_spot: Ajoutez votre première place de stationnement
+  bookings_count: "{count} réservations"
+  edit_listing: Modifier l'annonce
+  edit_availability: Modifier la disponibilité
+  upcoming_bookings: Réservations à venir
+  no_upcoming: Aucune réservation à venir.

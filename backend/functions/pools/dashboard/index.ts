@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, notFound } from '../../../shared/utils/response';
+import { ok, notFound, badRequest, forbidden } from '../../../shared/utils/response';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
@@ -11,11 +11,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!userId) return { statusCode: 401, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Unauthorized' }) };
 
   const poolId = event.pathParameters?.poolId;
-  if (!poolId) return { statusCode: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'poolId required' }) };
+  if (!poolId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'poolId' });
 
   const pool = await ddb.send(new GetCommand({ TableName: TABLE, Key: { PK: `POOL#${poolId}`, SK: 'METADATA' } }));
   if (!pool.Item) return notFound();
-  if (pool.Item.managerId !== userId) return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+  if (pool.Item.managerId !== userId) return forbidden();
 
   // Get spots
   const spots = await ddb.send(new QueryCommand({

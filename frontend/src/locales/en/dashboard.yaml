@@ -1,0 +1,19 @@
+# Spotzy dashboard translations (en)
+spotter:
+  my_bookings: "My bookings"
+  no_bookings: "No {tab} bookings."
+host:
+  title: "Host Dashboard"
+  active_bookings: "Active bookings"
+  mtd_earnings: "MTD earnings"
+  live_listings: "Live listings"
+  avg_rating: "Avg rating"
+  my_listings: "My listings"
+  add_listing: "+ Add listing"
+  no_listings: "You haven't listed any spots yet."
+  add_first_spot: "Add your first spot"
+  bookings_count: "{count} bookings"
+  edit_listing: "Edit listing"
+  edit_availability: "Edit availability"
+  upcoming_bookings: "Upcoming bookings"
+  no_upcoming: "No upcoming bookings."

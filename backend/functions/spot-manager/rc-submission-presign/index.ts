@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { fileName, mimeType, sizeBytes } = body;
 
   if (!fileName || !mimeType || sizeBytes === undefined) {
-    return badRequest('fileName, mimeType, and sizeBytes are required');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'fileName, mimeType, sizeBytes' });
   }
 
   const docResult = validateRCDocument(mimeType, sizeBytes);

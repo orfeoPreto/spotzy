@@ -78,7 +78,7 @@ describe('booking-bay-swap', () => {
   it('missing targetBayId -> 400', async () => {
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: {} }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('targetBayId');
+    expect(JSON.parse(res!.body).error).toBe('MISSING_REQUIRED_FIELD');
   });
 
   it('booking not found -> 404', async () => {
@@ -93,7 +93,7 @@ describe('booking-bay-swap', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { targetBayId: TARGET_BAY_ID } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('not a pool booking');
+    expect(JSON.parse(res!.body).error).toBe('NOT_A_POOL_BOOKING');
   });
 
   it('non-owner -> 401', async () => {
@@ -111,7 +111,7 @@ describe('booking-bay-swap', () => {
     ddbMock.on(GetCommand, { Key: { PK: `LISTING#${POOL_ID}`, SK: `BAY#${TARGET_BAY_ID}` } }).resolves({ Item: undefined });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { targetBayId: TARGET_BAY_ID } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('not found');
+    expect(JSON.parse(res!.body).error).toBe('BAY_NOT_FOUND');
   });
 
   it('target bay not active -> 400', async () => {
@@ -122,7 +122,7 @@ describe('booking-bay-swap', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { targetBayId: TARGET_BAY_ID } }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('not active');
+    expect(JSON.parse(res!.body).error).toBe('BAY_NOT_ACTIVE');
   });
 
   it('target bay has conflicting booking -> 409', async () => {
@@ -137,6 +137,6 @@ describe('booking-bay-swap', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { targetBayId: TARGET_BAY_ID } }), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
-    expect(res!.body).toContain('not available');
+    expect(JSON.parse(res!.body).error).toBe('BAY_NOT_AVAILABLE');
   });
 });

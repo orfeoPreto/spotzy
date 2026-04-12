@@ -22,7 +22,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return badRequest('Invalid JSON body');
+    return badRequest('INVALID_JSON_BODY');
   }
 
   const { singleShotPct, blockReservationPct } = body;

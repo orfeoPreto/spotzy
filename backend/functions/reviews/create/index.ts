@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCom
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, ok, badRequest, unauthorized } from '../../../shared/utils/response';
+import { created, ok, badRequest, unauthorized, forbidden, conflict } from '../../../shared/utils/response';
 import { bookingMetadataKey, reviewKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 import { isReviewLocked } from '../lib/isReviewLocked';
@@ -17,10 +17,6 @@ const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 const SPOTTER_SECTIONS = new Set(['LOCATION', 'CLEANLINESS', 'VALUE', 'ACCESS']);
 const HOST_SECTIONS = new Set(['PUNCTUALITY', 'VEHICLE_CONDITION', 'COMMUNICATION']);
 
-const conflict409 = (code: string, message: string, reason?: string) => ({
-  statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: code, message, ...(reason ? { reason } : {}) }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -32,32 +28,32 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { bookingId, sections, description } = body;
   log.info('review attempt', { bookingId });
 
-  if (!sections || sections.length === 0) return badRequest('sections is required');
-  if (description && description.length > 500) return badRequest('Description exceeds 500 characters');
+  if (!sections || sections.length === 0) return badRequest('MISSING_REQUIRED_FIELD', { field: 'sections' });
+  if (description && description.length > 500) return badRequest('FIELD_TOO_LONG', { field: 'description', maxLength: 500 });
 
   // Validate scores
   for (const { score } of sections) {
     if (!Number.isInteger(score) || score < 1 || score > 5) {
-      return badRequest(JSON.stringify({ code: 'INVALID_RATING', message: 'Score must be an integer between 1 and 5' }));
+      return badRequest('INVALID_RATING');
     }
   }
 
   // Fetch booking
   const bookingResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: bookingMetadataKey(bookingId) }));
-  if (!bookingResult.Item) return badRequest('Booking not found');
+  if (!bookingResult.Item) return badRequest('BOOKING_NOT_FOUND');
   const booking = bookingResult.Item;
 
-  if (booking.status !== 'COMPLETED') return badRequest(JSON.stringify({ code: 'BOOKING_NOT_COMPLETED', message: 'Booking must be completed before reviewing' }));
+  if (booking.status !== 'COMPLETED') return badRequest('BOOKING_NOT_COMPLETED');
 
   const isSpotter = claims.userId === booking.spotterId;
   const isHost = claims.userId === booking.hostId;
-  if (!isSpotter && !isHost) return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+  if (!isSpotter && !isHost) return forbidden();
 
   // Role-based section validation
   const allowedSections = isSpotter ? SPOTTER_SECTIONS : HOST_SECTIONS;
   for (const { section } of sections) {
     if (!allowedSections.has(section)) {
-      return badRequest(JSON.stringify({ code: 'INVALID_SECTION_FOR_ROLE', message: `Section ${section} is not valid for your role` }));
+      return badRequest('INVALID_SECTION_FOR_ROLE', { section });
     }
   }
 
@@ -74,7 +70,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Review exists — check if it can be edited (lock check includes window expiry)
     const lockResult = await isReviewLocked(ddb, bookingId, claims.userId, booking);
     if (lockResult.locked) {
-      return conflict409('REVIEW_LOCKED', 'This review can no longer be edited', lockResult.reason!);
+      return conflict('REVIEW_LOCKED', { reason: lockResult.reason! });
     }
 
     // Not locked — allow update
@@ -101,7 +97,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Review window check (7 days) — only for first-time submissions
   if (booking.completedAt) {
     const daysSinceCompletion = (Date.now() - new Date(booking.completedAt).getTime()) / 86400000;
-    if (daysSinceCompletion > 7) return badRequest(JSON.stringify({ code: 'REVIEW_WINDOW_EXPIRED', message: 'Review window has expired (7 days)' }));
+    if (daysSinceCompletion > 7) return badRequest('REVIEW_WINDOW_EXPIRED');
   }
 
   // Check if other party has reviewed (for visibility toggle)

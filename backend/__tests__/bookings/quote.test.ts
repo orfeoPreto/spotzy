@@ -117,7 +117,7 @@ describe('booking-quote', () => {
 
     const response = result as { statusCode: number; body: string };
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).error).toBe('endTime must be after startTime');
+    expect(JSON.parse(response.body).error).toBe('INVALID_TIME_RANGE');
   });
 
   test('returns 401 for unauthenticated request', async () => {

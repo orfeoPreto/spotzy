@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   const poolId = event.pathParameters?.poolId;
-  if (!poolId) return badRequest('Missing poolId');
+  if (!poolId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'poolId' });
 
   // Fetch listing to check ownership
   const listingResult = await client.send(new GetCommand({
@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }));
   const listing = listingResult.Item;
   if (!listing) return notFound();
-  if (!listing.isPool) return badRequest('Listing is not a pool');
+  if (!listing.isPool) return badRequest('NOT_A_POOL_LISTING');
 
   const isOwner = listing.hostId === claims.userId;
   const statusFilter = event.queryStringParameters?.status;

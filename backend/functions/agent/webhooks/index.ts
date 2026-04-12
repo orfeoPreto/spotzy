@@ -24,8 +24,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (event.httpMethod === 'POST' && !event.pathParameters?.webhookId) {
     const body = JSON.parse(event.body ?? '{}');
     const { url, events: evts } = body;
-    if (!url?.trim()) return badRequest('url is required');
-    if (!evts?.length) return badRequest('events must contain at least one event type');
+    if (!url?.trim()) return badRequest('MISSING_REQUIRED_FIELD', { field: 'url' });
+    if (!evts?.length) return badRequest('MISSING_REQUIRED_FIELD', { field: 'events' });
 
     const invalidTypes = evts.filter((e: string) => !VALID_EVENTS.includes(e));
     if (invalidTypes.length > 0) {
@@ -98,7 +98,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // --- DELETE: Delete webhook + all EVENT_SUB# rows ---
   if (event.httpMethod === 'DELETE') {
     const webhookId = event.pathParameters?.webhookId;
-    if (!webhookId) return badRequest('webhookId is required');
+    if (!webhookId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'webhookId' });
 
     // Load the existing user-owned row to find the events array
     const existing = await ddb.send(new GetCommand({
@@ -145,5 +145,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return ok({ webhookId, deletedAt: new Date().toISOString() });
   }
 
-  return badRequest('Unsupported method');
+  return badRequest('UNSUPPORTED_METHOD');
 };

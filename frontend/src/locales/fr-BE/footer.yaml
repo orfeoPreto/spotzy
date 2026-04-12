@@ -1,0 +1,18 @@
+# Spotzy footer translations (fr-BE)
+guest:
+  find_parking: "Trouver un parking"
+  my_bookings: "Mes réservations"
+  become_host: "Devenir hôte"
+  profile: "Profil"
+host:
+  find_parking: "Trouver un parking"
+  dashboard: "Tableau de bord hôte"
+  add_listing: "Ajouter une annonce"
+  my_bookings: "Mes réservations"
+  profile: "Profil"
+anon:
+  find_parking: "Trouver un parking"
+  list_spot: "Proposer une place"
+  sign_in: "Se connecter"
+  create_account: "Créer un compte"
+copyright: "© {year} Spotzy"

@@ -53,5 +53,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
   }
 
-  return badRequest('Unsupported method');
+  return badRequest('UNSUPPORTED_METHOD');
 };

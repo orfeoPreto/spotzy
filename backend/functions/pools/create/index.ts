@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import * as ngeohash from 'ngeohash';
-import { created, badRequest } from '../../../shared/utils/response';
+import { created, badRequest, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body ?? '{}');
   const { name, address, spotType, pricePerHour, pricePerDay, minDurationHours, maxDurationHours, description, lat, lng } = body;
 
-  if (!name?.trim() || !address?.trim()) return badRequest('name and address are required');
+  if (!name?.trim() || !address?.trim()) return badRequest('MISSING_REQUIRED_FIELD', { field: 'name, address' });
 
   // Verify user is a host
   const user = await ddb.send(new GetCommand({
@@ -25,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     Key: { PK: `USER#${userId}`, SK: 'PROFILE' },
   }));
   if (!user.Item?.stripeConnectEnabled) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'HOST_PERSONA_REQUIRED' }) };
+    return forbidden();
   }
 
   const poolId = ulid();

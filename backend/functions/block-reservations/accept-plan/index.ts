@@ -13,7 +13,7 @@ import { ulid } from 'ulid';
 import Stripe from 'stripe';
 import { getStripeSecretKey } from '../../payments/shared/stripe-helpers';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { bulkAllocate } from '../../../shared/block-reservations/allocator';
 import type { PoolCandidate, AllocationItem } from '../../../shared/block-reservations/allocator';
@@ -51,13 +51,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   const reqId = event.pathParameters?.reqId;
-  if (!reqId) return badRequest('reqId path parameter required');
+  if (!reqId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'reqId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { planIndex } = body;
 
   if (planIndex === undefined || planIndex === null) {
-    return badRequest('planIndex is required');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'planIndex' });
   }
 
   // Load request
@@ -71,7 +71,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   // Owner check
   if (blockReq.ownerUserId !== claims.userId) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+    return forbidden();
   }
 
   // Status check

@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@a
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { created, ok, badRequest, unauthorized, notFound, forbidden, conflict } from '../../../shared/utils/response';
 import { listingMetadataKey, bookingBySpotterKey, listingBookingKey } from '../../../shared/db/keys';
 import { calculatePrice, NoPriceConfiguredError } from '../shared/price-calculator';
 import { isWithinAvailabilityRules } from '../../../shared/availability/resolver';
@@ -20,12 +20,6 @@ const BLOCKING_STATUSES = new Set(['CONFIRMED', 'ACTIVE', 'PENDING_PAYMENT']);
 const PLATFORM_FEE = 0.15;
 const DEFAULT_CANCELLATION_POLICY = { gt48h: 100, between24and48h: 50, lt24h: 0 };
 
-const conflictError = (code: string, message: string) => ({
-  statusCode: 409,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message, code }),
-});
-
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
   const log = createLogger('booking-create', event.requestContext.requestId, claims?.userId);
@@ -38,11 +32,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   log.info('booking attempt', { listingId, startTime, endTime });
 
   // Basic time validation
-  if (!startTime || !endTime) return badRequest('startTime and endTime are required');
+  if (!startTime || !endTime) return badRequest('MISSING_REQUIRED_FIELD', { field: 'startTime, endTime' });
   const startMs = new Date(startTime).getTime();
   const endMs = new Date(endTime).getTime();
-  if (startMs <= Date.now()) return badRequest(JSON.stringify({ code: 'START_TIME_IN_PAST', message: 'Start time must be in the future' }));
-  if (endMs <= startMs) return badRequest(JSON.stringify({ code: 'INVALID_TIME_RANGE', message: 'End time must be after start time' }));
+  if (startMs <= Date.now()) return badRequest('START_TIME_IN_PAST');
+  if (endMs <= startMs) return badRequest('INVALID_TIME_RANGE');
 
   // Fetch listing
   const listingResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: listingMetadataKey(listingId) }));
@@ -53,16 +47,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const spotterId = claims.userId;
   if (spotterId === listing.hostId) {
     log.warn('self-booking attempt blocked', { listingId, spotterId });
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'CANNOT_BOOK_OWN_LISTING' }) };
+    return forbidden();
   }
 
   // Duration validation
   const durationHours = (endMs - startMs) / 3600000;
   if (listing.minDurationHours && durationHours < listing.minDurationHours) {
-    return badRequest(JSON.stringify({ code: 'BELOW_MINIMUM_DURATION', message: `Minimum duration is ${listing.minDurationHours}h` }));
+    return badRequest('BELOW_MINIMUM_DURATION', { minDurationHours: listing.minDurationHours });
   }
   if (listing.maxDurationHours && durationHours > listing.maxDurationHours) {
-    return badRequest(JSON.stringify({ code: 'EXCEEDS_MAXIMUM_DURATION', message: `Maximum duration is ${listing.maxDurationHours}h` }));
+    return badRequest('EXCEEDS_MAXIMUM_DURATION', { maxDurationHours: listing.maxDurationHours });
   }
 
   // Idempotency check — query by spotter + idempotency key
@@ -90,15 +84,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const ruleCheck = isWithinAvailabilityRules(rules, new Date(startTime), new Date(endTime));
   if (!ruleCheck.covered) {
     log.warn('outside availability window', { listingId, startTime, endTime });
-    return badRequest(JSON.stringify({
-      code: 'OUTSIDE_AVAILABILITY_WINDOW',
-      message: 'The requested period is outside this listing\'s availability schedule',
+    return badRequest('OUTSIDE_AVAILABILITY_WINDOW', {
       uncoveredPeriods: ruleCheck.uncoveredPeriods,
       coveredWindows: rules.map((r) => ({
         type: r.type, daysOfWeek: r.daysOfWeek,
         startTime: r.startTime, endTime: r.endTime,
       })),
-    }));
+    });
   }
 
   // Step 1b: Strongly consistent availability block check
@@ -122,7 +114,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   });
   if (hasConflict) {
     log.warn('spot unavailable — block conflict', { listingId, startTime, endTime });
-    return conflictError('SPOT_UNAVAILABLE', 'This spot is not available for the requested period');
+    return conflict('SPOT_UNAVAILABLE');
   }
 
   // Step 1c: Legacy booking record conflict check (belt-and-suspenders)
@@ -139,7 +131,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   });
   if (conflicting.length > 0) {
     log.warn('spot unavailable', { listingId, startTime, endTime });
-    return conflictError('SPOT_UNAVAILABLE', 'This spot is not available for the requested period');
+    return conflict('SPOT_UNAVAILABLE');
   }
 
   // Calculate price
@@ -147,7 +139,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     totalPrice = calculatePrice(listing, startTime, endTime);
   } catch (e) {
-    if (e instanceof NoPriceConfiguredError) return badRequest('No price configured for this listing');
+    if (e instanceof NoPriceConfiguredError) return badRequest('NO_PRICE_CONFIGURED');
     throw e;
   }
 

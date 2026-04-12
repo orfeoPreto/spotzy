@@ -1,0 +1,147 @@
+# Spotzy error codes — Belgian French translations
+
+UNKNOWN_ERROR: "Une erreur inattendue s'est produite. Veuillez réessayer ou contacter le support."
+UNAUTHORIZED: "Vous devez être connecté pour effectuer cette action."
+FORBIDDEN: "Vous n'avez pas la permission d'effectuer cette action."
+NOT_FOUND: "La ressource demandée est introuvable."
+INTERNAL_ERROR: "Un problème est survenu de notre côté. Veuillez réessayer plus tard."
+
+# Auth
+MISSING_CREDENTIALS: "Veuillez entrer votre adresse e-mail et votre mot de passe."
+MISSING_REQUIRED_FIELDS: "Veuillez remplir tous les champs obligatoires."
+EMAIL_ALREADY_EXISTS: "Un compte avec cette adresse e-mail existe déjà."
+INVALID_CREDENTIALS: "Adresse e-mail ou mot de passe incorrect."
+MISSING_REQUIRED_FIELD: "Le champ {field} est obligatoire."
+MISSING_EMAIL: "Veuillez entrer votre adresse e-mail."
+
+# Listings
+INVALID_SPOT_TYPE: "Type de place invalide."
+PRICE_REQUIRED: "Au moins un prix doit être défini."
+FIELD_TOO_LONG: "Le champ {field} dépasse la longueur maximale de {maxLength} caractères."
+NO_PRICE_CONFIGURED: "Aucun prix n'est configuré pour cette annonce."
+LISTING_UNAVAILABLE: "Cette annonce n'est pas disponible pour les dates sélectionnées."
+INVALID_PRICE_PER_HOUR: "Le prix horaire doit être un nombre entre 0 et 1000."
+INVALID_DISCOUNT_VALUE: "La valeur de remise pour {field} n'est pas valide."
+
+# Bookings
+BOOKING_NOT_FOUND: "Réservation introuvable."
+BOOKING_NOT_COMPLETED: "Cette réservation n'est pas encore terminée."
+BOOKING_ALREADY_ACTIVE: "Cette réservation est déjà active."
+BOOKING_ALREADY_ENDED: "Cette réservation est déjà terminée."
+CANNOT_CANCEL_COMPLETED: "Les réservations terminées ne peuvent pas être annulées."
+CANNOT_CHANGE_START_ACTIVE: "Impossible de modifier l'heure de début d'une réservation active."
+BELOW_MINIMUM_DURATION: "La durée de réservation est inférieure au minimum."
+EXCEEDS_MAXIMUM_DURATION: "La durée de réservation dépasse le maximum."
+START_TIME_IN_PAST: "L'heure de début ne peut pas être dans le passé."
+SLOT_UNAVAILABLE: "Le créneau horaire sélectionné n'est pas disponible."
+INVALID_TIME_RANGE: "L'heure de fin doit être postérieure à l'heure de début."
+INVALID_DATE_FORMAT: "Format de date invalide."
+OUTSIDE_AVAILABILITY_WINDOW: "L'heure sélectionnée est en dehors de la fenêtre de disponibilité."
+ALREADY_CANCELLED: "Cette réservation a déjà été annulée."
+INVALID_BOOKING_STATUS: "Statut de réservation invalide pour cette opération."
+
+# Availability
+OVERLAPPING_RULES: "Les règles de disponibilité ne peuvent pas se chevaucher."
+NO_RULES_PROVIDED: "Au moins une règle de disponibilité est requise."
+TOO_MANY_RULES: "Trop de règles de disponibilité."
+
+# Photos
+PHOTO_INDEX_OUT_OF_RANGE: "L'index de la photo est hors limites."
+INVALID_PHOTO_INDEX: "Index de photo invalide."
+MINIMUM_PHOTO_REQUIRED: "Le nombre minimum de photos est requis."
+ORDER_MISMATCH: "L'ordre des photos ne correspond pas."
+
+# Vehicles
+MAX_VEHICLES_EXCEEDED: "Vous pouvez avoir un maximum de {maxVehicles} véhicules."
+VEHICLE_PLATE_EMPTY: "La plaque d'immatriculation ne peut pas être vide."
+VEHICLE_PLATE_TOO_LONG: "La plaque d'immatriculation doit comporter {maxLength} caractères ou moins."
+
+# Reviews & Disputes
+INVALID_RATING: "Veuillez sélectionner une note valide."
+DISPUTE_WINDOW_EXPIRED: "Le délai de contestation a expiré."
+REVIEW_LOCKED: "Cet avis est verrouillé."
+REVIEW_WINDOW_EXPIRED: "Le délai d'évaluation a expiré."
+
+# Spot Manager
+SPOT_MANAGER_STATUS_REQUIRED: "Vous devez être un Gestionnaire de Spots actif pour effectuer cette action."
+SPOT_MANAGER_NOT_ACTIVE: "Votre statut de Gestionnaire de Spots n'est pas actif."
+RC_INSURANCE_NOT_APPROVED: "Votre assurance RC n'a pas été approuvée."
+DOCUMENT_REQUIRED: "Un document est requis."
+CHECKLIST_REQUIRED: "Veuillez compléter la checklist."
+TCS_VERSION_REQUIRED: "Vous devez accepter les dernières conditions générales."
+SUBMISSION_NOT_REVIEWABLE: "Cette soumission ne peut pas être examinée."
+INVALID_INSURER: "Assureur invalide."
+SOFT_VERIFICATION_REQUIRED: "Une vérification est requise."
+INVALID_SECTION_FOR_ROLE: "Cette section n'est pas disponible pour votre rôle."
+
+# Pool / Bay
+NOT_A_POOL_LISTING: "Cette annonce n'est pas un Pool de Stationnement."
+NOT_A_POOL_BOOKING: "Cette réservation n'est pas une réservation de pool."
+INVALID_BAY_COUNT: "Nombre de Bay invalide."
+BAY_LABELS_COUNT_MISMATCH: "Le nombre d'étiquettes de Bay doit correspondre au nombre de Bay."
+DUPLICATE_BAY_LABELS: "Les étiquettes de Bay doivent être uniques."
+DUPLICATE_BAY_LABEL: "Cette étiquette de Bay est déjà utilisée."
+BAY_ACCESS_INSTRUCTIONS_COUNT_MISMATCH: "Le nombre d'instructions d'accès doit correspondre au nombre de Bay."
+BAY_NOT_FOUND: "Bay introuvable dans ce pool."
+BAY_NOT_ACTIVE: "Ce Bay n'est pas actif."
+BAY_NOT_AVAILABLE: "Ce Bay n'est pas disponible pour la période sélectionnée."
+BAY_HAS_ACTIVE_BOOKINGS: "Impossible de fermer ce Bay car il a des réservations actives."
+BAY_HAS_BOOKINGS: "Impossible de supprimer ce Bay car il a des réservations actives ou à venir."
+BAY_OCCUPIED: "Ce Bay est actuellement occupé."
+BAY_NOT_IN_RESERVATION: "Ce Bay ne fait pas partie de la réservation."
+INVALID_BAY_STATUS: "Statut de Bay invalide."
+NO_UPDATE_FIELDS: "Aucun champ de mise à jour fourni."
+POOL_FULLY_BOOKED: "Ce pool est complet."
+SPOT_ALREADY_IN_POOL: "Cette place est déjà dans le pool."
+SPOT_UNAVAILABLE: "Cette place n'est pas disponible."
+
+# Block Reservations
+DUPLICATE_GUEST_EMAIL: "Un invité avec cette adresse e-mail a déjà été ajouté."
+INVALID_GUEST_EMAIL: "Adresse e-mail de l'invité invalide."
+INVALID_GUEST_PHONE: "Numéro de téléphone de l'invité invalide."
+GUEST_NAME_REQUIRED: "Le nom de l'invité est obligatoire."
+GUESTS_REQUIRED: "Au moins un invité est requis."
+OVER_ALLOCATION: "Pas assez de Bay disponibles pour tous les invités."
+NO_PLANS_AVAILABLE: "Aucun plan n'est disponible."
+PLANS_EXPIRED: "Les plans proposés ont expiré."
+PLAN_STALE: "Le plan a changé. Veuillez actualiser et réessayer."
+INVALID_PLAN_INDEX: "Sélection de plan invalide."
+REQUEST_NOT_CONFIRMED: "Cette demande n'a pas été confirmée."
+REQUEST_NOT_IN_PLANS_PROPOSED: "Cette demande n'est pas dans l'état de plans proposés."
+REQUEST_NOT_CANCELLABLE: "Cette demande ne peut pas être annulée."
+REQUEST_TERMINAL: "Cette demande est dans un état terminal."
+REQUEST_LOCKED: "Cette demande est actuellement verrouillée par une autre opération."
+TOO_CLOSE_TO_START: "Trop proche de la date de début pour effectuer ce changement."
+WINDOW_CLOSED: "La fenêtre d'opération est fermée."
+NO_SELF_SERVICE_CANCEL: "L'annulation en libre-service n'est pas disponible."
+ACTIVE_BOOKING_EXISTS: "Une réservation active existe pour cette annonce."
+ACTIVE_BOOKINGS_EXIST: "Des réservations actives existent et doivent d'abord être résolues."
+OPEN_DISPUTES_EXIST: "Des litiges ouverts existent et doivent d'abord être résolus."
+
+# Payments
+MISSING_STRIPE_SIGNATURE: "Signature Stripe manquante."
+INVALID_STRIPE_SIGNATURE: "Signature Stripe invalide."
+PAYMENT_ALREADY_PROCESSED: "Ce paiement a déjà été traité."
+
+# Locks
+LOCK_HELD: "Cette ressource est actuellement verrouillée."
+LOCK_NOT_HELD: "Le verrou sur cette ressource a expiré ou n'a jamais été acquis."
+CONCURRENT_MODIFICATION: "Une modification concurrente a été détectée. Veuillez réessayer."
+
+# Platform
+PLATFORM_FEE_OUT_OF_BOUNDS: "La commission de la plateforme doit être entre 0% et 100%."
+NO_UPDATE_PROVIDED: "Aucune mise à jour n'a été fournie."
+INVALID_CONTENT_TYPE: "Type de contenu invalide."
+INVALID_JSON: "JSON invalide."
+INVALID_JSON_BODY: "Le corps de la requête n'est pas un JSON valide."
+INVALID_FIELD: "La valeur pour {field} n'est pas valide."
+INVALID_VAT_NUMBER: "Numéro de TVA invalide."
+UNSUPPORTED_METHOD: "Cette méthode n'est pas supportée."
+MISSING_LOCATION_PARAMS: "Les paramètres de localisation sont requis (lat/lng ou cadre de délimitation)."
+REASON_REQUIRED: "Une raison est requise."
+
+# Locale
+INVALID_LOCALE: "La langue sélectionnée n'est pas supportée."
+
+# Corporate
+ALREADY_CORPORATE_ADMIN: "Cet utilisateur est déjà administrateur corporate."

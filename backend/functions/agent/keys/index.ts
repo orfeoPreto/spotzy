@@ -3,7 +3,7 @@ import { createHash, randomBytes } from 'crypto';
 import { ulid } from 'ulid';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, QueryCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, created, badRequest, notFound } from '../../../shared/utils/response';
+import { ok, created, badRequest, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -30,7 +30,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (method === 'POST') {
     const body = JSON.parse(event.body ?? '{}');
     const { name, spendingLimitPerBookingEur, monthlySpendingLimitEur } = body;
-    if (!name?.trim()) return badRequest('name is required');
+    if (!name?.trim()) return badRequest('MISSING_REQUIRED_FIELD', { field: 'name' });
 
     const rawKey = generateKey();
     const hash = sha256(rawKey);
@@ -87,7 +87,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   if (method === 'DELETE') {
     const keyId = event.pathParameters?.keyId;
-    if (!keyId) return badRequest('keyId is required');
+    if (!keyId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'keyId' });
 
     // Verify ownership
     const result = await ddb.send(new QueryCommand({
@@ -97,7 +97,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }));
 
     if (!result.Items?.length) {
-      return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+      return forbidden();
     }
 
     const now = new Date().toISOString();
@@ -112,5 +112,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return ok({ keyId, revokedAt: now });
   }
 
-  return badRequest('Unsupported method');
+  return badRequest('UNSUPPORTED_METHOD');
 };

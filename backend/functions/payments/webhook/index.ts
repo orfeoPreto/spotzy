@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const log = createLogger('payment-webhook', event.requestContext.requestId);
 
   const sig = event.headers['stripe-signature'] || event.headers['Stripe-Signature'];
-  if (!sig) { log.warn('missing stripe-signature'); return badRequest('Missing stripe-signature header'); }
+  if (!sig) { log.warn('missing stripe-signature'); return badRequest('MISSING_STRIPE_SIGNATURE'); }
 
   let stripeEvent: Stripe.Event;
   try {
@@ -41,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     stripeEvent = stripe.webhooks.constructEvent(event.body ?? '', sig, webhookSecret) as Stripe.Event;
   } catch {
     log.warn('invalid stripe signature');
-    return badRequest('Invalid Stripe signature');
+    return badRequest('INVALID_STRIPE_SIGNATURE');
   }
 
   log.info('stripe event received', { type: stripeEvent.type, id: stripeEvent.id });

@@ -10,7 +10,7 @@ import { SchedulerClient, DeleteScheduleCommand } from '@aws-sdk/client-schedule
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import Stripe from 'stripe';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import {
   FREE_CANCEL_THRESHOLD_DAYS,
@@ -23,12 +23,6 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const scheduler = new SchedulerClient({});
 const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
 
 let _stripeKey: string | undefined;
 const getStripeKey = async (): Promise<string> => {

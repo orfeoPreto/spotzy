@@ -1,0 +1,22 @@
+page_title: Spotzy Support
+initial_message: Bonjour ! Je suis l'assistant Support Spotzy. Comment puis-je vous aider aujourd'hui ?
+quick_replies:
+  damage: Dommages à mon véhicule
+  unavailable: Place de stationnement indisponible
+  incorrect_info: Informations d'annonce incorrectes
+  billing: Problème de facturation
+escalation:
+  title: Transféré à notre équipe de support
+  message: Un agent Spotzy examinera votre dossier et vous répondra sous peu.
+loading: Chargement de la conversation...
+summary_label: Résumé
+photos_one: "{count} photo jointe"
+photos_other: "{count} photos jointes"
+confirm_submit: Confirmer et soumettre
+submitted_success: Litige soumis
+transferring: Transfert vers un agent…
+agent_connected: Agent connecté
+add_photos: Ajouter des photos
+case_transferred_placeholder: Dossier transféré à l'équipe d'assistance
+input_placeholder: Décrivez votre problème…
+send_button: Envoyer

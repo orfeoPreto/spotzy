@@ -1,0 +1,18 @@
+# Spotzy footer translations (nl-BE)
+guest:
+  find_parking: "Parking zoeken"
+  my_bookings: "Mijn boekingen"
+  become_host: "Gastheer worden"
+  profile: "Profiel"
+host:
+  find_parking: "Parking zoeken"
+  dashboard: "Gastheer-dashboard"
+  add_listing: "Advertentie toevoegen"
+  my_bookings: "Mijn boekingen"
+  profile: "Profiel"
+anon:
+  find_parking: "Parking zoeken"
+  list_spot: "Een plaats aanbieden"
+  sign_in: "Inloggen"
+  create_account: "Account aanmaken"
+copyright: "© {year} Spotzy"

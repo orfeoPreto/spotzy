@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { validateWindow, validateBayCount, validateGuestEmail, validateGuestPhone } from '../../../shared/block-reservations/validation';
 
@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   const reqId = event.pathParameters?.reqId;
-  if (!reqId) return badRequest('reqId path parameter required');
+  if (!reqId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'reqId' });
 
   // Load existing request
   const existing = await ddb.send(new GetCommand({
@@ -39,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   // Owner check
   if (existing.Item.ownerUserId !== claims.userId) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+    return forbidden();
   }
 
   // Status check

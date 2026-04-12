@@ -45,23 +45,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // 1. Pre-flight: check for active bookings (as spotter or host)
     const blockingBookings = await getBlockingBookings(userId);
     if (blockingBookings.length > 0) {
-      return conflict(JSON.stringify({
-        error: 'ACTIVE_BOOKINGS_EXIST',
+      return conflict('ACTIVE_BOOKINGS_EXIST', {
         blockingBookings: blockingBookings.map(b => ({
           bookingId: b.PK.replace('BOOKING#', ''),
           status: b.status,
           role: b.spotterId === userId ? 'SPOTTER' : 'HOST',
         })),
-      }));
+      });
     }
 
     // 2. Check for open disputes
     const openDisputes = await getOpenDisputes(userId);
     if (openDisputes.length > 0) {
-      return conflict(JSON.stringify({
-        error: 'OPEN_DISPUTES_EXIST',
+      return conflict('OPEN_DISPUTES_EXIST', {
         disputeCount: openDisputes.length,
-      }));
+      });
     }
 
     const anonId = getAnonId(userId);

@@ -77,7 +77,7 @@ describe('pool-bay-update', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { label: 'B1' } }), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
-    expect(res!.body).toContain('already in use');
+    expect(JSON.parse(res!.body).error).toBe('DUPLICATE_BAY_LABEL');
   });
 
   it('TEMPORARILY_CLOSED with active bookings -> 409', async () => {
@@ -97,7 +97,7 @@ describe('pool-bay-update', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { status: 'TEMPORARILY_CLOSED' } }), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
-    expect(res!.body).toContain('active bookings');
+    expect(JSON.parse(res!.body).error).toBe('BAY_HAS_ACTIVE_BOOKINGS');
   });
 
   it('PERMANENTLY_REMOVED with upcoming bookings -> 409', async () => {
@@ -111,7 +111,7 @@ describe('pool-bay-update', () => {
     });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: { status: 'PERMANENTLY_REMOVED' } }), {} as any, () => {});
     expect(res!.statusCode).toBe(409);
-    expect(res!.body).toContain('upcoming bookings');
+    expect(JSON.parse(res!.body).error).toBe('BAY_HAS_BOOKINGS');
   });
 
   it('invalid status value -> 400', async () => {
@@ -126,7 +126,7 @@ describe('pool-bay-update', () => {
     ddbMock.on(GetCommand, { Key: { PK: `LISTING#${POOL_ID}`, SK: `BAY#${BAY_ID}` } }).resolves({ Item: bay });
     const res = await handler(mockAuthEvent(TEST_USER_ID, { body: {} }), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('No update fields');
+    expect(JSON.parse(res!.body).error).toBe('NO_UPDATE_FIELDS');
   });
 
   it('not a pool listing -> 400', async () => {

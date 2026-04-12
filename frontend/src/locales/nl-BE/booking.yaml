@@ -1,0 +1,52 @@
+steps:
+  review: Overzicht
+  payment: Betaling
+  confirmation: Bevestiging
+review:
+  dates_heading: Uw datums
+  dates_separator: tot
+  subtotal: Subtotaal
+  service_fee: Servicekosten (15%)
+  total: Totaal
+  cancellation_heading: Annuleringsbeleid
+  cancellation_policy: Volledige terugbetaling bij annulering meer dan 24u op voorhand. 50% terugbetaling tussen 12 en 24u. Geen terugbetaling binnen 12u.
+  proceed_button: Doorgaan naar betaling
+pay_button: Betaal €{amount}
+confirmation:
+  title: Boeking bevestigd!
+  reference_label: Uw referentie
+  message_host: Gastheer berichtten
+  view_booking: Boeking bekijken
+create_error: Boeking kon niet worden aangemaakt. Probeer het opnieuw.
+payment_init_error: Betaling kon niet worden gestart. Probeer het opnieuw.
+cancel:
+  modal_title: Boeking annuleren?
+  hours_remaining: "{hours} uur resterend voor de start"
+  active_error: Kan een actieve boeking niet annuleren
+  active_message: Deze boeking is momenteel bezig.
+  will_receive: U ontvangt
+  refund_label: terugbetaling
+  no_refund: Geen terugbetaling van toepassing
+  tier_full: Meer dan 24u voor de start — volledige terugbetaling
+  tier_half: 12–24u voor aanvang — 50% terugbetaling
+  tier_none: Minder dan 12u voor aanvang — geen terugbetaling
+  keep_button: Mijn boeking behouden
+  confirm_button: Ja, annuleren
+modify:
+  modal_title: Boeking wijzigen
+  change_start: Begintijd wijzigen
+  change_end: Eindtijd wijzigen
+  new_time_label: Nieuwe {changeType}-tijd
+  price_increase: +€{amount}
+  price_decrease: −€{amount} terugbetaling
+  save_button: Wijzigingen opslaan
+rating:
+  locked_title: Uw beoordeling
+  locked_both: Beide partijen hebben een beoordeling gegeven. Deze beoordeling is nu vergrendeld.
+  locked_window: Het beoordelingsvenster is gesloten. Deze beoordeling is nu vergrendeld.
+  update_title: Jouw beoordeling aanpassen
+  create_title: Schrijf een recensie
+  update_button: Recensie bijwerken
+  submit_button: Beoordeling indienen
+  error_other_party: Deze recensie is nu vergrendeld omdat beide partijen een beoordeling hebben gegeven.
+  error_window_closed: Het beoordelingsvenster is gesloten.

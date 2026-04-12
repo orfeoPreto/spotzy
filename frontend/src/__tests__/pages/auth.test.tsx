@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import LoginPage from '../../../app/auth/login/page';
-import RegisterPage from '../../../app/auth/register/page';
-import ForgotPasswordPage from '../../../app/auth/forgot-password/page';
-import ConfirmForm from '../../../app/auth/confirm/ConfirmClient';
+import LoginPage from '../../../app/[locale]/auth/login/page';
+import RegisterPage from '../../../app/[locale]/auth/register/page';
+import ForgotPasswordPage from '../../../app/[locale]/auth/forgot-password/page';
+import ConfirmForm from '../../../app/[locale]/auth/confirm/ConfirmClient';
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({

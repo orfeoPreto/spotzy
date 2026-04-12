@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
 import { bookingMetadataKey, listingMetadataKey } from '../../../shared/db/keys';
 import { calculatePrice } from '../shared/price-calculator';
 import { createLogger } from '../../../shared/utils/logger';
@@ -14,12 +14,6 @@ const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
 const BLOCKING_STATUSES = new Set(['CONFIRMED', 'ACTIVE', 'PENDING_PAYMENT']);
-
-const conflictError = (code: string, message: string) => ({
-  statusCode: 409,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message, code }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -32,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const body = JSON.parse(event.body ?? '{}');
   const { newStartTime, newEndTime } = body;
-  if (!newStartTime || !newEndTime) return badRequest('newStartTime and newEndTime are required');
+  if (!newStartTime || !newEndTime) return badRequest('MISSING_REQUIRED_FIELD', { field: 'newStartTime, newEndTime' });
 
   log.info('modify attempt', { bookingId, newStartTime, newEndTime });
 
@@ -48,12 +42,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const startChanged = newStartTime !== booking.startTime;
 
   // Active bookings: only end time changes allowed
-  if (isActive && startChanged) return badRequest(JSON.stringify({ code: 'CANNOT_CHANGE_START_ACTIVE', message: 'Cannot change start time of an active booking' }));
+  if (isActive && startChanged) return badRequest('CANNOT_CHANGE_START_ACTIVE');
 
   if (!isActive) {
-    if (newStart <= Date.now()) return badRequest(JSON.stringify({ code: 'START_TIME_IN_PAST', message: 'New start time must be in the future' }));
+    if (newStart <= Date.now()) return badRequest('START_TIME_IN_PAST');
     const twoHoursFromNow = Date.now() + 2 * 3600000;
-    if (newStart < twoHoursFromNow) return badRequest(JSON.stringify({ code: 'TOO_CLOSE_TO_START', message: 'Cannot modify booking less than 2 hours before start' }));
+    if (newStart < twoHoursFromNow) return badRequest('TOO_CLOSE_TO_START');
   }
 
   // Fetch listing for price recalculation
@@ -74,7 +68,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const bEnd = new Date(b.endTime).getTime();
     return newStart < bEnd && newEnd > bStart;
   });
-  if (conflicting.length > 0) return conflictError('SLOT_UNAVAILABLE', 'The new time slot is not available');
+  if (conflicting.length > 0) return conflict('SLOT_UNAVAILABLE');
 
   const newPrice = calculatePrice(listing, newStartTime, newEndTime);
   const priceDifference = Math.round((newPrice - booking.totalPrice) * 100) / 100;
@@ -108,7 +102,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   if (!updated) {
     log.warn('concurrent modification conflict', { bookingId });
-    return conflictError('CONCURRENT_MODIFICATION', 'Booking was modified concurrently, please retry');
+    return conflict('CONCURRENT_MODIFICATION');
   }
 
   await eb.send(new PutEventsCommand({

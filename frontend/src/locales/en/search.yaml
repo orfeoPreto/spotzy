@@ -1,0 +1,24 @@
+# Spotzy search translations (en)
+heading: "Search parking spots"
+search_this_area: "Search this area"
+loading: "Loading..."
+no_results: "No spots found. Try a different location or adjust your filters."
+search_bar:
+  destination_placeholder: "Where are you going?"
+  date_error: "End date cannot be before start date"
+  filter_button: "Filter"
+spot_card:
+  covered_badge: "Covered"
+  ev_badge: "EV"
+  walking_distance: "min walk"
+  book_button: "Book this spot"
+booking_card:
+  ending_soon: "Ending soon — ends in less than 24h"
+  fallback_address: "View listing"
+  message_button: "Message"
+  modify_button: "Modify"
+  cancel_button: "Cancel"
+  leave_review: "Leave a review"
+  review_submitted: "Review submitted"
+  update_review: "Update review"
+  report_button: "Report an issue"

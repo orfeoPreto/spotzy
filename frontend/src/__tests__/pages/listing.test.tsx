@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server, MOCK_LISTING } from '../mocks/server';
-import ListingPage from '../../../app/listing/[id]/ListingClient';
+import ListingPage from '../../../app/[locale]/listing/[id]/ListingClient';
 
 const mockPush = vi.fn();
 const mockParamsId = { id: 'l1' };

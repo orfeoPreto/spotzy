@@ -6,19 +6,13 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
 });
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-
-const forbidden = (message: string) => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message }),
-});
 
 /**
  * PATCH /api/v1/listings/{poolId}/block-reservations
@@ -40,16 +34,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Route is /api/v1/listings/{id}/block-reservations — API Gateway path
   // parameter name is "id" to match the existing listings/{id}/bays route.
   const poolId = event.pathParameters?.id ?? event.pathParameters?.poolId;
-  if (!poolId) return badRequest('Missing poolId');
+  if (!poolId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'poolId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { blockReservationsOptedIn, riskShareMode } = body;
 
   if (typeof blockReservationsOptedIn !== 'boolean') {
-    return badRequest('blockReservationsOptedIn must be a boolean');
+    return badRequest('INVALID_FIELD', { field: 'blockReservationsOptedIn' });
   }
   if (blockReservationsOptedIn && !['PERCENTAGE', 'MIN_BAYS_FLOOR'].includes(riskShareMode)) {
-    return badRequest('riskShareMode must be PERCENTAGE or MIN_BAYS_FLOOR when opting in');
+    return badRequest('INVALID_FIELD', { field: 'riskShareMode' });
   }
 
   // Load the listing to verify ownership and that it's a pool
@@ -62,7 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const listing = listingRes.Item;
   if (listing.hostId !== claims.userId) {
     log.warn('forbidden — not the owner', { poolId, ownerCandidate: claims.userId });
-    return forbidden('NOT_POOL_OWNER');
+    return forbidden();
   }
   if (listing.isPool !== true) {
     return badRequest('NOT_A_POOL_LISTING');

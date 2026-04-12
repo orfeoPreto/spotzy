@@ -98,7 +98,7 @@ describe('portfolio', () => {
     ddbMock.on(GetCommand).resolves({ Item: { PK: `USER#${TEST_USER_ID}`, SK: 'PROFILE' } });
     const res = await handler(mockAuthEvent(TEST_USER_ID), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('Spot Manager status');
+    expect(JSON.parse(res!.body).error).toBe('SPOT_MANAGER_STATUS_REQUIRED');
   });
 
   it('returns empty portfolio for user with no listings', async () => {

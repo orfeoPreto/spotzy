@@ -9,24 +9,12 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden, conflict } from '../../../shared/utils/response';
 import { listingMetadataKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
-
-const conflict = (code: string, message: string) => ({
-  statusCode: 409,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: message, code }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -34,7 +22,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) return unauthorized();
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) return badRequest('Missing listing id');
+  if (!listingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' });
 
   // Verify listing exists and caller is owner
   const meta = await ddb.send(new GetCommand({ TableName: TABLE, Key: listingMetadataKey(listingId) }));
@@ -58,7 +46,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   );
   if (activeBooking) {
     log.warn('cannot delete — active booking exists', { listingId, bookingId: activeBooking.bookingId });
-    return conflict('ACTIVE_BOOKING_EXISTS', 'Cannot delete a listing with active or confirmed bookings');
+    return conflict('ACTIVE_BOOKING_EXISTS');
   }
 
   // If any booking history exists (e.g. CANCELLED) → archive instead of hard delete

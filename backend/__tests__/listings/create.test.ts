@@ -58,7 +58,7 @@ describe('listing-create', () => {
     const { address: _a, ...body } = validBody;
     const res = await handler(makeEvent(body), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('address');
+    expect(JSON.parse(res!.body).error).toBe('MISSING_REQUIRED_FIELD');
   });
 
   it('missing addressLat → 400', async () => {
@@ -77,7 +77,7 @@ describe('listing-create', () => {
     const { spotType: _s, ...body } = validBody;
     const res = await handler(makeEvent(body), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('spotType');
+    expect(JSON.parse(res!.body).error).toBe('MISSING_REQUIRED_FIELD');
   });
 
   it('invalid spotType value → 400', async () => {
@@ -89,7 +89,7 @@ describe('listing-create', () => {
     const { pricePerHour: _p, ...body } = validBody;
     const res = await handler(makeEvent(body), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
-    expect(res!.body).toContain('At least one price is required');
+    expect(JSON.parse(res!.body).error).toBe('PRICE_REQUIRED');
   });
 
   it('description exceeds 500 chars → 400', async () => {

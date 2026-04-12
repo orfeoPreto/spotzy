@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
-import { ok, badRequest, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, notFound, forbidden, conflict } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -19,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!userId) return { statusCode: 401, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Unauthorized' }) };
 
   const bookingId = event.pathParameters?.bookingId ?? event.pathParameters?.id;
-  if (!bookingId) return badRequest('bookingId is required');
+  if (!bookingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bookingId' });
 
   const result = await ddb.send(new GetCommand({
     TableName: TABLE,
@@ -29,15 +29,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const booking = result.Item;
   if (!booking) return notFound();
   if (booking.spotterId !== userId) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'FORBIDDEN' }) };
+    return forbidden();
   }
 
   if (booking.status === 'ACTIVE') {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'BOOKING_ACTIVE_NO_CANCEL' }) };
+    return forbidden();
   }
 
   if (['CANCELLED', 'COMPLETED'].includes(booking.status)) {
-    return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'BOOKING_ALREADY_ENDED' }) };
+    return conflict('BOOKING_ALREADY_ENDED');
   }
 
   const totalEur = booking.totalEur ?? 0;

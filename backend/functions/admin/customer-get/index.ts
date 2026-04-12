@@ -19,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!admin) return forbidden();
 
   const userId = event.pathParameters?.userId;
-  if (!userId) return badRequest('Missing userId');
+  if (!userId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'userId' });
 
   const includeHistory = event.queryStringParameters?.includeHistory === 'true';
 

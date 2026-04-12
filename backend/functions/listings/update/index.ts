@@ -2,13 +2,17 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import ngeohash from 'ngeohash';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { listingMetadataKey } from '../../../shared/db/keys';
+import { LISTING_TRANSLATION_EVENT_TYPE } from '../../../shared/locales/constants';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const eventBridge = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
+const EVENT_BUS_NAME = process.env.EVENT_BUS_NAME ?? 'default';
 
 // Fields that cannot be updated
 const IMMUTABLE = new Set(['listingId', 'hostId', 'PK', 'SK', 'GSI1PK', 'GSI1SK', 'createdAt']);
@@ -20,7 +24,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const listingId = event.pathParameters?.id;
-  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('Missing listing id'); }
+  if (!listingId) { log.warn('validation failed', { reason: 'missing listingId' }); return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId' }); }
 
   log.info('update attempt', { listingId });
 
@@ -30,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const listing = existing.Item;
   if (listing.hostId !== claims.userId) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+    return forbidden();
   }
 
   const updates = JSON.parse(event.body ?? '{}');
@@ -64,6 +68,34 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     ExpressionAttributeValues: values,
     ReturnValues: 'ALL_NEW',
   }));
+
+  // Emit translation event if translatable fields changed
+  const TRANSLATABLE_FIELDS = ['title', 'description', 'accessInstructions'];
+  const changedTranslatableFields = TRANSLATABLE_FIELDS.filter(f => allowed[f] !== undefined);
+  if (changedTranslatableFields.length > 0) {
+    // Update *Translations maps for the changed fields with the new source text
+    const originalLocale = listing.originalLocale ?? 'en';
+    for (const field of changedTranslatableFields) {
+      const translationsField = `${field}Translations`;
+      const existingTranslations = (result.Attributes?.[translationsField] as Record<string, string>) ?? {};
+      existingTranslations[originalLocale] = allowed[field] as string;
+      // The translation Lambda will fill in the other locales async
+    }
+
+    eventBridge.send(new PutEventsCommand({
+      Entries: [{
+        Source: 'spotzy.listings',
+        DetailType: LISTING_TRANSLATION_EVENT_TYPE,
+        Detail: JSON.stringify({
+          listingId,
+          originalLocale,
+          fieldsChanged: changedTranslatableFields,
+          isPool: listing.isPool === true,
+        }),
+        EventBusName: EVENT_BUS_NAME,
+      }],
+    })).catch(err => log.error('EventBridge publish failed', err));
+  }
 
   log.info('listing updated', { listingId, updatedFields: Object.keys(allowed) });
   return ok(result.Attributes ?? { ...listing, ...allowed });

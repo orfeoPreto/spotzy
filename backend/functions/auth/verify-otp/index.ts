@@ -41,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, code, password } = body;
   if (!email || !code || !password) {
     log.warn('validation failed', { reason: 'missing required fields' });
-    return badRequest('Missing required fields');
+    return badRequest('MISSING_REQUIRED_FIELDS');
   }
 
   log.info('verify-otp attempt', { email });

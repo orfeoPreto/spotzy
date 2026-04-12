@@ -21,11 +21,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!admin) return forbidden();
 
   const disputeId = event.pathParameters?.id;
-  if (!disputeId) return badRequest('Missing dispute id');
+  if (!disputeId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'disputeId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { outcome, refundAmount, adminNote } = body;
-  if (!outcome) return badRequest('outcome is required');
+  if (!outcome) return badRequest('MISSING_REQUIRED_FIELD', { field: 'outcome' });
 
   // Fetch dispute
   const disputeResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: disputeMetadataKey(disputeId) }));

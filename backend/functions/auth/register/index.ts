@@ -8,6 +8,8 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { badRequest, conflict, internalError, ok } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, ACTIVE_LOCALE_HEADER } from '../../../shared/locales/constants';
+import type { SupportedLocale } from '../../../shared/locales/constants';
 
 const cognito = new CognitoIdentityProviderClient({});
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -31,7 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, password, firstName, lastName, role, phone } = body;
   if (!email || !password || !firstName || !lastName || !role) {
     log.warn('validation failed', { reason: 'missing required fields' });
-    return badRequest('Missing required fields');
+    return badRequest('MISSING_REQUIRED_FIELDS');
   }
 
   log.info('register attempt', { email, role });
@@ -50,6 +52,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const userId = res.UserSub!;
     const now = new Date().toISOString();
+
+    // Capture preferred locale from the active-locale header
+    const rawLocale = event.headers?.[ACTIVE_LOCALE_HEADER] ?? event.headers?.['spotzy-active-locale'] ?? '';
+    const preferredLocale: SupportedLocale =
+      (SUPPORTED_LOCALES as readonly string[]).includes(rawLocale) ? rawLocale as SupportedLocale : DEFAULT_LOCALE;
 
     try {
       await ddb.send(new PutCommand({
@@ -70,6 +77,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           showFullNamePublicly: false,
           profilePhotoUrl: null,
           stripeConnectEnabled: false,
+          preferredLocale,
+          preferredLocaleSetAt: null,
           privacyPolicyVersion: process.env.CURRENT_POLICY_VERSION ?? '2026-04-01',
           privacyPolicyAcceptedAt: now,
           createdAt: now,
@@ -86,7 +95,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   } catch (err) {
     if (err instanceof UsernameExistsException) {
       log.warn('email already exists', { email });
-      return conflict('An account with this email already exists');
+      return conflict('EMAIL_ALREADY_EXISTS');
     }
     log.error('register error', err);
     return internalError();

@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 import { validateGuestEmail, validateGuestPhone } from '../../../shared/block-reservations/validation';
 import type { BlockRequest, BlockAllocation, BlockBooking } from '../../../shared/block-reservations/types';
@@ -17,11 +17,6 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);

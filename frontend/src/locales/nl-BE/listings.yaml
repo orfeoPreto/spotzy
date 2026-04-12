@@ -1,0 +1,55 @@
+detail:
+  unavailable_title: Deze parkeerplaats is niet meer beschikbaar
+  unavailable_message: Deze aanbieding bestaat niet meer.
+  search_other: Zoek andere parkeerplaatsen
+  feature_covered: Overdekt
+  feature_accessible: Toegankelijk
+  feature_ev: Elektrisch opladen
+  host_rating: ★ {rating} gastheer beoordeling
+  price_per_hour: €{price}/u
+  start_label: Begin
+  end_label: Einde
+  total_price: "Totaal: €{total}"
+  own_listing: Dit is jouw advertentie
+  book_button: Boek deze parkeerplaats
+  sign_in_to_book: Aanmelden om te boeken
+create:
+  spot_types:
+    COVERED_GARAGE: Overdekte garage
+    OPEN_SPACE: Open terrein
+    CARPORT: Carport
+    DRIVEWAY: Eigen oprit
+  steps:
+    location: Locatie
+    details: Parkeerplaats details
+    photos: Foto's
+    availability: Beschikbaarheid
+  location_heading: Waar bevindt zich uw parkeerplaats?
+  address_placeholder: Voer een adres of straat in
+  details_heading: Vertel ons over uw parkeerplaats
+  price_label: Prijs per uur (€)
+  price_placeholder: bv. 3,50
+  ev_label: Elektrisch laden beschikbaar?
+  ev_confirmed: EV-lading bevestigd
+  description_label: Omschrijving
+  description_placeholder: Toegangsinstructies, beperkingen, nabijgelegen bezienswaardigheden…
+  photos_heading: Foto's toevoegen
+  photos_description: Upload foto's van je parkeerplaats. AI beoordeelt ze automatisch — minstens één moet goedgekeurd worden.
+  photo_slot: Foto {index}
+  photo_too_large: De afbeelding is te groot. Gebruik een foto kleiner dan 20 MB.
+  photo_validation_timeout: Validatie is verlopen. Probeer een andere foto.
+  photo_validation_failed: Validatie mislukt — probeer een duidelijkere foto
+  availability_heading: Stel uw beschikbaarheid in
+  availability_description: Geef aan wanneer je parkeerplaats beschikbaar is voor boeking. Je moet eerst opslaan voor je publiceert.
+  availability_saved: Beschikbaarheid opgeslagen. Je kan je advertentie nu publiceren.
+  availability_save_error: Het opslaan van de beschikbaarheid is mislukt. Probeer het opnieuw.
+  prepublish_title: Checklist vóór publicatie
+  checklist_address: Adres geverifieerd
+  checklist_type: Spot-type geselecteerd
+  checklist_price: Prijs ingesteld
+  checklist_photos: Foto's geüpload
+  checklist_availability: Beschikbaarheid opgeslagen
+  publish_button: Advertentie publiceren
+  create_error: Het opslaan van de advertentie is mislukt. Probeer het opnieuw.
+  publish_incomplete: "Vermelding onvolledig: {checks}"
+  publish_error: Publiceren mislukt. Probeer het opnieuw.

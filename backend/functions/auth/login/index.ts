@@ -36,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, password } = body;
   if (!email || !password) {
     log.warn('validation failed', { reason: 'missing email or password' });
-    return badRequest('Missing email or password');
+    return badRequest('MISSING_CREDENTIALS');
   }
 
   log.info('login attempt', { email });

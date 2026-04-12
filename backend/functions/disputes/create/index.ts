@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@a
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { created, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { bookingMetadataKey, disputeByBookingKey, disputeMessageKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 import { generateDisputeResponse } from '../shared/ai-respond';
@@ -14,7 +14,6 @@ const eb = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -39,9 +38,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (booking.status === 'COMPLETED') {
     const endTime = booking.completedAt ?? booking.endTime;
     const daysSinceEnd = (Date.now() - new Date(endTime).getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceEnd > 7) return badRequest(JSON.stringify({ code: 'DISPUTE_WINDOW_EXPIRED', message: 'The dispute window has closed. Disputes must be opened within 7 days of booking completion.' }));
+    if (daysSinceEnd > 7) return badRequest('DISPUTE_WINDOW_EXPIRED');
   } else if (!ALLOWED_DISPUTE_STATUSES.has(booking.status as string)) {
-    return badRequest(JSON.stringify({ code: 'INVALID_BOOKING_STATUS', message: 'Disputes can only be opened for confirmed, active, or recently completed bookings.' }));
+    return badRequest('INVALID_BOOKING_STATUS');
   }
 
   // Check for existing open dispute

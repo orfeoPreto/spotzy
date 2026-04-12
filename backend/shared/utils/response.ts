@@ -17,32 +17,38 @@ export const created = (body: unknown): APIGatewayProxyResult => ({
   body: JSON.stringify(body),
 });
 
-export const badRequest = (message: string): APIGatewayProxyResult => ({
+export const badRequest = (errorCode: string, details?: Record<string, unknown>): APIGatewayProxyResult => ({
   statusCode: 400,
   headers,
-  body: JSON.stringify({ error: message }),
+  body: JSON.stringify({ error: errorCode, ...(details ? { details } : {}) }),
 });
 
 export const unauthorized = (): APIGatewayProxyResult => ({
   statusCode: 401,
   headers,
-  body: JSON.stringify({ error: 'Unauthorized' }),
+  body: JSON.stringify({ error: 'UNAUTHORIZED' }),
 });
 
-export const notFound = (): APIGatewayProxyResult => ({
+export const notFound = (errorCode?: string): APIGatewayProxyResult => ({
   statusCode: 404,
   headers,
-  body: JSON.stringify({ error: 'Not found' }),
+  body: JSON.stringify({ error: errorCode ?? 'NOT_FOUND' }),
 });
 
-export const conflict = (message: string): APIGatewayProxyResult => ({
+export const conflict = (errorCode: string, details?: Record<string, unknown>): APIGatewayProxyResult => ({
   statusCode: 409,
   headers,
-  body: JSON.stringify({ error: message }),
+  body: JSON.stringify({ error: errorCode, ...(details ? { details } : {}) }),
+});
+
+export const forbidden = (): APIGatewayProxyResult => ({
+  statusCode: 403,
+  headers,
+  body: JSON.stringify({ error: 'FORBIDDEN' }),
 });
 
 export const internalError = (): APIGatewayProxyResult => ({
   statusCode: 500,
   headers,
-  body: JSON.stringify({ error: 'Internal server error' }),
+  body: JSON.stringify({ error: 'INTERNAL_ERROR' }),
 });

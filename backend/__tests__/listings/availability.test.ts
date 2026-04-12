@@ -176,8 +176,7 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('OVERLAPPING_RULES');
+    expect(body.error).toBe('OVERLAPPING_RULES');
   });
 
   test('endTime before startTime → 400 INVALID_TIME_RANGE', async () => {
@@ -193,8 +192,7 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('INVALID_TIME_RANGE');
+    expect(body.error).toBe('INVALID_TIME_RANGE');
   });
 
   test('no rules provided with WEEKLY type → 400 NO_RULES_PROVIDED', async () => {
@@ -207,8 +205,7 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('NO_RULES_PROVIDED');
+    expect(body.error).toBe('NO_RULES_PROVIDED');
   });
 
   test('more than 14 rules → 400 TOO_MANY_RULES', async () => {
@@ -224,8 +221,7 @@ describe('PUT /api/v1/listings/{id}/availability', () => {
     );
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('TOO_MANY_RULES');
+    expect(body.error).toBe('TOO_MANY_RULES');
   });
 
   test('not the listing owner → 403', async () => {

@@ -26,7 +26,7 @@ vi.mock('aws-amplify/auth', () => ({
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
 
-import ProfilePage from '../../../app/profile/page';
+import ProfilePage from '../../../app/[locale]/profile/page';
 
 const mockUserProfile = { userId: 'u1', name: 'Jean Dupont', email: 'jean@spotzy.com' };
 const mockMetrics = { listingCount: 2, bookingCount: 5, liveListings: 2, activeBookings: 5 };

@@ -68,7 +68,7 @@ describe('review editing window', () => {
     expect(res!.statusCode).toBe(409);
     const body = JSON.parse(res!.body);
     expect(body.error).toBe('REVIEW_LOCKED');
-    expect(body.reason).toBe('OTHER_PARTY_REVIEWED');
+    expect(body.details.reason).toBe('OTHER_PARTY_REVIEWED');
   });
 
   it('returns 409 REVIEW_LOCKED after 7-day window expires', async () => {
@@ -83,7 +83,7 @@ describe('review editing window', () => {
     expect(res!.statusCode).toBe(409);
     const body = JSON.parse(res!.body);
     expect(body.error).toBe('REVIEW_LOCKED');
-    expect(body.reason).toBe('WINDOW_EXPIRED');
+    expect(body.details.reason).toBe('WINDOW_EXPIRED');
   });
 
   it('update changes the review data (rating updated)', async () => {

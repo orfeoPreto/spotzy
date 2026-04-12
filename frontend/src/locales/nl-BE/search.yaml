@@ -1,0 +1,24 @@
+# Spotzy search translations (nl-BE)
+heading: "Parkeerplaatsen zoeken"
+search_this_area: "In dit gebied zoeken"
+loading: "Laden..."
+no_results: "Geen plaatsen gevonden. Probeer een andere locatie of pas uw filters aan."
+search_bar:
+  destination_placeholder: "Waar gaat u naartoe?"
+  date_error: "De einddatum kan niet voor de startdatum liggen"
+  filter_button: "Filteren"
+spot_card:
+  covered_badge: "Overdekt"
+  ev_badge: "EV"
+  walking_distance: "min wandelen"
+  book_button: "Deze plaats boeken"
+booking_card:
+  ending_soon: "Eindigt binnenkort — eindigt in minder dan 24u"
+  fallback_address: "Advertentie bekijken"
+  message_button: "Bericht"
+  modify_button: "Wijzigen"
+  cancel_button: "Annuleren"
+  leave_review: "Beoordeling achterlaten"
+  review_submitted: "Beoordeling ingediend"
+  update_review: "Beoordeling bijwerken"
+  report_button: "Probleem melden"

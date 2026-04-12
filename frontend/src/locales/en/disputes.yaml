@@ -1,0 +1,23 @@
+# Spotzy disputes translations (en)
+page_title: "Spotzy Support"
+initial_message: "Hello! I'm the Spotzy Support assistant. How can I help you today?"
+quick_replies:
+  damage: "Damage to my vehicle"
+  unavailable: "Spot was unavailable"
+  incorrect_info: "Incorrect listing info"
+  billing: "Billing issue"
+escalation:
+  title: "Transferred to our support team"
+  message: "A Spotzy agent will review your case and respond shortly."
+loading: "Loading conversation..."
+summary_label: "Summary"
+photos_one: "{count} photo attached"
+photos_other: "{count} photos attached"
+confirm_submit: "Confirm and submit"
+submitted_success: "Dispute submitted"
+transferring: "Transferring to agent…"
+agent_connected: "Agent connected"
+add_photos: "Add photos"
+case_transferred_placeholder: "Case transferred to support team"
+input_placeholder: "Describe your issue…"
+send_button: "Send"

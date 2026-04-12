@@ -13,11 +13,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const params = event.queryStringParameters ?? {};
   const { lat, lng, startTime, endTime, maxPricePerDayEur, covered, evCharging } = params;
 
-  if (!lat || !lng) return badRequest('lat and lng are required');
+  if (!lat || !lng) return badRequest('MISSING_REQUIRED_FIELD', { field: 'lat, lng' });
 
   const latitude = parseFloat(lat);
   const longitude = parseFloat(lng);
-  if (isNaN(latitude) || isNaN(longitude)) return badRequest('lat and lng must be numbers');
+  if (isNaN(latitude) || isNaN(longitude)) return badRequest('INVALID_FIELD', { field: 'lat, lng' });
 
   const precision = 5;
   const centerHash = ngeohash.encode(latitude, longitude, precision);

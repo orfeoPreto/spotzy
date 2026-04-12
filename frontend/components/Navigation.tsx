@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useListYourSpotDestination } from '../hooks/useListYourSpotDestination';
+import LocaleSwitcher from './LocaleSwitcher';
 
 interface NavUser {
   userId: string;
@@ -180,6 +181,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                 </Link>
               )
             )}
+            <LocaleSwitcher />
             {user && (
               <Link
                 href="/profile"

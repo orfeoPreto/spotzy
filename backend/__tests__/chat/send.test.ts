@@ -95,11 +95,11 @@ describe('chat-send', () => {
     expect(res!.statusCode).toBe(201);
   });
 
-  it('no confirmed booking → 403 NO_ACTIVE_BOOKING', async () => {
+  it('no confirmed booking → 403 FORBIDDEN', async () => {
     ddbMock.on(GetCommand).resolves({ Item: { ...confirmedBooking, status: 'CANCELLED' } });
     const res = await handler(makeEvent({ type: 'TEXT', content: 'Hi' }), {} as any, () => {});
     expect(res!.statusCode).toBe(403);
-    expect(res!.body).toContain('NO_ACTIVE_BOOKING');
+    expect(JSON.parse(res!.body).error).toBe('FORBIDDEN');
   });
 
   it('missing auth → 401', async () => {

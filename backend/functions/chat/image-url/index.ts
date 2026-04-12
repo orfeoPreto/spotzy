@@ -5,7 +5,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { bookingMetadataKey } from '../../../shared/db/keys';
 import { createLogger } from '../../../shared/utils/logger';
 
@@ -16,11 +16,6 @@ const UPLOADS_BUCKET = process.env.UPLOADS_BUCKET ?? 'spotzy-media-uploads';
 const PUBLIC_BUCKET = process.env.PUBLIC_BUCKET ?? 'spotzy-media-public';
 const URL_EXPIRY_SECONDS = 300;
 
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden — you are not a party to this booking' }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -28,7 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) return unauthorized();
 
   const bookingId = event.pathParameters?.bookingId;
-  if (!bookingId) return badRequest('Missing bookingId');
+  if (!bookingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bookingId' });
 
   // Fetch booking to verify the caller is a party (host or spotter)
   const bookingRes = await ddb.send(new GetCommand({

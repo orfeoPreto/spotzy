@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const user = userResult.Item;
   if (!user || !['STAGED', 'ACTIVE'].includes(user.spotManagerStatus)) {
     log.warn('spot manager status invalid', { status: user?.spotManagerStatus });
-    return badRequest('Spot Manager status must be STAGED or ACTIVE');
+    return badRequest('SPOT_MANAGER_STATUS_REQUIRED');
   }
 
   // Get all user's listings via GSI1

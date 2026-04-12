@@ -20,17 +20,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   const bookingId = event.pathParameters?.bookingId;
-  if (!bookingId) return badRequest('Missing bookingId');
+  if (!bookingId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bookingId' });
 
   let body: any;
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return badRequest('Invalid JSON body');
+    return badRequest('INVALID_JSON_BODY');
   }
 
   const { targetBayId } = body;
-  if (!targetBayId) return badRequest('Missing required field: targetBayId');
+  if (!targetBayId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'targetBayId' });
 
   // Load booking
   const bookingResult = await client.send(new GetCommand({
@@ -43,7 +43,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Verify it's a pool booking
   const poolId = booking.listingId;
   if (!booking.poolSpotId) {
-    return badRequest('Booking is not a pool booking');
+    return badRequest('NOT_A_POOL_BOOKING');
   }
 
   // Verify caller is pool owner
@@ -64,9 +64,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     Key: { PK: `LISTING#${poolId}`, SK: `BAY#${targetBayId}` },
   }));
   const targetBay = targetBayResult.Item;
-  if (!targetBay) return badRequest('Target bay not found in this pool');
+  if (!targetBay) return badRequest('BAY_NOT_FOUND');
   if (targetBay.status !== 'ACTIVE') {
-    return badRequest('Target bay is not active');
+    return badRequest('BAY_NOT_ACTIVE');
   }
 
   // Check target bay availability for booking window
@@ -87,7 +87,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   });
 
   if (conflicting.length > 0) {
-    return conflict('Target bay is not available for the booking window');
+    return conflict('BAY_NOT_AVAILABLE');
   }
 
   // Perform the swap

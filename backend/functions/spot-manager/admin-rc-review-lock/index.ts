@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!admin) return forbidden();
 
   const submissionId = event.pathParameters?.submissionId;
-  if (!submissionId) return badRequest('Missing submissionId');
+  if (!submissionId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'submissionId' });
 
   const now = new Date();
   const nowIso = now.toISOString();

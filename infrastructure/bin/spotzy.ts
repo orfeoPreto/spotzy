@@ -10,6 +10,7 @@ import { AgentStack } from '../lib/agent-stack';
 import { PoolStack } from '../lib/pool-stack';
 import { BlockReservationsStack } from '../lib/block-reservations-stack';
 import { SpotManagerStack } from '../lib/spot-manager-stack';
+import { EmailTemplatesStack } from '../lib/email-templates-stack';
 
 const app = new cdk.App();
 
@@ -85,6 +86,10 @@ const blockReservationsStack = new BlockReservationsStack(app, `SpotzyBlockReser
   eventBus: dataStack.eventBus,
   userPool: apiStack.userPool,
 });
+
+// Session 29 — Localized email templates (87 SES templates = 87 resources,
+// deployed in its own stack to stay under the 500-resource limit)
+const emailTemplatesStack = new EmailTemplatesStack(app, `SpotzyEmailTemplatesStack${stackSuffix}`, { env });
 
 // Explicit dependency ordering ensures correct CloudFormation deploy sequence
 apiStack.addDependency(dataStack);

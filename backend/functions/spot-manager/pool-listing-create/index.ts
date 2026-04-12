@@ -3,12 +3,17 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import ngeohash from 'ngeohash';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
 import { created, badRequest, unauthorized, internalError } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, ACTIVE_LOCALE_HEADER, LISTING_TRANSLATION_EVENT_TYPE } from '../../../shared/locales/constants';
+import type { SupportedLocale } from '../../../shared/locales/constants';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const eventBridge = new EventBridgeClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
+const EVENT_BUS_NAME = process.env.EVENT_BUS_NAME ?? 'default';
 
 const SPOT_TYPES = ['COVERED_GARAGE', 'CARPORT', 'DRIVEWAY', 'OPEN_SPACE'] as const;
 const MIN_BAY_COUNT = 2;
@@ -42,29 +47,29 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const user = userResult.Item;
   if (!user || !['STAGED', 'ACTIVE'].includes(user.spotManagerStatus)) {
     log.warn('spot manager status invalid', { status: user?.spotManagerStatus });
-    return badRequest('Spot Manager status must be STAGED or ACTIVE');
+    return badRequest('SPOT_MANAGER_STATUS_REQUIRED');
   }
 
   let body: any;
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return badRequest('Invalid JSON body');
+    return badRequest('INVALID_JSON_BODY');
   }
 
   // Validate required fields
-  if (!body.address) return badRequest('Missing required field: address');
-  if (body.addressLat === undefined || body.addressLat === null) return badRequest('Missing required field: addressLat');
-  if (body.addressLng === undefined || body.addressLng === null) return badRequest('Missing required field: addressLng');
-  if (!body.spotType) return badRequest('Missing required field: spotType');
-  if (!SPOT_TYPES.includes(body.spotType)) return badRequest(`Invalid spotType. Must be one of: ${SPOT_TYPES.join(', ')}`);
+  if (!body.address) return badRequest('MISSING_REQUIRED_FIELD', { field: 'address' });
+  if (body.addressLat === undefined || body.addressLat === null) return badRequest('MISSING_REQUIRED_FIELD', { field: 'addressLat' });
+  if (body.addressLng === undefined || body.addressLng === null) return badRequest('MISSING_REQUIRED_FIELD', { field: 'addressLng' });
+  if (!body.spotType) return badRequest('MISSING_REQUIRED_FIELD', { field: 'spotType' });
+  if (!SPOT_TYPES.includes(body.spotType)) return badRequest('INVALID_SPOT_TYPE');
   // Accept both legacy (pricePerHour) and tiered (pricePerHourEur + discount pcts)
   const pricePerHourEur = body.pricePerHourEur ?? body.pricePerHour;
   if (pricePerHourEur === undefined || pricePerHourEur === null) {
-    return badRequest('Missing required field: pricePerHourEur');
+    return badRequest('MISSING_REQUIRED_FIELD', { field: 'pricePerHourEur' });
   }
   if (typeof pricePerHourEur !== 'number' || pricePerHourEur <= 0 || pricePerHourEur >= 1000) {
-    return badRequest('pricePerHourEur must be a number > 0 and < 1000');
+    return badRequest('INVALID_PRICE_PER_HOUR');
   }
   const ALLOWED_DISCOUNTS = [0.50, 0.60, 0.70];
   const dailyDiscountPct = body.dailyDiscountPct ?? 0.60;
@@ -72,15 +77,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const monthlyDiscountPct = body.monthlyDiscountPct ?? 0.60;
   for (const [name, val] of [['dailyDiscountPct', dailyDiscountPct], ['weeklyDiscountPct', weeklyDiscountPct], ['monthlyDiscountPct', monthlyDiscountPct]] as const) {
     if (!ALLOWED_DISCOUNTS.includes(val)) {
-      return badRequest(`${name} must be one of ${ALLOWED_DISCOUNTS.join(', ')}`);
+      return badRequest('INVALID_DISCOUNT_VALUE', { field: name as string });
     }
   }
 
   // Validate bayCount
   const bayCount = body.bayCount;
-  if (bayCount === undefined || bayCount === null) return badRequest('Missing required field: bayCount');
+  if (bayCount === undefined || bayCount === null) return badRequest('MISSING_REQUIRED_FIELD', { field: 'bayCount' });
   if (!Number.isInteger(bayCount) || bayCount < MIN_BAY_COUNT || bayCount > MAX_BAY_COUNT) {
-    return badRequest(`bayCount must be an integer between ${MIN_BAY_COUNT} and ${MAX_BAY_COUNT}`);
+    return badRequest('INVALID_BAY_COUNT');
   }
 
   // Photos are optional at pool creation — Spot Manager can add them afterward
@@ -94,18 +99,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Validate bayLabels if provided
   if (body.bayLabels) {
     if (!Array.isArray(body.bayLabels) || body.bayLabels.length !== bayCount) {
-      return badRequest('bayLabels length must match bayCount');
+      return badRequest('BAY_LABELS_COUNT_MISMATCH');
     }
     const uniqueLabels = new Set(body.bayLabels);
     if (uniqueLabels.size !== body.bayLabels.length) {
-      return badRequest('bayLabels must be unique');
+      return badRequest('DUPLICATE_BAY_LABELS');
     }
   }
 
   // Validate bayAccessInstructions if provided
   if (body.bayAccessInstructions) {
     if (!Array.isArray(body.bayAccessInstructions) || body.bayAccessInstructions.length !== bayCount) {
-      return badRequest('bayAccessInstructions length must match bayCount');
+      return badRequest('BAY_ACCESS_INSTRUCTIONS_COUNT_MISMATCH');
     }
   }
 
@@ -113,6 +118,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const poolListingId = ulid();
   const now = new Date().toISOString();
+
+  // Capture original locale from header
+  const rawLocale = event.headers?.[ACTIVE_LOCALE_HEADER] ?? event.headers?.['spotzy-active-locale'] ?? '';
+  const originalLocale: SupportedLocale =
+    (SUPPORTED_LOCALES as readonly string[]).includes(rawLocale) ? rawLocale as SupportedLocale : DEFAULT_LOCALE;
   // geohash is required by GSI2 for geographic search. Precision 5 matches the
   // single-spot listings/create Lambda.
   const geohash = ngeohash.encode(body.addressLat, body.addressLng, 5);
@@ -142,6 +152,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     isPool: true,
     bayCount,
     blockReservationsOptedIn: false,
+    originalLocale,
+    titleTranslations: body.title ? { [originalLocale]: body.title } : undefined,
+    descriptionTranslations: body.description ? { [originalLocale]: body.description } : undefined,
+    accessInstructionsTranslations: body.accessInstructions ? { [originalLocale]: body.accessInstructions } : undefined,
+    translationsLastComputedAt: null,
     status: 'draft',
     createdAt: now,
     updatedAt: now,
@@ -160,11 +175,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       bayId,
       poolListingId,
       label,
+      originalLocale,
+      labelTranslations: { [originalLocale]: label },
+      accessInstructionsTranslations: null,
+      translationsLastComputedAt: null,
       status: 'ACTIVE',
       createdAt: now,
       updatedAt: now,
     };
-    if (accessInstructions) bay.accessInstructions = accessInstructions;
+    if (accessInstructions) {
+      bay.accessInstructions = accessInstructions;
+      bay.accessInstructionsTranslations = { [originalLocale]: accessInstructions };
+    }
     bays.push(bay);
   }
 
@@ -182,6 +204,24 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   } catch (err) {
     log.error('failed to create pool listing', err);
     return internalError();
+  }
+
+  // Emit translation event (fire-and-forget)
+  const translationFields = ['title', 'description', 'accessInstructions'].filter(f => body[f]);
+  if (translationFields.length > 0) {
+    eventBridge.send(new PutEventsCommand({
+      Entries: [{
+        Source: 'spotzy.listings',
+        DetailType: LISTING_TRANSLATION_EVENT_TYPE,
+        Detail: JSON.stringify({
+          listingId: poolListingId,
+          originalLocale,
+          fieldsChanged: translationFields,
+          isPool: true,
+        }),
+        EventBusName: EVENT_BUS_NAME,
+      }],
+    })).catch(err => log.error('EventBridge publish failed', err));
   }
 
   log.info('pool listing created', { listingId: poolListingId, bayCount });

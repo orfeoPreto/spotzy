@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, QueryCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ulid } from 'ulid';
-import { created, badRequest, notFound, conflict } from '../../../shared/utils/response';
+import { created, badRequest, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!userId) return { statusCode: 401, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Unauthorized' }) };
 
   const { listingId, startTime, endTime } = JSON.parse(event.body ?? '{}');
-  if (!listingId || !startTime || !endTime) return badRequest('listingId, startTime, and endTime are required');
+  if (!listingId || !startTime || !endTime) return badRequest('MISSING_REQUIRED_FIELD', { field: 'listingId, startTime, endTime' });
 
   // Fetch listing
   const listingResult = await ddb.send(new QueryCommand({
@@ -33,7 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   // Self-booking check
   if (listing.hostId === userId) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'CANNOT_BOOK_OWN_LISTING' }) };
+    return forbidden();
   }
 
   // Availability check

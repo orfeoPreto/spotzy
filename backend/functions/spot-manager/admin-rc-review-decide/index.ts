@@ -172,13 +172,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!admin) return forbidden();
 
   const submissionId = event.pathParameters?.submissionId;
-  if (!submissionId) return badRequest('Missing submissionId');
+  if (!submissionId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'submissionId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { decision, reviewerNote, rejectionReason } = body;
 
   if (!decision || !VALID_DECISIONS.includes(decision as Decision)) {
-    return badRequest('decision must be APPROVE, REJECT, or CLARIFY');
+    return badRequest('INVALID_FIELD', { field: 'decision' });
   }
 
   // 1. Verify soft-lock
@@ -197,7 +197,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const currentStatus = submission.status as string;
   if (!REVIEWABLE_STATUSES.includes(currentStatus)) {
-    return badRequest(`Submission status ${currentStatus} is not reviewable`);
+    return badRequest('SUBMISSION_NOT_REVIEWABLE', { status: currentStatus });
   }
 
   const now = new Date().toISOString();

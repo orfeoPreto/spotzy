@@ -1,0 +1,11 @@
+back_to_bookings: Retour aux réservations
+booking_reference: Réservation {reference}
+no_messages: Aucun message pour l'instant — lancez la conversation
+image_preview_alt: Aperçu de l'image
+attach_image: Joindre une image
+message_placeholder: Tapez votre message ici...
+send_button: Envoyer
+translate: Traduire
+translating: Traduction en cours...
+translated_from: Traduit depuis {locale}
+view_original: Voir l'original

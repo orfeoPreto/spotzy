@@ -1,0 +1,52 @@
+steps:
+  review: Récapitulatif
+  payment: Paiement
+  confirmation: Confirmation
+review:
+  dates_heading: Vos dates
+  dates_separator: à
+  subtotal: Sous-total
+  service_fee: Frais de service (15 %)
+  total: Total
+  cancellation_heading: Politique d'annulation
+  cancellation_policy: Remboursement intégral si annulation 24h ou plus avant le début. Remboursement de 50 % entre 12 h et 24 h avant. Aucun remboursement dans les 12 h précédant le début.
+  proceed_button: Procéder au paiement
+pay_button: Payer {amount} €
+confirmation:
+  title: Réservation confirmée !
+  reference_label: Votre référence
+  message_host: Envoyer un message à l'Hôte
+  view_booking: Voir la réservation
+create_error: Impossible de créer la réservation. Veuillez réessayer.
+payment_init_error: Impossible d'initialiser le paiement. Veuillez réessayer.
+cancel:
+  modal_title: Annuler la réservation ?
+  hours_remaining: "{hours} heures restantes avant le début"
+  active_error: Impossible d'annuler une Réservation en cours
+  active_message: Cette réservation est actuellement en cours.
+  will_receive: Vous recevrez
+  refund_label: Remboursement
+  no_refund: Aucun remboursement n'est applicable
+  tier_full: Plus de 24h avant le début — remboursement intégral
+  tier_half: 12–24h avant le début — remboursement à 50 %
+  tier_none: Moins de 12h avant le début — aucun remboursement
+  keep_button: Conserver ma Réservation
+  confirm_button: Oui, annuler
+modify:
+  modal_title: Modifier la réservation
+  change_start: Modifier l'heure de début
+  change_end: Modifier l'heure de fin
+  new_time_label: Nouveau créneau {changeType}
+  price_increase: +€{amount}
+  price_decrease: −€{amount} de remboursement
+  save_button: Enregistrer les modifications
+rating:
+  locked_title: Votre avis
+  locked_both: Les deux parties ont laissé un avis. Cet avis est désormais verrouillé.
+  locked_window: La fenêtre d'évaluation est clôturée. Cette évaluation est désormais verrouillée.
+  update_title: Modifier votre avis
+  create_title: Laisser un avis
+  update_button: Mettre à jour l'avis
+  submit_button: Soumettre l'évaluation
+  error_other_party: Cet avis est désormais verrouillé car les deux parties ont laissé leur évaluation.
+  error_window_closed: La fenêtre d'évaluation est clôturée.

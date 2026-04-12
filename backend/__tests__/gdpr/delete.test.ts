@@ -74,9 +74,9 @@ describe('gdpr-delete', () => {
 
     const result = await handler(mockEvent('user-1'), {} as any, () => {});
     expect(result!.statusCode).toBe(409);
-    const body = JSON.parse(JSON.parse(result!.body).error);
+    const body = JSON.parse(result!.body);
     expect(body.error).toBe('ACTIVE_BOOKINGS_EXIST');
-    expect(body.blockingBookings).toHaveLength(1);
+    expect(body.details.blockingBookings).toHaveLength(1);
   });
 
   test('returns 409 when user has ACTIVE booking as host', async () => {
@@ -122,7 +122,7 @@ describe('gdpr-delete', () => {
 
     const result = await handler(mockEvent('user-1'), {} as any, () => {});
     expect(result!.statusCode).toBe(409);
-    const body = JSON.parse(JSON.parse(result!.body).error);
+    const body = JSON.parse(result!.body);
     expect(body.error).toBe('OPEN_DISPUTES_EXIST');
   });
 

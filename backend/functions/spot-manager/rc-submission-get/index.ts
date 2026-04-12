@@ -5,19 +5,13 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { extractClaims } from '../../../shared/utils/auth';
 import { extractAdminClaims } from '../../../shared/utils/admin-guard';
-import { ok, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const s3 = new S3Client({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUCKET = process.env.RC_DOCUMENTS_BUCKET ?? 'spotzy-rc-documents';
-
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);

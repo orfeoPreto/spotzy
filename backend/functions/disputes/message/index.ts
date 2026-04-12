@@ -3,7 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { created, unauthorized, notFound, badRequest } from '../../../shared/utils/response';
+import { created, unauthorized, notFound, badRequest, forbidden } from '../../../shared/utils/response';
 import { disputeMetadataKey, disputeMessageKey, bookingMetadataKey, userProfileKey } from '../../../shared/db/keys';
 import { classifyDisputeMessage } from '../shared/ai-triage';
 import { generateDisputeResponse } from '../shared/ai-respond';
@@ -13,7 +13,6 @@ import { createLogger } from '../../../shared/utils/logger';
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 // Patterns that indicate the user wants to speak with a human
 const HUMAN_REQUEST_PATTERNS = [
@@ -53,11 +52,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('unauthorized'); return unauthorized(); }
 
   const disputeId = event.pathParameters?.id;
-  if (!disputeId) return badRequest('Missing dispute id');
+  if (!disputeId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'disputeId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const { content } = body;
-  if (!content) return badRequest('content is required');
+  if (!content) return badRequest('MISSING_REQUIRED_FIELD', { field: 'content' });
 
   const disputeResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: disputeMetadataKey(disputeId) }));
   if (!disputeResult.Item) return notFound();

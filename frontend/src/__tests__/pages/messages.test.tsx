@@ -53,7 +53,7 @@ beforeEach(() => {
 });
 
 // Import after mocks
-import MessagesClient from '../../../app/messages/MessagesClient';
+import MessagesClient from '../../../app/[locale]/messages/MessagesClient';
 
 describe('MessagesPage', () => {
   it('"View archived conversations" link present at bottom', async () => {

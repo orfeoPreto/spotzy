@@ -1,0 +1,42 @@
+messages:
+  loading: Berichten laden...
+  page_title: Berichten
+  no_conversations: Geen actieve gesprekken
+  disputes_heading: Geschillen
+  view_booking: Boeking bekijken
+  view_archived: Gearchiveerde gesprekken bekijken
+become_host:
+  connected_title: Uitbetalingsrekening gekoppeld!
+  redirecting: Je wordt doorgestuurd om je advertentie aan te maken…
+  setup_title: Stel je Gastheer-account volledig in
+  setup_description: Een Stripe-uitbetalingsaccount koppelen is vereist voordat je parkeerplaatsen kunt aanbieden. Dit is een eenmalige instelling en duurt ongeveer 2 minuten.
+  opening_stripe: Stripe openen…
+  setup_button: Uitbetalingen instellen met Stripe
+  required_label: Vereiste stap.
+  required_description: Zolang je de Stripe-registratie niet hebt afgerond, kun je geen advertenties aanmaken of uitbetalingen ontvangen. Je wordt naar dit scherm geleid telkens je toegang probeert te krijgen tot de functies van de Gastheer.
+  stripe_note: Aangedreven door Stripe Connect — je bankgegevens worden veilig beheerd door Stripe en niet opgeslagen door Spotzy.
+delete_account:
+  modal_title: Uw account verwijderen
+  deleted_heading: "Wat wordt permanent verwijderd:"
+  kept_heading: "Wat om wettelijke redenen bewaard blijft:"
+  legal_explanation: Betalings- en boekingsgegevens worden 7 jaar bewaard zoals vereist door de Belgische boekhoudwetgeving (Wetboek van vennootschappen). Uw persoonlijke gegevens worden vervangen door een anonieme identificator. U kunt niet worden geïdentificeerd aan de hand van deze gegevens.
+  dpo_contact: Vragen? Contacteer onze Data Protection Officer via dpo@spotzy.com
+  confirm_instruction: Typ uw e-mailadres ter bevestiging
+  email_placeholder: uw e-mailadres
+  confirm_button: Bevestig definitieve verwijdering
+filter:
+  availability: Beschikbaarheid
+  price: Prijs
+  min_price: Minimumprijs
+  max_price: Maximumprijs
+  spot_type: Spottype
+  types:
+    COVERED_GARAGE: Overdekte garage
+    OPEN_SPACE: Open terrein
+    STREET: Straat
+    DRIVEWAY: Privéoprit
+  features: Functies
+  covered: Overdekt
+  privately_owned: Privé-eigendom
+  clear_all: Alles wissen
+  show_spots: Toon {count} spots

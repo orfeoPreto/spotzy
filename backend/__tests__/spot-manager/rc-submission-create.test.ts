@@ -157,7 +157,7 @@ describe('rc-submission-create', () => {
 
     const result = await handler(mockEvent('user-1', validBody), {} as any, () => {});
     expect(result!.statusCode).toBe(403);
-    expect(JSON.parse(result!.body).error).toBe('STRIPE_CONNECT_REQUIRED');
+    expect(JSON.parse(result!.body).error).toBe('FORBIDDEN');
   });
 
   test('returns 400 for missing document', async () => {

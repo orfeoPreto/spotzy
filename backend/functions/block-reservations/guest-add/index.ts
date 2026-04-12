@@ -9,8 +9,10 @@ import {
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { ulid } from 'ulid';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, created, badRequest, unauthorized, notFound, conflict } from '../../../shared/utils/response';
+import { ok, created, badRequest, unauthorized, notFound, conflict, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, ACTIVE_LOCALE_HEADER } from '../../../shared/locales/constants';
+import type { SupportedLocale } from '../../../shared/locales/constants';
 import {
   validateGuestEmail,
   validateGuestPhone,
@@ -21,12 +23,6 @@ import type { BlockRequest, BlockAllocation, BlockBooking } from '../../../share
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-
-const forbidden = () => ({
-  statusCode: 403,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify({ error: 'Forbidden' }),
-});
 
 let _magicLinkSecret: string | undefined;
 const getMagicLinkSecret = async (): Promise<string> => {
@@ -159,6 +155,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   if (metadata.ownerUserId !== claims.userId) return forbidden();
 
+  // Resolve the block spotter's locale for guest defaults
+  const rawLocale = event.headers?.[ACTIVE_LOCALE_HEADER] ?? event.headers?.['spotzy-active-locale'] ?? '';
+  const blockSpotterLocale: SupportedLocale =
+    (SUPPORTED_LOCALES as readonly string[]).includes(rawLocale) ? rawLocale as SupportedLocale : DEFAULT_LOCALE;
+
   // Must be CONFIRMED or AUTHORISED to add guests
   if (!['CONFIRMED', 'AUTHORISED'].includes(metadata.status)) {
     return conflict('REQUEST_NOT_CONFIRMED');
@@ -233,6 +234,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             guestName: assignment.guest.name,
             guestEmail: assignment.guest.email,
             guestPhone: assignment.guest.phone,
+            guestPreferredLocale: (assignment.guest as any).preferredLocale ?? blockSpotterLocale,
+            guestLocaleSource: (assignment.guest as any).preferredLocale ? 'manual_override' : 'block_spotter_default',
             spotterId: null,
             emailStatus: 'PENDING',
             emailSentAt: null,

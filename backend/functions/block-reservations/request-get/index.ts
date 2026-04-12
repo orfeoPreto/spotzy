@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   const reqId = event.pathParameters?.reqId;
-  if (!reqId) return badRequest('reqId path parameter required');
+  if (!reqId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'reqId' });
 
   // Single query: PK = BLOCKREQ#{reqId} returns METADATA + BLOCKALLOC# + BOOKING#
   const result = await ddb.send(new QueryCommand({
@@ -42,7 +42,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const isSpotManager = allocations.some((a) => a.spotManagerUserId === claims.userId);
 
   if (!isOwner && !isAdmin && !isSpotManager) {
-    return { statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) };
+    return forbidden();
   }
 
   const bookings = items.filter((i) => (i.SK as string).startsWith('BOOKING#'));

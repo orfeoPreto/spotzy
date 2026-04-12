@@ -62,8 +62,7 @@ describe('listing-photo-delete', () => {
     const res = await handler(makeEvent(LISTING_ID, '0', HOST_ID), {} as any, () => {});
     expect(res!.statusCode).toBe(400);
     const body = JSON.parse(res!.body);
-    const inner = JSON.parse(body.error);
-    expect(inner.code).toBe('MINIMUM_PHOTO_REQUIRED');
+    expect(body.error).toBe('MINIMUM_PHOTO_REQUIRED');
   });
 
   test('deletes from S3 as well as DynamoDB', async () => {

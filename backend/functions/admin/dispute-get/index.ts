@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('forbidden'); return forbidden(); }
 
   const disputeId = event.pathParameters?.id;
-  if (!disputeId) return badRequest('Missing dispute id');
+  if (!disputeId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'disputeId' });
 
   // Fetch dispute
   const disputeResult = await ddb.send(new GetCommand({ TableName: TABLE, Key: disputeMetadataKey(disputeId) }));

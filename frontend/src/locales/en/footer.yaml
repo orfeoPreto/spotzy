@@ -1,0 +1,18 @@
+# Spotzy footer translations (en)
+guest:
+  find_parking: "Find parking"
+  my_bookings: "My bookings"
+  become_host: "Become a host"
+  profile: "Profile"
+host:
+  find_parking: "Find parking"
+  dashboard: "Host dashboard"
+  add_listing: "Add a listing"
+  my_bookings: "My bookings"
+  profile: "Profile"
+anon:
+  find_parking: "Find parking"
+  list_spot: "List a spot"
+  sign_in: "Sign in"
+  create_account: "Create account"
+copyright: "© {year} Spotzy"

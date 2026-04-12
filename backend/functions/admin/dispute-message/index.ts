@@ -18,11 +18,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!claims) { log.warn('forbidden'); return forbidden(); }
 
   const disputeId = event.pathParameters?.id;
-  if (!disputeId) return badRequest('Missing dispute id');
+  if (!disputeId) return badRequest('MISSING_REQUIRED_FIELD', { field: 'disputeId' });
 
   const body = JSON.parse(event.body ?? '{}');
   const content = body.text ?? body.content;
-  if (!content) return badRequest('text is required');
+  if (!content) return badRequest('MISSING_REQUIRED_FIELD', { field: 'text' });
 
   const now = new Date().toISOString();
   const messageId = ulid();

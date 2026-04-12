@@ -1,0 +1,66 @@
+loading: Profiel laden…
+first_name_label: Voornaam
+last_name_label: Achternaam
+host_badge: Gastheer
+spotter_badge: Spotter
+spot_manager_badge: Spotbeheerder
+spot_manager_active_tooltip: Spotbeheerder — Blokreserveringen ingeschakeld
+spot_manager_staged_tooltip: Spotbeheerder (BA-verzekering in behandeling)
+spot_manager_pending_suffix: (in behandeling)
+display_name:
+  heading: Weergavenaam
+  placeholder: bv. SpotKing
+  note: (weergavenaam)
+show_full_name: Mijn volledige naam publiek tonen
+contact_info:
+  heading: Contactgegevens
+  phone_placeholder: "471234567"
+my_spots:
+  label: Mijn parkeerplaatsen
+  live_listings_one: "{count} actieve advertentie"
+  live_listings_other: "{count} actieve vermeldingen"
+  view_link: Vermeldingen bekijken →
+my_bookings:
+  label: Mijn boekingen
+  active_count: "{count} actief"
+  view_link: Boekingen bekijken →
+spot_manager:
+  heading: Spotbeheerder
+  portfolio_link: Portfolio openen →
+  status_label: "Status:"
+  status_active: Actief
+  status_staged: In behandeling
+  rc_insurance_label: "BA-verzekering:"
+  rc_pending: In afwachting van beoordeling
+  rc_approved: Goedgekeurd
+  rc_rejected: Geweigerd
+  rc_expired: Verlopen
+  rc_not_submitted: Niet ingediend
+  rc_expires_label: "Vervalt op:"
+  block_reservations_label: "Blokreserveringen:"
+  block_enabled: Ingeschakeld
+  block_disabled: Uitgeschakeld
+payment_info:
+  heading: Betalingsgegevens
+  manage_via_stripe: Beheren via Stripe
+  open_link: Open →
+invoicing:
+  heading: Facturatiegegevens
+  vat_label: BTW-nummer
+  vat_placeholder: BE0123456789
+  company_label: Bedrijfsnaam
+  company_placeholder: Bedrijfsnaam
+  address_label: Facturatieadres
+  address_placeholder: Straat, Gemeente, Postcode
+  save_button: Facturatiegegevens opslaan
+  saved_success: Facturatiegegevens opgeslagen
+privacy:
+  heading: Privacy & Gegevens
+  view_policy: Privacybeleid bekijken
+  download_data: Mijn gegevens downloaden
+  download_preparing: Bezig met voorbereiden...
+  download_ready: Download klaar (24u geldig)
+  delete_blocked_bookings: Je hebt actieve boeking(en) die eerst voltooid of geannuleerd moeten worden voor je account kan worden verwijderd.
+  delete_blocked_disputes: U hebt openstaande geschillen die opgelost moeten worden voor u uw account kunt verwijderen.
+  delete_account: Mijn account verwijderen
+logout: Afmelden

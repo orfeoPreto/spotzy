@@ -1,0 +1,22 @@
+page_title: Spotzy-ondersteuning
+initial_message: Hallo! Ik ben de Spotzy Support-assistent. Waarmee kan ik u vandaag helpen?
+quick_replies:
+  damage: Schade aan mijn voertuig
+  unavailable: Parkeerplaats was niet beschikbaar
+  incorrect_info: Onjuiste advertentiegegevens
+  billing: Factuurprobleem
+escalation:
+  title: Overgedragen aan ons supportteam
+  message: Een Spotzy-medewerker zal uw geval beoordelen en binnenkort reageren.
+loading: Gesprek wordt geladen...
+summary_label: Samenvatting
+photos_one: "{count} foto bijgevoegd"
+photos_other: "{count} foto's bijgevoegd"
+confirm_submit: Bevestigen en verzenden
+submitted_success: Betwisting ingediend
+transferring: Doorverbinden met agent…
+agent_connected: Agent verbonden
+add_photos: Foto's toevoegen
+case_transferred_placeholder: Zaak overgedragen aan het ondersteuningsteam
+input_placeholder: Beschrijf uw probleem…
+send_button: Verzenden

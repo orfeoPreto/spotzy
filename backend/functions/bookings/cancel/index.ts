@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { SchedulerClient, DeleteScheduleCommand } from '@aws-sdk/client-scheduler';
 import { extractClaims } from '../../../shared/utils/auth';
-import { ok, badRequest, unauthorized, notFound } from '../../../shared/utils/response';
+import { ok, badRequest, unauthorized, notFound, forbidden, conflict } from '../../../shared/utils/response';
 import { bookingMetadataKey } from '../../../shared/db/keys';
 import { calculateRefund } from '../shared/refund-calculator';
 import { createLogger } from '../../../shared/utils/logger';
@@ -15,7 +15,6 @@ const scheduler = new SchedulerClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const BUS = process.env.EVENT_BUS_NAME ?? 'spotzy-events';
 
-const forbidden = () => ({ statusCode: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Forbidden' }) });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);
@@ -33,9 +32,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const booking = result.Item;
 
-  if (booking.status === 'ACTIVE') return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'BOOKING_ALREADY_ACTIVE', message: 'Cannot cancel an active booking' }) };
-  if (booking.status === 'COMPLETED') return badRequest(JSON.stringify({ code: 'CANNOT_CANCEL_COMPLETED', message: 'Cannot cancel a completed booking' }));
-  if (booking.status === 'CANCELLED') return badRequest(JSON.stringify({ code: 'ALREADY_CANCELLED', message: 'Booking is already cancelled' }));
+  if (booking.status === 'ACTIVE') return conflict('BOOKING_ALREADY_ACTIVE');
+  if (booking.status === 'COMPLETED') return badRequest('CANNOT_CANCEL_COMPLETED');
+  if (booking.status === 'CANCELLED') return badRequest('ALREADY_CANCELLED');
 
   const isSpotter = claims.userId === booking.spotterId;
   const isHost = claims.userId === booking.hostId;
