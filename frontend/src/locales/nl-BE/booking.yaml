@@ -7,6 +7,9 @@ review:
   dates_separator: tot
   subtotal: Subtotaal
   service_fee: Servicekosten (15%)
+  service_fee_pct: "Servicekosten ({pct}%)"
+  host_vat: "BTW gastheer ({rate}%)"
+  vat_on_service_fee: BTW op servicekosten
   total: Totaal
   cancellation_heading: Annuleringsbeleid
   cancellation_policy: Volledige terugbetaling bij annulering meer dan 24u op voorhand. 50% terugbetaling tussen 12 en 24u. Geen terugbetaling binnen 12u.

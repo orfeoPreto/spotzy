@@ -12,6 +12,8 @@ spot_card:
   ev_badge: "EV"
   walking_distance: "min wandelen"
   book_button: "Deze plaats boeken"
+  from_price: "Vanaf €{price}/u"
+  incl_fees: "(incl. kosten en BTW)"
 booking_card:
   ending_soon: "Eindigt binnenkort — eindigt in minder dan 24u"
   fallback_address: "Advertentie bekijken"

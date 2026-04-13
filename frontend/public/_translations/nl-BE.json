@@ -84,6 +84,9 @@
       "dates_separator": "tot",
       "subtotal": "Subtotaal",
       "service_fee": "Servicekosten (15%)",
+      "service_fee_pct": "Servicekosten ({pct}%)",
+      "host_vat": "BTW gastheer ({rate}%)",
+      "vat_on_service_fee": "BTW op servicekosten",
       "total": "Totaal",
       "cancellation_heading": "Annuleringsbeleid",
       "cancellation_policy": "Volledige terugbetaling bij annulering meer dan 24u op voorhand. 50% terugbetaling tussen 12 en 24u. Geen terugbetaling binnen 12u.",
@@ -366,6 +369,11 @@
     "INVALID_JSON_BODY": "De aanvraagtekst is geen geldige JSON.",
     "INVALID_FIELD": "De waarde voor {field} is niet geldig.",
     "INVALID_VAT_NUMBER": "Ongeldig btw-nummer.",
+    "INVALID_VAT_STATUS": "Ongeldige BTW-statusselectie.",
+    "VAT_NUMBER_REQUIRED": "Een BTW-nummer is vereist wanneer u voor BTW geregistreerd bent.",
+    "VAT_NUMBER_INVALID_FORMAT": "Het BTW-nummer moet in het formaat BE0XXXXXXXXX zijn (BE0 gevolgd door 9 cijfers).",
+    "VAT_NUMBER_INVALID_CHECKSUM": "De checksum van het BTW-nummer is ongeldig. Controleer het nummer.",
+    "LEGACY_PRICING_FIELD_REJECTED": "Het veld pricePerHourEur wordt niet meer geaccepteerd. Gebruik hostNetPricePerHourEur.",
     "UNSUPPORTED_METHOD": "Deze methode wordt niet ondersteund.",
     "MISSING_LOCATION_PARAMS": "Locatieparameters zijn vereist (lat/lng of begrenzing).",
     "REASON_REQUIRED": "Een reden is vereist.",
@@ -521,6 +529,14 @@
       "address_placeholder": "Voer een adres of straat in",
       "details_heading": "Vertel ons over uw parkeerplaats",
       "price_label": "Prijs per uur (€)",
+      "net_price_label": "Uw uurtarief — u houdt dit bedrag (€)",
+      "earnings_ladder_title": "Uw verdienstenstaffel",
+      "spotter_pays_title": "Wat de Spotter betaalt",
+      "rate_hourly": "Per uur",
+      "rate_daily": "Per dag",
+      "rate_weekly": "Per week",
+      "rate_monthly": "Per maand",
+      "vat_status_hint": "BTW-status: Niet geregistreerd. Wijzig in Account > BTW-instellingen.",
       "price_placeholder": "bv. 3,50",
       "ev_label": "Elektrisch laden beschikbaar?",
       "ev_confirmed": "EV-lading bevestigd",
@@ -596,6 +612,14 @@
       "clear_all": "Alles wissen",
       "show_spots": "Toon {count} spots"
     }
+  },
+  "pricing": {
+    "earnings_ladder_title": "Uw verdienstenstaffel",
+    "spotter_pays_title": "Wat de Spotter betaalt",
+    "rate_hourly": "Per uur",
+    "rate_daily": "Per dag",
+    "rate_weekly": "Per week",
+    "rate_monthly": "Per maand"
   },
   "profile": {
     "loading": "Profiel laden…",
@@ -687,7 +711,9 @@
       "covered_badge": "Overdekt",
       "ev_badge": "EV",
       "walking_distance": "min wandelen",
-      "book_button": "Deze plaats boeken"
+      "book_button": "Deze plaats boeken",
+      "from_price": "Vanaf €{price}/u",
+      "incl_fees": "(incl. kosten en BTW)"
     },
     "booking_card": {
       "ending_soon": "Eindigt binnenkort — eindigt in minder dan 24u",
@@ -700,5 +726,25 @@
       "update_review": "Beoordeling bijwerken",
       "report_button": "Probleem melden"
     }
+  },
+  "vat_settings": {
+    "title": "BTW-instellingen",
+    "current_status": "Huidige status",
+    "loading": "Laden...",
+    "login_required": "Meld u aan om uw BTW-instellingen te beheren.",
+    "status": {
+      "NONE": "Niet ingesteld",
+      "EXEMPT_FRANCHISE": "Kleine onderneming vrijstelling (geen BTW)",
+      "VAT_REGISTERED": "BTW-plichtig"
+    },
+    "exempt_description": "U valt onder de Belgische drempel voor kleine ondernemingen (€ 25.000/jaar). Er wordt geen BTW geheven op uw parkeervergoedingen.",
+    "registered_description": "U bent geregistreerd voor Belgische BTW. 21% BTW wordt toegevoegd aan uw parkeervergoedingen en getoond aan de Spotter.",
+    "vat_number_label": "Belgisch BTW-nummer",
+    "vat_number_hint": "Formaat: BE0 gevolgd door 9 cijfers (bv. BE0123456749)",
+    "future_listings_warning": "Wijzigingen gelden alleen voor toekomstige aanbiedingen. Bestaande aanbiedingen behouden de BTW-status waarmee ze zijn aangemaakt.",
+    "save_button": "BTW-status opslaan",
+    "saving": "Opslaan...",
+    "save_success": "BTW-status succesvol bijgewerkt.",
+    "save_error": "BTW-status bijwerken mislukt. Probeer het opnieuw."
   }
 }

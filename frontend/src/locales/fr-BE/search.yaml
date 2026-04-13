@@ -12,6 +12,8 @@ spot_card:
   ev_badge: "VE"
   walking_distance: "min à pied"
   book_button: "Réserver cette place"
+  from_price: "À partir de €{price}/h"
+  incl_fees: "(frais et TVA inclus)"
 booking_card:
   ending_soon: "Se termine bientôt — fin dans moins de 24h"
   fallback_address: "Voir l'annonce"

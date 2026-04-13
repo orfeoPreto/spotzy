@@ -139,7 +139,9 @@ export default function ListingWizardPage() {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
           body: JSON.stringify({
             address: state.address, addressLat: state.lat, addressLng: state.lng,
-            spotType: state.spotType, pricePerHour: Number(state.pricePerHour),
+            spotType: state.spotType,
+            hostNetPricePerHourEur: Number(state.pricePerHour),
+            pricePerHour: Number(state.pricePerHour),
             evCharging: state.evCharging,
             description: state.description || undefined,
             dimensions: {},
@@ -406,7 +408,7 @@ export default function ListingWizardPage() {
             ))}
           </div>
           <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.price_label')}</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.net_price_label')}</label>
             <input
               type="number"
               min={0.5}
@@ -416,6 +418,45 @@ export default function ListingWizardPage() {
               placeholder={t('create.price_placeholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
+            {/* Earnings & Spotter price preview */}
+            {state.pricePerHour !== '' && Number(state.pricePerHour) > 0 && (() => {
+              const net = Number(state.pricePerHour);
+              const feePct = 0.15;
+              const vatRate = 0.21;
+              // Earnings ladder (NET = what host keeps)
+              const daily = Math.round(net * 24 * 0.60 * 100) / 100;
+              const weekly = Math.round(daily * 7 * 0.60 * 100) / 100;
+              const monthly = Math.round(weekly * 4 * 0.60 * 100) / 100;
+              // Spotter-facing gross (EXEMPT_FRANCHISE host: hostVatRate = 0)
+              const grossUp = (amount: number) => {
+                const fee = Math.round(amount * (feePct / (1 - feePct)) * 100) / 100;
+                const feeVat = Math.round(fee * vatRate * 100) / 100;
+                return Math.round((amount + fee + feeVat) * 100) / 100;
+              };
+              return (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-[#EBF7F1] bg-[#F8FBF9] p-3">
+                    <p className="mb-2 text-xs font-semibold text-[#004526]">{t('create.earnings_ladder_title')}</p>
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <p>{t('create.rate_hourly')}: <span className="font-medium">{'\u20AC'}{net.toFixed(2)}</span></p>
+                      <p>{t('create.rate_daily')}: <span className="font-medium">{'\u20AC'}{daily.toFixed(2)}</span></p>
+                      <p>{t('create.rate_weekly')}: <span className="font-medium">{'\u20AC'}{weekly.toFixed(2)}</span></p>
+                      <p>{t('create.rate_monthly')}: <span className="font-medium">{'\u20AC'}{monthly.toFixed(2)}</span></p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                    <p className="mb-2 text-xs font-semibold text-amber-800">{t('create.spotter_pays_title')}</p>
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <p>{t('create.rate_hourly')}: <span className="font-medium">{'\u20AC'}{grossUp(net).toFixed(2)}</span></p>
+                      <p>{t('create.rate_daily')}: <span className="font-medium">{'\u20AC'}{grossUp(daily).toFixed(2)}</span></p>
+                      <p>{t('create.rate_weekly')}: <span className="font-medium">{'\u20AC'}{grossUp(weekly).toFixed(2)}</span></p>
+                      <p>{t('create.rate_monthly')}: <span className="font-medium">{'\u20AC'}{grossUp(monthly).toFixed(2)}</span></p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+            <p className="mt-2 text-xs text-gray-400">{t('create.vat_status_hint')}</p>
           </div>
           <div data-testid="ev-charging-toggle">
             <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.ev_label')}</label>

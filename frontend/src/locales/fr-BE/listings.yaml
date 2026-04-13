@@ -28,6 +28,14 @@ create:
   address_placeholder: Entrez une adresse ou une rue
   details_heading: Parlez-nous de votre place de stationnement
   price_label: Prix par heure (€)
+  net_price_label: "Votre tarif horaire — vous gardez ce montant (€)"
+  earnings_ladder_title: Vos revenus par palier
+  spotter_pays_title: Ce que le Spotter paie
+  rate_hourly: Horaire
+  rate_daily: Journalier
+  rate_weekly: Hebdomadaire
+  rate_monthly: Mensuel
+  vat_status_hint: "Statut TVA : Non assujetti. Modifier dans Compte > Paramètres TVA."
   price_placeholder: p.ex. 3,50
   ev_label: Recharge électrique disponible ?
   ev_confirmed: Recharge électrique confirmée

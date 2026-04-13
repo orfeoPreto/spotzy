@@ -14,6 +14,7 @@ export interface SpotListing {
   address: string;
   spotType: string;
   pricePerHour: number;
+  hostNetPricePerHourEur?: number;
   covered: boolean;
   avgRating?: number;
   photos?: Array<{ validationStatus: string }>;
@@ -103,7 +104,21 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
           )}
         </div>
 
-        <p className="text-sm font-semibold text-[#004526]">€{(spot.pricePerHour ?? 0).toFixed(2)}/hr</p>
+        {(() => {
+          // Compute spotter-facing gross hourly rate (EXEMPT_FRANCHISE default)
+          const net = spot.hostNetPricePerHourEur ?? spot.pricePerHour ?? 0;
+          const feePct = 0.15;
+          const vatRate = 0.21;
+          const fee = Math.round(net * (feePct / (1 - feePct)) * 100) / 100;
+          const feeVat = Math.round(fee * vatRate * 100) / 100;
+          const gross = Math.round((net + fee + feeVat) * 100) / 100;
+          return (
+            <div>
+              <p className="text-sm font-semibold text-[#004526]">{t('spot_card.from_price', { price: gross.toFixed(2) })}</p>
+              <p className="text-[10px] text-gray-400">{t('spot_card.incl_fees')}</p>
+            </div>
+          );
+        })()}
         <div className="flex items-center gap-3 text-xs text-gray-500">
           {spot.avgRating != null && (
             <span className="flex items-center gap-0.5">

@@ -1,0 +1,18 @@
+# Spotzy VAT settings translations (fr-BE)
+title: "Paramètres TVA"
+current_status: "Statut actuel"
+loading: "Chargement..."
+login_required: "Veuillez vous connecter pour gérer vos paramètres TVA."
+status:
+  NONE: "Non défini"
+  EXEMPT_FRANCHISE: "Franchise pour petites entreprises (pas de TVA)"
+  VAT_REGISTERED: "Assujetti à la TVA"
+exempt_description: "Vous êtes en dessous du seuil belge pour petites entreprises (25 000 €/an). Aucune TVA n'est appliquée sur vos frais de stationnement."
+registered_description: "Vous êtes assujetti à la TVA belge. 21 % de TVA seront ajoutés à vos frais de stationnement et affichés au Spotter."
+vat_number_label: "Numéro de TVA belge"
+vat_number_hint: "Format : BE0 suivi de 9 chiffres (ex. BE0123456749)"
+future_listings_warning: "Les modifications s'appliquent uniquement aux annonces futures. Les annonces existantes conservent le statut TVA avec lequel elles ont été créées."
+save_button: "Enregistrer le statut TVA"
+saving: "Enregistrement..."
+save_success: "Statut TVA mis à jour avec succès."
+save_error: "Échec de la mise à jour du statut TVA. Veuillez réessayer."

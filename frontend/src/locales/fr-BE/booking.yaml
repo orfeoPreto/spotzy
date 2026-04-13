@@ -7,6 +7,9 @@ review:
   dates_separator: à
   subtotal: Sous-total
   service_fee: Frais de service (15 %)
+  service_fee_pct: "Frais de service ({pct} %)"
+  host_vat: "TVA hôte ({rate} %)"
+  vat_on_service_fee: TVA sur frais de service
   total: Total
   cancellation_heading: Politique d'annulation
   cancellation_policy: Remboursement intégral si annulation 24h ou plus avant le début. Remboursement de 50 % entre 12 h et 24 h avant. Aucun remboursement dans les 12 h précédant le début.

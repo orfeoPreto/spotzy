@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -36,11 +36,28 @@ function StepIndicator({ step }: { step: number }) {
 }
 
 // ─── Step 1: Review ──────────────────────────────────────────────────────────
+interface PriceBreakdown {
+  hostNetTotalEur: number;
+  hostVatRate: number;
+  hostVatEur: number;
+  hostGrossTotalEur: number;
+  platformFeePct: number;
+  platformFeeEur: number;
+  platformFeeVatRate: number;
+  platformFeeVatEur: number;
+  spotterGrossTotalEur: number;
+  appliedTier: string;
+  tierUnitsBilled: number;
+  tierRateEur: number;
+  durationHours: number;
+}
+
 function ReviewStep({
-  address, spotType, startDate, endDate, subtotal, platformFee, total, onProceed, disabled,
+  address, spotType, startDate, endDate, subtotal, platformFee, total, onProceed, disabled, breakdown,
 }: {
   address: string; spotType: string; startDate: string; endDate: string;
   subtotal: number; platformFee: number; total: number; onProceed: () => void; disabled?: boolean;
+  breakdown?: PriceBreakdown | null;
 }) {
   const { t } = useTranslation('booking');
   const { t: tCommon } = useTranslation('common');
@@ -57,20 +74,47 @@ function ReviewStep({
         <p className="text-sm text-gray-600">{t('review.dates_separator')} {formatDateTime(endDate)}</p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 p-4 space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>{t('review.subtotal')}</span>
-          <span>€{subtotal.toFixed(2)}</span>
+      {breakdown ? (
+        <div className="rounded-xl border border-gray-200 p-4 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{breakdown.appliedTier} x {breakdown.tierUnitsBilled}</span>
+            <span>{'\u20AC'}{breakdown.hostNetTotalEur.toFixed(2)}</span>
+          </div>
+          {breakdown.hostVatRate > 0 && (
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>{t('review.host_vat', { rate: (breakdown.hostVatRate * 100).toFixed(0) })}</span>
+              <span>{'\u20AC'}{breakdown.hostVatEur.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm text-gray-500">
+            <span>{t('review.service_fee_pct', { pct: (breakdown.platformFeePct * 100).toFixed(0) })}</span>
+            <span>{'\u20AC'}{breakdown.platformFeeEur.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm text-gray-500">
+            <span>{t('review.vat_on_service_fee')}</span>
+            <span>{'\u20AC'}{breakdown.platformFeeVatEur.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
+            <span>{t('review.total')}</span>
+            <span>{'\u20AC'}{breakdown.spotterGrossTotalEur.toFixed(2)}</span>
+          </div>
         </div>
-        <div className="flex justify-between text-sm">
-          <span>{t('review.service_fee')}</span>
-          <span>€{platformFee.toFixed(2)}</span>
+      ) : (
+        <div className="rounded-xl border border-gray-200 p-4 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{t('review.subtotal')}</span>
+            <span>{'\u20AC'}{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>{t('review.service_fee')}</span>
+            <span>{'\u20AC'}{platformFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
+            <span>{t('review.total')}</span>
+            <span>{'\u20AC'}{total.toFixed(2)}</span>
+          </div>
         </div>
-        <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
-          <span>{t('review.total')}</span>
-          <span>€{total.toFixed(2)}</span>
-        </div>
-      </div>
+      )}
 
       <div className="rounded-xl bg-amber-50 p-4">
         <p className="text-xs font-semibold text-amber-800 mb-1">{t('review.cancellation_heading')}</p>
@@ -196,8 +240,35 @@ export default function BookPage() {
   const [proceedError, setProceedError] = useState('');
   const [proceeding, setProceeding] = useState(false);
   const proceedingRef = useRef(false);
+  const [quoteBreakdown, setQuoteBreakdown] = useState<PriceBreakdown | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+
+  // Fetch quote breakdown from API when dates are set
+  useEffect(() => {
+    if (!user || !id || !flow.dates.startDate || !flow.dates.endDate) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/bookings/quote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+          body: JSON.stringify({
+            listingId: id,
+            startTime: flow.dates.startDate,
+            endTime: flow.dates.endDate,
+          }),
+        });
+        if (res.ok && !cancelled) {
+          const data = await res.json() as PriceBreakdown;
+          setQuoteBreakdown(data);
+        }
+      } catch {
+        // Silently fall back to flat display
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, id, flow.dates.startDate, flow.dates.endDate, API_URL]);
 
   const handleProceedToPayment = async () => {
     if (!user) { router.push('/auth/login'); return; }
@@ -278,9 +349,10 @@ export default function BookPage() {
             endDate={flow.dates.endDate}
             subtotal={flow.subtotal}
             platformFee={flow.platformFee}
-            total={flow.total}
+            total={quoteBreakdown?.spotterGrossTotalEur ?? flow.total}
             onProceed={() => void handleProceedToPayment()}
             disabled={proceeding}
+            breakdown={quoteBreakdown}
           />
         </>
       )}

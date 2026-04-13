@@ -84,6 +84,9 @@
       "dates_separator": "à",
       "subtotal": "Sous-total",
       "service_fee": "Frais de service (15 %)",
+      "service_fee_pct": "Frais de service ({pct} %)",
+      "host_vat": "TVA hôte ({rate} %)",
+      "vat_on_service_fee": "TVA sur frais de service",
       "total": "Total",
       "cancellation_heading": "Politique d'annulation",
       "cancellation_policy": "Remboursement intégral si annulation 24h ou plus avant le début. Remboursement de 50 % entre 12 h et 24 h avant. Aucun remboursement dans les 12 h précédant le début.",
@@ -366,6 +369,11 @@
     "INVALID_JSON_BODY": "Le corps de la requête n'est pas un JSON valide.",
     "INVALID_FIELD": "La valeur pour {field} n'est pas valide.",
     "INVALID_VAT_NUMBER": "Numéro de TVA invalide.",
+    "INVALID_VAT_STATUS": "Sélection de statut TVA invalide.",
+    "VAT_NUMBER_REQUIRED": "Un numéro de TVA est requis lorsque vous êtes assujetti à la TVA.",
+    "VAT_NUMBER_INVALID_FORMAT": "Le numéro de TVA doit être au format BE0XXXXXXXXX (BE0 suivi de 9 chiffres).",
+    "VAT_NUMBER_INVALID_CHECKSUM": "Le checksum du numéro de TVA est invalide. Veuillez vérifier le numéro.",
+    "LEGACY_PRICING_FIELD_REJECTED": "Le champ pricePerHourEur n'est plus accepté. Utilisez hostNetPricePerHourEur.",
     "UNSUPPORTED_METHOD": "Cette méthode n'est pas supportée.",
     "MISSING_LOCATION_PARAMS": "Les paramètres de localisation sont requis (lat/lng ou cadre de délimitation).",
     "REASON_REQUIRED": "Une raison est requise.",
@@ -521,6 +529,14 @@
       "address_placeholder": "Entrez une adresse ou une rue",
       "details_heading": "Parlez-nous de votre place de stationnement",
       "price_label": "Prix par heure (€)",
+      "net_price_label": "Votre tarif horaire — vous gardez ce montant (€)",
+      "earnings_ladder_title": "Vos revenus par palier",
+      "spotter_pays_title": "Ce que le Spotter paie",
+      "rate_hourly": "Horaire",
+      "rate_daily": "Journalier",
+      "rate_weekly": "Hebdomadaire",
+      "rate_monthly": "Mensuel",
+      "vat_status_hint": "Statut TVA : Non assujetti. Modifier dans Compte > Paramètres TVA.",
       "price_placeholder": "p.ex. 3,50",
       "ev_label": "Recharge électrique disponible ?",
       "ev_confirmed": "Recharge électrique confirmée",
@@ -596,6 +612,14 @@
       "clear_all": "Tout effacer",
       "show_spots": "Afficher {count} places"
     }
+  },
+  "pricing": {
+    "earnings_ladder_title": "Vos revenus par palier",
+    "spotter_pays_title": "Ce que le Spotter paie",
+    "rate_hourly": "Horaire",
+    "rate_daily": "Journalier",
+    "rate_weekly": "Hebdomadaire",
+    "rate_monthly": "Mensuel"
   },
   "profile": {
     "loading": "Chargement du profil…",
@@ -687,7 +711,9 @@
       "covered_badge": "Couvert",
       "ev_badge": "VE",
       "walking_distance": "min à pied",
-      "book_button": "Réserver cette place"
+      "book_button": "Réserver cette place",
+      "from_price": "À partir de €{price}/h",
+      "incl_fees": "(frais et TVA inclus)"
     },
     "booking_card": {
       "ending_soon": "Se termine bientôt — fin dans moins de 24h",
@@ -700,5 +726,25 @@
       "update_review": "Modifier l'avis",
       "report_button": "Signaler un problème"
     }
+  },
+  "vat_settings": {
+    "title": "Paramètres TVA",
+    "current_status": "Statut actuel",
+    "loading": "Chargement...",
+    "login_required": "Veuillez vous connecter pour gérer vos paramètres TVA.",
+    "status": {
+      "NONE": "Non défini",
+      "EXEMPT_FRANCHISE": "Franchise pour petites entreprises (pas de TVA)",
+      "VAT_REGISTERED": "Assujetti à la TVA"
+    },
+    "exempt_description": "Vous êtes en dessous du seuil belge pour petites entreprises (25 000 €/an). Aucune TVA n'est appliquée sur vos frais de stationnement.",
+    "registered_description": "Vous êtes assujetti à la TVA belge. 21 % de TVA seront ajoutés à vos frais de stationnement et affichés au Spotter.",
+    "vat_number_label": "Numéro de TVA belge",
+    "vat_number_hint": "Format : BE0 suivi de 9 chiffres (ex. BE0123456749)",
+    "future_listings_warning": "Les modifications s'appliquent uniquement aux annonces futures. Les annonces existantes conservent le statut TVA avec lequel elles ont été créées.",
+    "save_button": "Enregistrer le statut TVA",
+    "saving": "Enregistrement...",
+    "save_success": "Statut TVA mis à jour avec succès.",
+    "save_error": "Échec de la mise à jour du statut TVA. Veuillez réessayer."
   }
 }

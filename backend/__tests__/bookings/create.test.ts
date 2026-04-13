@@ -57,10 +57,14 @@ describe('booking-create', () => {
     expect(body.status).toBe('PENDING_PAYMENT');
   });
 
-  it('totalPrice: 2h at €3.50/hr → €7.00', async () => {
+  it('totalPrice uses spotterGrossTotalEur from breakdown (2h at €3.50/hr + fees + VAT)', async () => {
     const res = await handler(makeEvent(validBody), {} as any, () => {});
     const body = JSON.parse(res!.body);
-    expect(body.totalPrice).toBe(7.00);
+    // EXEMPT_FRANCHISE host: 2h × €3.50 = €7.00 net, + 15% platform fee gross-up + 21% VAT on fee
+    expect(body.totalPrice).toBe(8.50);
+    expect(body.priceBreakdown).toBeDefined();
+    expect(body.priceBreakdown.hostNetTotalEur).toBe(7.00);
+    expect(body.priceBreakdown.spotterGrossTotalEur).toBe(8.50);
   });
 
   it('hostPayout = totalPrice × 0.85', async () => {

@@ -48,6 +48,7 @@ const sampleListing = {
   SK: 'METADATA',
   listingId: 'l1',
   hostNetPricePerHourEur: 2.00,
+  hostVatStatusAtCreation: 'EXEMPT_FRANCHISE',
   dailyDiscountPct: 0.60,
   weeklyDiscountPct: 0.60,
   monthlyDiscountPct: 0.60,
@@ -59,7 +60,7 @@ beforeEach(() => {
 });
 
 describe('booking-quote', () => {
-  test('happy path returns the right tier and total', async () => {
+  test('happy path returns full PriceBreakdown', async () => {
     ddbMock.on(GetCommand).resolves({ Item: sampleListing });
 
     const result = await handler(mockAuthEvent({
@@ -71,11 +72,40 @@ describe('booking-quote', () => {
     const response = result as { statusCode: number; body: string };
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body);
+    // Now returns a full PriceBreakdown
     expect(body.appliedTier).toBe('DAILY');
-    expect(body.totalEur).toBe(57.60);
+    expect(body.hostNetTotalEur).toBe(57.60);
     expect(body.tierUnitsBilled).toBe(2);
     expect(body.tierRateEur).toBe(28.80);
     expect(body.durationHours).toBe(25);
+    // Verify breakdown fields
+    expect(body.hostVatRate).toBe(0); // EXEMPT_FRANCHISE = no host VAT
+    expect(body.hostVatEur).toBe(0);
+    expect(body.hostGrossTotalEur).toBe(57.60);
+    expect(body.platformFeePct).toBe(0.15);
+    expect(body.platformFeeEur).toBeGreaterThan(0);
+    expect(body.platformFeeVatEur).toBeGreaterThan(0);
+    expect(body.spotterGrossTotalEur).toBeGreaterThan(body.hostNetTotalEur);
+    expect(body.currency).toBe('EUR');
+    expect(body.breakdownComputedAt).toBeDefined();
+  });
+
+  test('VAT_REGISTERED host includes host VAT in breakdown', async () => {
+    const vatListing = { ...sampleListing, hostVatStatusAtCreation: 'VAT_REGISTERED' };
+    ddbMock.on(GetCommand).resolves({ Item: vatListing });
+
+    const result = await handler(mockAuthEvent({
+      listingId: 'l1',
+      startTime: '2026-05-01T10:00:00.000Z',
+      endTime: '2026-05-02T11:00:00.000Z',
+    }), {} as any, {} as any);
+
+    const response = result as { statusCode: number; body: string };
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+    expect(body.hostVatRate).toBe(0.21);
+    expect(body.hostVatEur).toBeGreaterThan(0);
+    expect(body.spotterGrossTotalEur).toBeGreaterThan(body.hostGrossTotalEur);
   });
 
   test('includes cheaperAlternatives when applicable', async () => {

@@ -24,9 +24,11 @@ describe('SpotSummaryCard rendering', () => {
     expect(screen.getByText('Rue Neuve 1, Brussels')).toBeInTheDocument();
   });
 
-  it('renders price in €X.XX/hr format', () => {
+  it('renders gross price (incl. fees & VAT) in From format', () => {
     render(<SpotSummaryCard spot={spot} />);
-    expect(screen.getByText(/€3\.50\/hr|€3,50\/hr/)).toBeInTheDocument();
+    // Net €3.50 → gross-up: fee = 3.50*(0.15/0.85) = 0.62, feeVat = 0.62*0.21 = 0.13, gross = 4.25
+    expect(screen.getByText(/4\.25/)).toBeInTheDocument();
+    expect(screen.getByText(/incl\. fees/i)).toBeInTheDocument();
   });
 
   it('shows covered badge when covered is true', () => {

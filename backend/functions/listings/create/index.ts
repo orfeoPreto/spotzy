@@ -1,15 +1,16 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { ulid } from 'ulid';
 import ngeohash from 'ngeohash';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { extractClaims } from '../../../shared/utils/auth';
 import { created, badRequest, unauthorized } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
-import { listingByHostKey } from '../../../shared/db/keys';
+import { listingByHostKey, userProfileKey } from '../../../shared/db/keys';
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE, ACTIVE_LOCALE_HEADER, LISTING_TRANSLATION_EVENT_TYPE } from '../../../shared/locales/constants';
 import type { SupportedLocale } from '../../../shared/locales/constants';
+import type { VATStatus } from '../../../shared/pricing/vat-constants';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const eventBridge = new EventBridgeClient({});
@@ -30,6 +31,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const body = JSON.parse(event.body ?? '{}');
 
+  // Reject legacy pricing field — clients must use hostNetPricePerHourEur
+  if (body.pricePerHourEur !== undefined) {
+    log.warn('legacy pricing field rejected', { field: 'pricePerHourEur' });
+    return badRequest('LEGACY_PRICING_FIELD_REJECTED', { field: 'pricePerHourEur' });
+  }
+
   // Validate required fields
   if (!body.address) {
     log.warn('validation failed', { reason: 'missing address' });
@@ -46,6 +53,25 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (body.description && body.description.length > 500) { log.warn('validation failed', { reason: 'description too long' }); return badRequest('FIELD_TOO_LONG', { field: 'description', maxLength: 500 }); }
 
   log.info('creating listing', { address: body.address, spotType: body.spotType });
+
+  // Read user profile to get vatStatus; auto-set EXEMPT_FRANCHISE if NONE
+  const profileResult = await client.send(new GetCommand({
+    TableName: TABLE,
+    Key: userProfileKey(claims.userId),
+  }));
+  let hostVatStatus: VATStatus = (profileResult.Item?.vatStatus as VATStatus) ?? 'NONE';
+
+  if (hostVatStatus === 'NONE') {
+    hostVatStatus = 'EXEMPT_FRANCHISE';
+    await client.send(new UpdateCommand({
+      TableName: TABLE,
+      Key: userProfileKey(claims.userId),
+      UpdateExpression: 'SET #vs = :vs, #updatedAt = :now',
+      ExpressionAttributeNames: { '#vs': 'vatStatus', '#updatedAt': 'updatedAt' },
+      ExpressionAttributeValues: { ':vs': 'EXEMPT_FRANCHISE', ':now': new Date().toISOString() },
+    }));
+    log.info('auto-set vatStatus to EXEMPT_FRANCHISE', { userId: claims.userId });
+  }
 
   const listingId = ulid();
   const geohash = ngeohash.encode(body.addressLat, body.addressLng, 5);
@@ -67,6 +93,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     dimensions: body.dimensions,
     evCharging: body.evCharging ?? false,
     description: body.description,
+    hostNetPricePerHourEur: body.hostNetPricePerHourEur ?? body.pricePerHour,
+    hostVatStatusAtCreation: hostVatStatus,
     pricePerHour: body.pricePerHour,
     pricePerDay: body.pricePerDay,
     pricePerMonth: body.pricePerMonth,

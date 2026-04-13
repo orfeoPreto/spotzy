@@ -12,6 +12,7 @@ export const NAMESPACES = [
   'booking', 'chat', 'reviews', 'disputes', 'profile', 'payments',
   'dashboard', 'notifications', 'gdpr', 'spot_manager', 'block_spotter',
   'magic_link', 'errors', 'validation', 'time_date', 'landing', 'footer',
+  'vat_settings',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

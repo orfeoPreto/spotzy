@@ -12,6 +12,8 @@ spot_card:
   ev_badge: "EV"
   walking_distance: "min walk"
   book_button: "Book this spot"
+  from_price: "From €{price}/h"
+  incl_fees: "(incl. fees & VAT)"
 booking_card:
   ending_soon: "Ending soon — ends in less than 24h"
   fallback_address: "View listing"

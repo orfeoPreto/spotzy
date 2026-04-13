@@ -1,0 +1,18 @@
+# Spotzy VAT settings translations (en)
+title: "VAT Settings"
+current_status: "Current status"
+loading: "Loading..."
+login_required: "Please sign in to manage your VAT settings."
+status:
+  NONE: "Not set"
+  EXEMPT_FRANCHISE: "Small enterprise exemption (no VAT)"
+  VAT_REGISTERED: "VAT registered"
+exempt_description: "You are below the Belgian small enterprise threshold (€25,000/year). No VAT is charged on your parking fees."
+registered_description: "You are registered for Belgian VAT. 21% VAT will be added to your parking fees and shown to the Spotter."
+vat_number_label: "Belgian VAT number"
+vat_number_hint: "Format: BE0 followed by 9 digits (e.g. BE0123456749)"
+future_listings_warning: "Changes apply to future listings only. Existing listings keep the VAT status they were created with."
+save_button: "Save VAT status"
+saving: "Saving..."
+save_success: "VAT status updated successfully."
+save_error: "Failed to update VAT status. Please try again."

@@ -7,6 +7,11 @@ import { extractClaims } from '../../../shared/utils/auth';
 import { created, ok, badRequest, unauthorized, notFound, forbidden, conflict } from '../../../shared/utils/response';
 import { listingMetadataKey, bookingBySpotterKey, listingBookingKey } from '../../../shared/db/keys';
 import { calculatePrice, NoPriceConfiguredError } from '../shared/price-calculator';
+import { computeFullPriceBreakdown } from '../../../shared/pricing/tiered-pricing';
+import { BELGIAN_STANDARD_VAT_RATE } from '../../../shared/pricing/vat-constants';
+import { PLATFORM_FEE_DEFAULT_SINGLE_SHOT } from '../../../shared/pricing/constants';
+import type { TieredPricing } from '../../../shared/pricing/types';
+import type { VATStatus } from '../../../shared/pricing/vat-constants';
 import { isWithinAvailabilityRules } from '../../../shared/availability/resolver';
 import { AvailabilityRule, AvailabilityBlock } from '../../../shared/types/availability';
 import { createLogger } from '../../../shared/utils/logger';
@@ -134,7 +139,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return conflict('SPOT_UNAVAILABLE');
   }
 
-  // Calculate price
+  // Calculate price — legacy flat-rate calculation (kept for backward compat)
   let totalPrice: number;
   try {
     totalPrice = calculatePrice(listing, startTime, endTime);
@@ -143,6 +148,48 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     throw e;
   }
 
+  // Compute full price breakdown (Session 28b — fee-exclusive VAT model)
+  const pricing: TieredPricing = {
+    hostNetPricePerHourEur: listing.hostNetPricePerHourEur ?? listing.pricePerHourEur ?? listing.pricePerHour ?? 0,
+    dailyDiscountPct: listing.dailyDiscountPct ?? 0.60,
+    weeklyDiscountPct: listing.weeklyDiscountPct ?? 0.60,
+    monthlyDiscountPct: listing.monthlyDiscountPct ?? 0.60,
+  };
+  const hostVatStatus: VATStatus = listing.hostVatStatusAtCreation ?? 'EXEMPT_FRANCHISE';
+
+  // Read platform fee config, fallback to constant
+  let platformFeePct = PLATFORM_FEE_DEFAULT_SINGLE_SHOT;
+  try {
+    const feeConfig = await ddb.send(new GetCommand({
+      TableName: TABLE,
+      Key: { PK: 'CONFIG', SK: 'PLATFORM_FEE' },
+    }));
+    if (feeConfig.Item?.singleShotPct !== undefined) {
+      platformFeePct = feeConfig.Item.singleShotPct;
+    }
+  } catch { /* graceful fallback */ }
+
+  let vatRate = BELGIAN_STANDARD_VAT_RATE;
+  try {
+    const vatConfig = await ddb.send(new GetCommand({
+      TableName: TABLE,
+      Key: { PK: 'CONFIG', SK: 'VAT_RATES' },
+    }));
+    if (vatConfig.Item?.belgianStandardRate !== undefined) {
+      vatRate = vatConfig.Item.belgianStandardRate;
+    }
+  } catch { /* graceful fallback */ }
+
+  const priceBreakdown = computeFullPriceBreakdown({
+    pricing,
+    durationHours,
+    hostVatStatus,
+    platformFeePct,
+    vatRate,
+  });
+
+  // Use the full breakdown's spotter gross as the canonical total
+  const spotterGrossTotal = priceBreakdown.spotterGrossTotalEur;
   const hostPayout = Math.round(totalPrice * (1 - PLATFORM_FEE) * 100) / 100;
   const bookingId = ulid();
   const now = new Date().toISOString();
@@ -157,7 +204,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     startTime,
     endTime,
     vehicleId,
-    totalPrice,
+    totalPrice: spotterGrossTotal,
+    priceBreakdown,
     platformFeePercent: PLATFORM_FEE * 100,
     hostPayout,
     status: 'PENDING_PAYMENT',
@@ -183,10 +231,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       EventBusName: BUS,
       Source: 'spotzy',
       DetailType: 'booking.created',
-      Detail: JSON.stringify({ bookingId, listingId, spotterId: claims.userId, hostId: listing.hostId, startTime, endTime, totalPrice, listingAddress: listing.address }),
+      Detail: JSON.stringify({ bookingId, listingId, spotterId: claims.userId, hostId: listing.hostId, startTime, endTime, totalPrice: spotterGrossTotal, listingAddress: listing.address }),
     }],
   }));
 
-  log.info('booking created', { bookingId, listingId, totalPrice, status: 'PENDING_PAYMENT' });
+  log.info('booking created', { bookingId, listingId, totalPrice: spotterGrossTotal, status: 'PENDING_PAYMENT' });
   return created(booking);
 };

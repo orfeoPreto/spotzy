@@ -28,6 +28,14 @@ create:
   address_placeholder: Voer een adres of straat in
   details_heading: Vertel ons over uw parkeerplaats
   price_label: Prijs per uur (€)
+  net_price_label: "Uw uurtarief — u houdt dit bedrag (€)"
+  earnings_ladder_title: Uw verdienstenstaffel
+  spotter_pays_title: Wat de Spotter betaalt
+  rate_hourly: Per uur
+  rate_daily: Per dag
+  rate_weekly: Per week
+  rate_monthly: Per maand
+  vat_status_hint: "BTW-status: Niet geregistreerd. Wijzig in Account > BTW-instellingen."
   price_placeholder: bv. 3,50
   ev_label: Elektrisch laden beschikbaar?
   ev_confirmed: EV-lading bevestigd

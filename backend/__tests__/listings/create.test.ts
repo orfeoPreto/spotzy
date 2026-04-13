@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from '../../functions/listings/create/index';
 import { mockAuthContext, TEST_USER_ID } from '../setup';
@@ -8,6 +8,8 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 
 beforeEach(() => {
   ddbMock.reset();
+  ddbMock.on(GetCommand).resolves({ Item: { vatStatus: 'EXEMPT_FRANCHISE' } });
+  ddbMock.on(UpdateCommand).resolves({});
   ddbMock.on(PutCommand).resolves({});
 });
 

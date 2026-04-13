@@ -115,6 +115,8 @@ export const LAMBDA_NAMES = {
   rcExpiryReminder30d: 'rc-expiry-reminder-30d',
   rcExpiryReminder7d: 'rc-expiry-reminder-7d',
   rcExpirySuspend: 'rc-expiry-suspend',
+  // Session 28b — VAT Status
+  userVatStatusUpdate: 'user-vat-status-update',
   // Session 29 — Localization
   listingTranslate: 'listing-translate',
   translateOnDemand: 'translate-on-demand',
@@ -312,6 +314,8 @@ export class ApiStack extends cdk.Stack {
         'rc-expiry-reminder-30d': 'spot-manager/rc-expiry-reminder-30d',
         'rc-expiry-reminder-7d': 'spot-manager/rc-expiry-reminder-7d',
         'rc-expiry-suspend': 'spot-manager/rc-expiry-suspend',
+        // Session 28b — VAT Status
+        'user-vat-status-update': 'users/vat-status-update',
         // Session 29 — Localization
         'listing-translate': 'listings/listing-translate',
         'translate-on-demand': 'translate/translate-on-demand',
@@ -508,6 +512,7 @@ export class ApiStack extends cdk.Stack {
     });
     const userBecomeHostFn = mkFn(LAMBDA_NAMES.userBecomeHost);
 
+    const userVatStatusUpdateFn = mkFn(LAMBDA_NAMES.userVatStatusUpdate);
     const userInvoicingFn  = mkFn(LAMBDA_NAMES.userInvoicing);
     const messagesListFn   = mkFn(LAMBDA_NAMES.messagesList);
     const messagesUnreadFn = mkFn(LAMBDA_NAMES.messagesUnread);
@@ -800,6 +805,7 @@ export class ApiStack extends cdk.Stack {
     usersMe.addResource('become-host').addMethod('POST', integ(userBecomeHostFn), authOpts);
     usersMe.addMethod('DELETE', integ(gdprDeleteFn), authOpts);
     usersMe.addResource('export').addMethod('GET', integ(gdprExportFn), authOpts);
+    usersMe.addResource('vat-status').addMethod('PATCH', integ(userVatStatusUpdateFn), authOpts);
     const invoicingResource = usersMe.addResource('invoicing');
     invoicingResource.addMethod('GET', integ(userInvoicingFn), authOpts);
     invoicingResource.addMethod('PUT', integ(userInvoicingFn), authOpts);

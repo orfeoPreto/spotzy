@@ -4,9 +4,12 @@ import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { extractClaims } from '../../../shared/utils/auth';
 import { ok, badRequest, notFound, unauthorized } from '../../../shared/utils/response';
 import { createLogger } from '../../../shared/utils/logger';
-import { generatePriceQuote } from '../../../shared/pricing/tiered-pricing';
+import { computeFullPriceBreakdown } from '../../../shared/pricing/tiered-pricing';
 import { listingMetadataKey } from '../../../shared/db/keys';
+import { BELGIAN_STANDARD_VAT_RATE } from '../../../shared/pricing/vat-constants';
+import { PLATFORM_FEE_DEFAULT_SINGLE_SHOT } from '../../../shared/pricing/constants';
 import type { TieredPricing } from '../../../shared/pricing/types';
+import type { VATStatus } from '../../../shared/pricing/vat-constants';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
@@ -70,9 +73,51 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const durationMs = end.getTime() - start.getTime();
   const durationHours = durationMs / (1000 * 60 * 60);
 
-  const quote = generatePriceQuote(durationHours, pricing);
+  // Read host VAT status snapshotted on the listing
+  const hostVatStatus: VATStatus = listing.hostVatStatusAtCreation ?? 'EXEMPT_FRANCHISE';
 
-  log.info('quote generated', { listingId, durationHours, tier: quote.appliedTier });
+  // Try to load CONFIG#PLATFORM_FEE for singleShotPct, fall back to constant
+  let platformFeePct = PLATFORM_FEE_DEFAULT_SINGLE_SHOT;
+  try {
+    const feeConfig = await ddb.send(new GetCommand({
+      TableName: TABLE,
+      Key: { PK: 'CONFIG', SK: 'PLATFORM_FEE' },
+    }));
+    if (feeConfig.Item?.singleShotPct !== undefined) {
+      platformFeePct = feeConfig.Item.singleShotPct;
+    }
+  } catch {
+    // graceful fallback
+  }
 
-  return ok(quote);
+  // Try to load CONFIG#VAT_RATES for belgianStandardRate, fall back to constant
+  let vatRate = BELGIAN_STANDARD_VAT_RATE;
+  try {
+    const vatConfig = await ddb.send(new GetCommand({
+      TableName: TABLE,
+      Key: { PK: 'CONFIG', SK: 'VAT_RATES' },
+    }));
+    if (vatConfig.Item?.belgianStandardRate !== undefined) {
+      vatRate = vatConfig.Item.belgianStandardRate;
+    }
+  } catch {
+    // graceful fallback
+  }
+
+  const breakdown = computeFullPriceBreakdown({
+    pricing,
+    durationHours,
+    hostVatStatus,
+    platformFeePct,
+    vatRate,
+  });
+
+  log.info('quote generated', {
+    listingId,
+    durationHours,
+    tier: breakdown.appliedTier,
+    spotterGross: breakdown.spotterGrossTotalEur,
+  });
+
+  return ok(breakdown);
 };

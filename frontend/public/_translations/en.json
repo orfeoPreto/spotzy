@@ -84,6 +84,9 @@
       "dates_separator": "to",
       "subtotal": "Subtotal",
       "service_fee": "Service fee (15%)",
+      "service_fee_pct": "Service fee ({pct}%)",
+      "host_vat": "Host VAT ({rate}%)",
+      "vat_on_service_fee": "VAT on service fee",
       "total": "Total",
       "cancellation_heading": "Cancellation policy",
       "cancellation_policy": "Full refund if cancelled 24h+ before start. 50% refund within 12–24h. No refund within 12h.",
@@ -372,6 +375,11 @@
     "INVALID_JSON_BODY": "The request body is not valid JSON.",
     "INVALID_FIELD": "The value for {field} is not valid.",
     "INVALID_VAT_NUMBER": "Invalid VAT number.",
+    "INVALID_VAT_STATUS": "Invalid VAT status selection.",
+    "VAT_NUMBER_REQUIRED": "A VAT number is required when registered for VAT.",
+    "VAT_NUMBER_INVALID_FORMAT": "VAT number must be in format BE0XXXXXXXXX (BE0 followed by 9 digits).",
+    "VAT_NUMBER_INVALID_CHECKSUM": "VAT number checksum is invalid. Please verify the number.",
+    "LEGACY_PRICING_FIELD_REJECTED": "The field pricePerHourEur is no longer accepted. Use hostNetPricePerHourEur.",
     "UNSUPPORTED_METHOD": "This method is not supported.",
     "MISSING_LOCATION_PARAMS": "Location parameters are required (lat/lng or bounding box).",
     "REASON_REQUIRED": "A reason is required.",
@@ -527,6 +535,14 @@
       "address_placeholder": "Enter address or street",
       "details_heading": "Tell us about your spot",
       "price_label": "Price per hour (€)",
+      "net_price_label": "Your hourly rate — you keep this amount (€)",
+      "earnings_ladder_title": "Your earnings ladder",
+      "spotter_pays_title": "What the Spotter pays",
+      "rate_hourly": "Hourly",
+      "rate_daily": "Daily",
+      "rate_weekly": "Weekly",
+      "rate_monthly": "Monthly",
+      "vat_status_hint": "VAT status: Not registered. Change in Account > VAT settings.",
       "price_placeholder": "e.g. 3.50",
       "ev_label": "EV charging available?",
       "ev_confirmed": "EV charging confirmed",
@@ -608,6 +624,14 @@
       "clear_all": "Clear all",
       "show_spots": "Show {count} spots"
     }
+  },
+  "pricing": {
+    "earnings_ladder_title": "Your earnings ladder",
+    "spotter_pays_title": "What the Spotter pays",
+    "rate_hourly": "Hourly",
+    "rate_daily": "Daily",
+    "rate_weekly": "Weekly",
+    "rate_monthly": "Monthly"
   },
   "profile": {
     "loading": "Loading profile…",
@@ -699,7 +723,9 @@
       "covered_badge": "Covered",
       "ev_badge": "EV",
       "walking_distance": "min walk",
-      "book_button": "Book this spot"
+      "book_button": "Book this spot",
+      "from_price": "From €{price}/h",
+      "incl_fees": "(incl. fees & VAT)"
     },
     "booking_card": {
       "ending_soon": "Ending soon — ends in less than 24h",
@@ -712,5 +738,25 @@
       "update_review": "Update review",
       "report_button": "Report an issue"
     }
+  },
+  "vat_settings": {
+    "title": "VAT Settings",
+    "current_status": "Current status",
+    "loading": "Loading...",
+    "login_required": "Please sign in to manage your VAT settings.",
+    "status": {
+      "NONE": "Not set",
+      "EXEMPT_FRANCHISE": "Small enterprise exemption (no VAT)",
+      "VAT_REGISTERED": "VAT registered"
+    },
+    "exempt_description": "You are below the Belgian small enterprise threshold (€25,000/year). No VAT is charged on your parking fees.",
+    "registered_description": "You are registered for Belgian VAT. 21% VAT will be added to your parking fees and shown to the Spotter.",
+    "vat_number_label": "Belgian VAT number",
+    "vat_number_hint": "Format: BE0 followed by 9 digits (e.g. BE0123456749)",
+    "future_listings_warning": "Changes apply to future listings only. Existing listings keep the VAT status they were created with.",
+    "save_button": "Save VAT status",
+    "saving": "Saving...",
+    "save_success": "VAT status updated successfully.",
+    "save_error": "Failed to update VAT status. Please try again."
   }
 }

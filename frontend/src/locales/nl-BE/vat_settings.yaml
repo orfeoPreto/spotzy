@@ -1,0 +1,18 @@
+# Spotzy BTW-instellingen vertalingen (nl-BE)
+title: "BTW-instellingen"
+current_status: "Huidige status"
+loading: "Laden..."
+login_required: "Meld u aan om uw BTW-instellingen te beheren."
+status:
+  NONE: "Niet ingesteld"
+  EXEMPT_FRANCHISE: "Kleine onderneming vrijstelling (geen BTW)"
+  VAT_REGISTERED: "BTW-plichtig"
+exempt_description: "U valt onder de Belgische drempel voor kleine ondernemingen (€ 25.000/jaar). Er wordt geen BTW geheven op uw parkeervergoedingen."
+registered_description: "U bent geregistreerd voor Belgische BTW. 21% BTW wordt toegevoegd aan uw parkeervergoedingen en getoond aan de Spotter."
+vat_number_label: "Belgisch BTW-nummer"
+vat_number_hint: "Formaat: BE0 gevolgd door 9 cijfers (bv. BE0123456749)"
+future_listings_warning: "Wijzigingen gelden alleen voor toekomstige aanbiedingen. Bestaande aanbiedingen behouden de BTW-status waarmee ze zijn aangemaakt."
+save_button: "BTW-status opslaan"
+saving: "Opslaan..."
+save_success: "BTW-status succesvol bijgewerkt."
+save_error: "BTW-status bijwerken mislukt. Probeer het opnieuw."
