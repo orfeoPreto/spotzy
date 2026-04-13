@@ -47,7 +47,7 @@ const sampleListing = {
   PK: 'LISTING#l1',
   SK: 'METADATA',
   listingId: 'l1',
-  pricePerHourEur: 2.00,
+  hostNetPricePerHourEur: 2.00,
   dailyDiscountPct: 0.60,
   weeklyDiscountPct: 0.60,
   monthlyDiscountPct: 0.60,

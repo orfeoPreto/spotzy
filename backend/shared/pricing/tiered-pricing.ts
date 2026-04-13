@@ -1,4 +1,4 @@
-import type { TieredPricing, DerivedRates, PriceQuote, PricingTier, CheaperAlternative } from './types';
+import type { TieredPricing, DerivedRates, PriceQuote, PricingTier, CheaperAlternative, PriceBreakdown, FullPriceBreakdownInput } from './types';
 import {
   HOURLY_PRICE_MIN_EUR,
   HOURLY_PRICE_MAX_EUR,
@@ -17,8 +17,14 @@ const round2 = (v: number): number => Math.round(v * 100) / 100;
 /**
  * Computes the four derived tier rates from a TieredPricing configuration.
  */
+/** Resolves the host net rate, supporting both old and new field names. */
+function resolveHostNetRate(pricing: TieredPricing): number {
+  if (pricing.hostNetPricePerHourEur > 0) return pricing.hostNetPricePerHourEur;
+  return pricing.pricePerHourEur ?? 0;
+}
+
 export function deriveTierRates(pricing: TieredPricing): DerivedRates {
-  const hourlyRateEur = pricing.pricePerHourEur;
+  const hourlyRateEur = resolveHostNetRate(pricing);
   const dailyRateEur = round2(hourlyRateEur * HOURS_PER_DAY * pricing.dailyDiscountPct);
   const weeklyRateEur = round2(dailyRateEur * 7 * pricing.weeklyDiscountPct);
   const monthlyRateEur = round2(weeklyRateEur * 4 * pricing.monthlyDiscountPct);
@@ -140,13 +146,14 @@ export function generatePriceQuote(durationHours: number, pricing: TieredPricing
  * Validates a TieredPricing configuration.
  */
 export function validateTieredPricing(pricing: Partial<TieredPricing>): { valid: boolean; error?: string } {
-  if (pricing.pricePerHourEur === undefined || pricing.pricePerHourEur === null) {
+  const netRate = pricing.hostNetPricePerHourEur ?? pricing.pricePerHourEur;
+  if (netRate === undefined || netRate === null) {
     return { valid: false, error: 'PRICE_TOO_LOW' };
   }
-  if (pricing.pricePerHourEur <= 0) {
+  if (netRate <= 0) {
     return { valid: false, error: 'PRICE_TOO_LOW' };
   }
-  if (pricing.pricePerHourEur >= 1000) {
+  if (netRate >= 1000) {
     return { valid: false, error: 'PRICE_TOO_HIGH' };
   }
 
@@ -161,4 +168,51 @@ export function validateTieredPricing(pricing: Partial<TieredPricing>): { valid:
   }
 
   return { valid: true };
+}
+
+/**
+ * Computes a complete price breakdown for a booking/allocation.
+ *
+ * Model B (fee-exclusive): Host enters net rate, system grosses up.
+ *   hostNetTotal = tier-aware cost (what Host keeps)
+ *   hostVat = hostNetTotal × hostVatRate (if VAT_REGISTERED, else 0)
+ *   hostGross = hostNetTotal + hostVat
+ *   platformFee = hostGross × (feePct / (1 - feePct))
+ *   platformFeeVat = platformFee × spotzyVatRate
+ *   spotterGross = hostGross + platformFee + platformFeeVat
+ */
+export function computeFullPriceBreakdown(input: FullPriceBreakdownInput): PriceBreakdown {
+  const { pricing, durationHours, hostVatStatus, platformFeePct, vatRate } = input;
+  const quote = generatePriceQuote(durationHours, pricing);
+
+  const hostNetTotalEur = quote.totalEur;
+  const hostVatRate = hostVatStatus === 'VAT_REGISTERED' ? vatRate : 0;
+  const hostVatEur = round2(hostNetTotalEur * hostVatRate);
+  const hostGrossTotalEur = round2(hostNetTotalEur + hostVatEur);
+
+  // Gross-up: fee is computed so that hostGross + fee = hostGross / (1 - feePct)
+  const platformFeeEur = round2(hostGrossTotalEur * (platformFeePct / (1 - platformFeePct)));
+  const platformFeeVatRate = vatRate; // Spotzy always charges VAT on its fee
+  const platformFeeVatEur = round2(platformFeeEur * platformFeeVatRate);
+
+  const spotterGrossTotalEur = round2(hostGrossTotalEur + platformFeeEur + platformFeeVatEur);
+
+  return {
+    hostNetTotalEur,
+    hostVatRate,
+    hostVatEur,
+    hostGrossTotalEur,
+    platformFeePct,
+    platformFeeEur,
+    platformFeeVatRate,
+    platformFeeVatEur,
+    spotterGrossTotalEur,
+    currency: 'EUR',
+    breakdownComputedAt: new Date().toISOString(),
+    appliedTier: quote.appliedTier,
+    tierUnitsBilled: quote.tierUnitsBilled,
+    tierRateEur: quote.tierRateEur,
+    durationHours: quote.durationHours,
+    cheaperAlternatives: quote.cheaperAlternatives,
+  };
 }

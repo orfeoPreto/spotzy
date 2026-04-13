@@ -61,7 +61,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   // Build pricing from listing
   const pricing: TieredPricing = {
-    pricePerHourEur: listing.pricePerHourEur,
+    hostNetPricePerHourEur: listing.hostNetPricePerHourEur ?? listing.pricePerHourEur ?? listing.pricePerHour ?? 0,
     dailyDiscountPct: listing.dailyDiscountPct,
     weeklyDiscountPct: listing.weeklyDiscountPct,
     monthlyDiscountPct: listing.monthlyDiscountPct,

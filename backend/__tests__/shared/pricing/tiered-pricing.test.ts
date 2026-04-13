@@ -8,7 +8,7 @@ import {
 import type { TieredPricing } from '../../../shared/pricing/types';
 
 const standardPricing: TieredPricing = {
-  pricePerHourEur: 2.00,
+  hostNetPricePerHourEur: 2.00,
   dailyDiscountPct: 0.60,
   weeklyDiscountPct: 0.60,
   monthlyDiscountPct: 0.60,
@@ -43,7 +43,7 @@ describe('deriveTierRates', () => {
 
   test('mixed discount percentages', () => {
     const pricing: TieredPricing = {
-      pricePerHourEur: 5.00,
+      hostNetPricePerHourEur: 5.00,
       dailyDiscountPct: 0.70,    // most aggressive at the daily level
       weeklyDiscountPct: 0.60,
       monthlyDiscountPct: 0.50,  // least aggressive at the monthly level
@@ -61,7 +61,7 @@ describe('deriveTierRates', () => {
     for (const d of [0.50, 0.60, 0.70] as const) {
       for (const w of [0.50, 0.60, 0.70] as const) {
         for (const m of [0.50, 0.60, 0.70] as const) {
-          const rates = deriveTierRates({ pricePerHourEur: 10, dailyDiscountPct: d, weeklyDiscountPct: w, monthlyDiscountPct: m });
+          const rates = deriveTierRates({ hostNetPricePerHourEur: 10, dailyDiscountPct: d, weeklyDiscountPct: w, monthlyDiscountPct: m });
           const hourly = rates.hourlyRateEur;
           const dailyPerHour = rates.dailyRateEur / 24;
           const weeklyPerHour = rates.weeklyRateEur / (24 * 7);
@@ -179,7 +179,7 @@ describe('generatePriceQuote', () => {
   });
 
   test('alternatives are excluded when savings < 1 EUR', () => {
-    const cheap: TieredPricing = { ...standardPricing, pricePerHourEur: 0.10 };
+    const cheap: TieredPricing = { ...standardPricing, hostNetPricePerHourEur: 0.10 };
     const quote = generatePriceQuote(5, cheap);
     expect(quote.cheaperAlternatives).toEqual([]);
   });
@@ -191,15 +191,15 @@ describe('validateTieredPricing', () => {
   });
 
   test('rejects pricePerHourEur of 0', () => {
-    expect(validateTieredPricing({ ...standardPricing, pricePerHourEur: 0 }).error).toBe('PRICE_TOO_LOW');
+    expect(validateTieredPricing({ ...standardPricing, hostNetPricePerHourEur: 0 }).error).toBe('PRICE_TOO_LOW');
   });
 
   test('rejects pricePerHourEur of -5', () => {
-    expect(validateTieredPricing({ ...standardPricing, pricePerHourEur: -5 }).error).toBe('PRICE_TOO_LOW');
+    expect(validateTieredPricing({ ...standardPricing, hostNetPricePerHourEur: -5 }).error).toBe('PRICE_TOO_LOW');
   });
 
   test('rejects pricePerHourEur of 1000', () => {
-    expect(validateTieredPricing({ ...standardPricing, pricePerHourEur: 1000 }).error).toBe('PRICE_TOO_HIGH');
+    expect(validateTieredPricing({ ...standardPricing, hostNetPricePerHourEur: 1000 }).error).toBe('PRICE_TOO_HIGH');
   });
 
   test('rejects discount of 0.55 (not in allowed set)', () => {
