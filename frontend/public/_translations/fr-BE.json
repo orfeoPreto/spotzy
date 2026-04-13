@@ -625,7 +625,7 @@
     },
     "my_bookings": {
       "label": "Mes réservations",
-      "active_count": "{count} active{count, plural, one {Réservation active} other {Réservations actives}}\n\nWait, let me check the source format. The source is simply:\n\n{count} active\n\n{count} actif{count, plural, one {} other {s}}\n\nLet me provide the clean translation:\n\n{count} {count, plural, one {Réservation active} other {Réservations actives}}",
+      "active_count": "{count} actif",
       "view_link": "Voir les réservations →"
     },
     "spot_manager": {

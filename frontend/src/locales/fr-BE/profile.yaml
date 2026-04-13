@@ -22,18 +22,7 @@ my_spots:
   view_link: Voir les annonces →
 my_bookings:
   label: Mes réservations
-  active_count: |-
-    {count} active{count, plural, one {Réservation active} other {Réservations actives}}
-
-    Wait, let me check the source format. The source is simply:
-
-    {count} active
-
-    {count} actif{count, plural, one {} other {s}}
-
-    Let me provide the clean translation:
-
-    {count} {count, plural, one {Réservation active} other {Réservations actives}}
+  active_count: "{count} actif"
   view_link: Voir les réservations →
 spot_manager:
   heading: Gestionnaire de Spots
