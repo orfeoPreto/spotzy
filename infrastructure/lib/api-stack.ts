@@ -653,15 +653,7 @@ export class ApiStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    // EventBridge rule: listing.translation_required → listing-translate Lambda
-    const listingTranslationRule = new events.Rule(this, 'ListingTranslationRule', {
-      eventBus,
-      eventPattern: {
-        source: ['spotzy.listings'],
-        detailType: ['listing.translation_required'],
-      },
-    });
-    listingTranslationRule.addTarget(new eventsTargets.LambdaFunction(listingTranslateFn));
+    // EventBridge rule for listing-translate is in IntegrationStack to stay under 500 resources
 
     // -----------------------------------------------------------------------
     // API Gateway access log group

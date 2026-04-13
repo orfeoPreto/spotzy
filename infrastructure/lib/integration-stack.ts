@@ -187,6 +187,19 @@ export class IntegrationStack extends cdk.Stack {
       ],
     });
 
+    // listing.translation_required → listing-translate (Session 29)
+    new events.Rule(this, 'ListingTranslationRule', {
+      ruleName: `spotzy-listing-translation${suffix}`,
+      eventBus,
+      eventPattern: {
+        source: ['spotzy.listings'],
+        detailType: ['listing.translation_required'],
+      },
+      targets: [
+        new targets.LambdaFunction(fn('listing-translate')),
+      ],
+    });
+
     // -----------------------------------------------------------------------
     // S3 event: photo uploaded → listing-ai-validate
     // Skip on first deploy of new environment (SKIP_S3_NOTIFICATION=true)
