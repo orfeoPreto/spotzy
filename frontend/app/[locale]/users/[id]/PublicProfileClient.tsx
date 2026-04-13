@@ -77,7 +77,7 @@ function RatingBar({ rating, max = 5 }: { rating: number; max?: number }) {
 
 export default function PublicProfilePage() {
   const _pathname = usePathname();
-  const userId = _pathname.split('/').filter(Boolean)[1] ?? '';
+  const userId = _pathname.split('/').filter(Boolean)[2] ?? '';
   const { user } = useAuth();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [notFound, setNotFound] = useState(false);

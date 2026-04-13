@@ -22,7 +22,9 @@ export default function ListingPage() {
   const { t } = useTranslation('listings');
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const id = pathname.split('/').filter(Boolean)[1] ?? '';
+  // URL: /{locale}/listing/{id} — locale is [0], "listing" is [1], id is [2]
+  const segments = pathname.split('/').filter(Boolean);
+  const id = segments[2] ?? segments[1] ?? '';
   const router = useLocalizedRouter();
   const { listing, isLoading, error } = useListing(id);
   const { user } = useAuth();

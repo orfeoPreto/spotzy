@@ -24,7 +24,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 export default function ChatPage() {
   const { t } = useTranslation('chat');
   const _pathname = usePathname();
-  const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
+  const bookingId = _pathname.split('/').filter(Boolean)[2] ?? '';
   const router = useLocalizedRouter();
   const { user } = useAuth();
   const [booking, setBooking] = useState<BookingContext | null>(null);

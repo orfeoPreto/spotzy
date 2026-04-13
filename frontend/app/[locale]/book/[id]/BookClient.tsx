@@ -178,7 +178,7 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
 export default function BookPage() {
   const { t: tBooking } = useTranslation('booking');
   const pathname = usePathname();
-  const id = pathname.split('/').filter(Boolean)[1] ?? '';
+  const id = pathname.split('/').filter(Boolean)[2] ?? '';
   const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const { listing } = useListing(id);

@@ -11,7 +11,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 export default function AvailabilityClient() {
   const router = useLocalizedRouter();
   const pathname = usePathname();
-  const id = pathname.split('/').filter(Boolean)[1] ?? '';
+  const id = pathname.split('/').filter(Boolean)[2] ?? '';
   const { user } = useAuth();
 
   const [rules, setRules] = useState<AvailabilityRule[] | null>(null);

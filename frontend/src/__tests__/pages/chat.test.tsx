@@ -8,7 +8,7 @@ import ChatPage from '../../../app/[locale]/chat/[bookingId]/ChatClient';
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
   useParams: () => ({ bookingId: 'bk1' }),
-  usePathname: () => '/chat/bk1',
+  usePathname: () => '/en/chat/bk1',
   useSearchParams: () => new URLSearchParams(),
 }));
 

@@ -22,7 +22,7 @@ interface PhotoSlot { status: 'idle' | 'uploading' | 'validating' | 'PASS' | 'FA
 export default function EditListingClient() {
   const router = useLocalizedRouter();
   const pathname = usePathname();
-  const listingId = pathname.split('/').filter(Boolean)[1] ?? '';
+  const listingId = pathname.split('/').filter(Boolean)[2] ?? '';
   const { user } = useAuth();
   const { listing, isLoading, error: loadError } = useListing(listingId);
 

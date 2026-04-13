@@ -28,7 +28,7 @@ export default function DisputePage() {
   const { t } = useTranslation('disputes');
   const { t: tCommon } = useTranslation('common');
   const _pathname = usePathname();
-  const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
+  const bookingId = _pathname.split('/').filter(Boolean)[2] ?? '';
   const { user } = useAuth();
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [inputText, setInputText] = useState('');

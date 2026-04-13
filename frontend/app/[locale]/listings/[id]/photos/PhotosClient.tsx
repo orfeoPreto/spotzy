@@ -24,7 +24,7 @@ async function getAuthToken(): Promise<string> {
 export default function ListingPhotosPage() {
   const _pathname = usePathname();
   const router = useLocalizedRouter();
-  const listingId = _pathname.split("/").filter(Boolean)[1] ?? "";
+  const listingId = _pathname.split("/").filter(Boolean)[2] ?? "";
 
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);

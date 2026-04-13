@@ -9,7 +9,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
   useSearchParams: () => new URLSearchParams('startDate=2025-07-01T10:00&endDate=2025-07-01T12:00'),
   useParams: () => ({ id: 'l1' }),
-  usePathname: () => '/book/l1',
+  usePathname: () => '/en/book/l1',
 }));
 
 vi.mock('@stripe/react-stripe-js', () => ({
