@@ -2,11 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import SpotSummaryCard from '../../../components/SpotSummaryCard';
-
-const mockPush = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
-}));
+import { mockRouterPush } from '../../../test/mock-translations';
 
 const spot = {
   listingId: 'l1',
@@ -19,6 +15,7 @@ const spot = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockRouterPush.mockClear();
 });
 
 describe('SpotSummaryCard rendering', () => {
@@ -58,13 +55,13 @@ describe('SpotSummaryCard interactions', () => {
     const user = userEvent.setup();
     render(<SpotSummaryCard spot={spot} />);
     await user.click(screen.getByRole('button', { name: /book this spot/i }));
-    expect(mockPush).toHaveBeenCalledWith('/listing/l1');
+    expect(mockRouterPush).toHaveBeenCalledWith('/listing/l1');
   });
 
   it('entire card click navigates to /listing/{listingId}', async () => {
     const user = userEvent.setup();
     render(<SpotSummaryCard spot={spot} />);
     await user.click(screen.getByTestId('spot-summary-card'));
-    expect(mockPush).toHaveBeenCalledWith('/listing/l1');
+    expect(mockRouterPush).toHaveBeenCalledWith('/listing/l1');
   });
 });

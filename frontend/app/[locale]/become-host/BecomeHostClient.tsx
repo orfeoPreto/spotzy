@@ -1,15 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
 import { useTranslation } from '../../../lib/locales/TranslationProvider';
+import { useLocalizedRouter } from '../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default function BecomeHostClient() {
   const { t } = useTranslation('notifications');
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const params = useSearchParams();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);

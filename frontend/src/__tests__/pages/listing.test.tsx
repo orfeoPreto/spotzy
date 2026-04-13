@@ -5,11 +5,12 @@ import { http, HttpResponse } from 'msw';
 import { server, MOCK_LISTING } from '../mocks/server';
 import ListingPage from '../../../app/[locale]/listing/[id]/ListingClient';
 
-const mockPush = vi.fn();
+import { mockRouterPush } from '../../../test/mock-translations';
+
 const mockParamsId = { id: 'l1' };
 const mockPathname = { value: '/listing/l1' };
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
   useParams: () => mockParamsId,
   usePathname: () => mockPathname.value,
@@ -159,7 +160,7 @@ describe('ListingPage not logged in', () => {
     render(<ListingPage />);
     await waitFor(() => screen.getByText('Rue Neuve 1, Brussels'));
     await user.click(screen.getByRole('button', { name: /sign in to book/i }));
-    expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('/auth/login'));
+    expect(mockRouterPush).toHaveBeenCalledWith(expect.stringContaining('/auth/login'));
   });
 });
 

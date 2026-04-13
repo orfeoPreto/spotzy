@@ -2,11 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-// Mock next/navigation
-const mockPush = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
-}));
+import { mockRouterPush } from '../../../test/mock-translations';
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -76,7 +72,7 @@ describe('<ProfilePage />', () => {
     fireEvent.click(logoutBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/auth/login');
+      expect(mockRouterPush).toHaveBeenCalledWith('/auth/login');
     });
   });
 

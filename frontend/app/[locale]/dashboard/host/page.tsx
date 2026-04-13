@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BookingCard, { type Booking } from '../../../../components/BookingCard';
 import StatusBadge from '../../../../components/StatusBadge';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../lib/locales/TranslationProvider';
+import { useLocalizedRouter, useLocalizePath } from '../../../../lib/locales/useLocalizedRouter';
 
 interface Metrics { activeBookings: number; mtdEarnings: number; liveListings: number; avgRating: number }
 interface Listing { listingId: string; address: string; status: string; bookingCount: number }
@@ -41,7 +41,8 @@ function deriveBookingStatus(booking: Booking): string {
 
 export default function HostDashboardPage() {
   const { t } = useTranslation('dashboard');
-  const router = useRouter();
+  const router = useLocalizedRouter();
+  const lp = useLocalizePath();
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [listings, setListings] = useState<Listing[] | null>(null);
@@ -147,7 +148,7 @@ export default function HostDashboardPage() {
               <div key={l.listingId} className="grow flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
                 <div>
                   {/* Issue #24: Link listing address to public listing page */}
-                  <Link href={`/listing/${l.listingId}`} className="font-medium text-[#004526] hover:underline">
+                  <Link href={lp(`/listing/${l.listingId}`)} className="font-medium text-[#004526] hover:underline">
                     {l.address}
                   </Link>
                   <p className="text-xs text-gray-500">{t('host.bookings_count', { count: String(l.bookingCount) })}</p>
@@ -155,13 +156,13 @@ export default function HostDashboardPage() {
                 <div className="flex items-center gap-3">
                   {/* Issue #23: Add edit listing button */}
                   <Link
-                    href={`/listing/${l.listingId}/edit`}
+                    href={lp(`/listing/${l.listingId}/edit`)}
                     className="text-xs text-[#004526] hover:underline"
                   >
                     {t('host.edit_listing')}
                   </Link>
                   <Link
-                    href={`/listing/${l.listingId}/availability`}
+                    href={lp(`/listing/${l.listingId}/availability`)}
                     className="text-xs text-[#004526] hover:underline"
                   >
                     {t('host.edit_availability')}

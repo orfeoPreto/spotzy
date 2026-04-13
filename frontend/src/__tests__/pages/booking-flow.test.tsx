@@ -3,9 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import BookPage from '../../../app/[locale]/book/[id]/BookClient';
 
-const mockPush = vi.fn();
+import { mockRouterPush } from '../../../test/mock-translations';
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: vi.fn() }),
   useSearchParams: () => new URLSearchParams('startDate=2025-07-01T10:00&endDate=2025-07-01T12:00'),
   useParams: () => ({ id: 'l1' }),
   usePathname: () => '/book/l1',
@@ -167,7 +168,7 @@ describe('BookingFlow Step 3 — Confirmation', () => {
 
     await waitFor(() => screen.getByRole('button', { name: /view booking/i }));
     await user.click(screen.getByRole('button', { name: /view booking/i }));
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/spotter');
+    expect(mockRouterPush).toHaveBeenCalledWith('/dashboard/spotter');
   });
 });
 

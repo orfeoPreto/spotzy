@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -22,7 +23,7 @@ async function getAuthToken(): Promise<string> {
 
 export default function ListingPhotosPage() {
   const _pathname = usePathname();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const listingId = _pathname.split("/").filter(Boolean)[1] ?? "";
 
   const [photos, setPhotos] = useState<Photo[]>([]);

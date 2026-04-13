@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 import AvailabilityGrid, { SaveAvailabilityPayload } from '../../../../components/AvailabilityGrid';
 import { useTranslation } from '../../../../lib/locales/TranslationProvider';
 import mapboxgl from 'mapbox-gl';
@@ -38,7 +38,7 @@ interface WizardState {
 export default function ListingWizardPage() {
   const { t } = useTranslation('listings');
   const { t: tCommon } = useTranslation('common');
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [listingId, setListingId] = useState<string | null>(null);

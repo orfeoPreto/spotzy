@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 
 import { spotManagerApi, mainApi } from '../../../../lib/apiUrls';
 import { BlockReservationsModal } from '../../../../components/spot-manager/BlockReservationsModal';
@@ -45,7 +45,7 @@ async function getAuthToken(): Promise<string> {
 }
 
 export default function PortfolioPage() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [data, setData] = useState<PortfolioMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

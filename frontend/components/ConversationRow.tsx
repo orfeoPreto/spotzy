@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../lib/locales/useLocalizedRouter';
 
 export interface ConversationItem {
   bookingId: string;
@@ -33,7 +33,7 @@ interface ConversationRowProps {
 }
 
 export function ConversationRow({ conversation, index }: ConversationRowProps) {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   return (
     <div
       data-testid={`conversation-row-${index}`}

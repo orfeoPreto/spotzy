@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { confirmSignUp, resendSignUpCode, signIn, fetchAuthSession } from 'aws-amplify/auth';
 import { useBookingIntent } from '../../../../hooks/useBookingIntent';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 function ConfirmForm() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') ?? '';
   const role = searchParams.get('role') ?? '';

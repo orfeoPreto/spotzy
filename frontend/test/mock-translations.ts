@@ -35,6 +35,23 @@ function getNestedValue(obj: any, path: string): string | undefined {
   return typeof current === 'string' ? current : undefined;
 }
 
+// Shared mock router — tests can import and spy on these
+export const mockRouterPush = vi.fn();
+export const mockRouterReplace = vi.fn();
+
+vi.mock('../lib/locales/useLocalizedRouter', () => ({
+  useLocalizedRouter: () => ({
+    push: mockRouterPush,
+    replace: mockRouterReplace,
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+    locale: 'en',
+  }),
+  useLocalizePath: () => (path: string) => path,
+}));
+
 vi.mock('../lib/locales/TranslationProvider', () => ({
   useTranslation: (namespace?: string) => ({
     t: (key: string, params?: Record<string, string | number>) => {

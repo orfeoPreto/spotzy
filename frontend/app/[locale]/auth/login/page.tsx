@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn } from 'aws-amplify/auth';
 import { useBookingIntent, BookingIntent } from '../../../../hooks/useBookingIntent';
 import { BookingSummaryStrip } from '../../../../components/BookingSummaryStrip';
 import { useTranslation } from '../../../../lib/locales/TranslationProvider';
+import { useLocalizedRouter, useLocalizePath } from '../../../../lib/locales/useLocalizedRouter';
 
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
+  const lp = useLocalizePath();
   const searchParams = useSearchParams();
   const { readIntent, clearIntent } = useBookingIntent();
   const { t } = useTranslation('auth');
@@ -113,12 +115,12 @@ export default function LoginPage() {
 
       <p className="mt-4 text-center text-sm text-gray-500">
         {t('login.register_prompt')}{' '}
-        <Link href={registerHref} data-testid="create-account-link" className="font-medium text-[#AD3614] hover:underline">
+        <Link href={lp(registerHref)} data-testid="create-account-link" className="font-medium text-[#AD3614] hover:underline">
           {t('login.register_link')}
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-gray-500">
-        <Link href="/auth/forgot-password" className="text-[#AD3614] hover:underline">
+        <Link href={lp('/auth/forgot-password')} className="text-[#AD3614] hover:underline">
           {t('login.forgot_password_link')}
         </Link>
       </p>

@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { UserAvatar } from '../../../components/UserAvatar';
 import { resolveDisplayName } from '../../../lib/resolveDisplayName';
 import { DeleteAccountModal } from '../../../components/DeleteAccountModal';
 import { useTranslation } from '../../../lib/locales/TranslationProvider';
+import { useLocalizedRouter, useLocalizePath } from '../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -50,7 +50,8 @@ async function getAuthToken(): Promise<string> {
 export default function ProfilePage() {
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation('common');
-  const router = useRouter();
+  const router = useLocalizedRouter();
+  const lp = useLocalizePath();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState('');
@@ -483,7 +484,7 @@ export default function ProfilePage() {
         <div data-testid="spots-summary" className="rounded-xl border border-gray-200 bg-white p-4">
           <p className="text-xs text-gray-500">{t('my_spots.label')}</p>
           <p className="text-lg font-bold text-[#004526]">{(user.listingCount ?? 0) !== 1 ? t('my_spots.live_listings_other', { count: String(user.listingCount ?? 0) }) : t('my_spots.live_listings_one', { count: String(user.listingCount ?? 0) })}</p>
-          <Link href="/dashboard/host" className="mt-1 block text-xs text-[#006B3C] hover:underline">
+          <Link href={lp('/dashboard/host')} className="mt-1 block text-xs text-[#006B3C] hover:underline">
             {t('my_spots.view_link')}
           </Link>
         </div>
@@ -491,7 +492,7 @@ export default function ProfilePage() {
         <div className="rounded-xl border border-gray-200 bg-white p-4">
           <p className="text-xs text-gray-500">{t('my_bookings.label')}</p>
           <p className="text-lg font-bold text-[#004526]">{t('my_bookings.active_count', { count: String(user.bookingCount ?? 0) })}</p>
-          <Link href="/dashboard/spotter" className="mt-1 block text-xs text-[#006B3C] hover:underline">
+          <Link href={lp('/dashboard/spotter')} className="mt-1 block text-xs text-[#006B3C] hover:underline">
             {t('my_bookings.view_link')}
           </Link>
         </div>
@@ -502,7 +503,7 @@ export default function ProfilePage() {
         <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-[#004526]">{t('spot_manager.heading')}</p>
-            <Link href="/spot-manager/portfolio" className="text-xs text-[#006B3C] hover:underline">
+            <Link href={lp('/spot-manager/portfolio')} className="text-xs text-[#006B3C] hover:underline">
               {t('spot_manager.portfolio_link')}
             </Link>
           </div>
@@ -602,7 +603,7 @@ export default function ProfilePage() {
       <div className="rounded-2xl border border-[#C8DDD2] bg-white p-6 space-y-4" data-testid="privacy-section">
         <h2 className="text-sm font-semibold text-[#004526]">{t('privacy.heading')}</h2>
         <div className="flex flex-col gap-3">
-          <Link href="/privacy" className="text-sm text-[#006B3C] underline" target="_blank">
+          <Link href={lp('/privacy')} className="text-sm text-[#006B3C] underline" target="_blank">
             {t('privacy.view_policy')}
           </Link>
           <button

@@ -8,9 +8,10 @@ import RegisterPage from '../../../app/[locale]/auth/register/page';
 import ForgotPasswordPage from '../../../app/[locale]/auth/forgot-password/page';
 import ConfirmForm from '../../../app/[locale]/auth/confirm/ConfirmClient';
 
-const mockPush = vi.fn();
+import { mockRouterPush } from '../../../test/mock-translations';
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: vi.fn() }),
   useSearchParams: () => new URLSearchParams('email=alice@test.com&role=SPOTTER'),
 }));
 
@@ -87,7 +88,7 @@ describe('Auth Login', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/search|dashboard/));
+      expect(mockRouterPush).toHaveBeenCalledWith(expect.stringMatching(/search|dashboard/));
     });
   });
 
@@ -183,7 +184,7 @@ describe('Auth Registration Step 2 — User details', () => {
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('/auth/confirm'));
+      expect(mockRouterPush).toHaveBeenCalledWith(expect.stringContaining('/auth/confirm'));
     });
   });
 });

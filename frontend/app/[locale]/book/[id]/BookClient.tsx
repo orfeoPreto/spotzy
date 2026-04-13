@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useListing } from '../../../../hooks/useListing';
 import { useBookingFlow } from '../../../../hooks/useBookingFlow';
@@ -139,7 +140,7 @@ function PaymentForm({
 // ─── Step 3: Confirmation ─────────────────────────────────────────────────
 function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookingRef: string }) {
   const { t } = useTranslation('booking');
-  const router = useRouter();
+  const router = useLocalizedRouter();
   return (
     <div className="space-y-6 text-center">
       <div className="flex items-center justify-center">
@@ -178,7 +179,7 @@ export default function BookPage() {
   const { t: tBooking } = useTranslation('booking');
   const pathname = usePathname();
   const id = pathname.split('/').filter(Boolean)[1] ?? '';
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const { listing } = useListing(id);
 

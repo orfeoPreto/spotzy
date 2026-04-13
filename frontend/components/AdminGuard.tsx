@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
+import { useLocalizedRouter } from '../lib/locales/useLocalizedRouter';
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const router = useLocalizedRouter();
 
   useEffect(() => {
     if (!isLoading && (!user || !user.groups?.includes('admin'))) {

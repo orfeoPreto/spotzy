@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../../lib/locales/useLocalizedRouter';
 import { useAuth } from '../../../../../hooks/useAuth';
 import AvailabilityGrid, { AvailabilityRule, SaveAvailabilityPayload } from '../../../../../components/AvailabilityGrid';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default function AvailabilityClient() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const pathname = usePathname();
   const id = pathname.split('/').filter(Boolean)[1] ?? '';
   const { user } = useAuth();

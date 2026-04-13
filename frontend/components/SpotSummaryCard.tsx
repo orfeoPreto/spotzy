@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { spotTypeDisplay } from '../lib/spotTypeDisplay';
 import { UserAvatar } from './UserAvatar';
 import { useTranslation } from '../lib/locales/TranslationProvider';
+import { useLocalizedRouter, useLocalizePath } from '../lib/locales/useLocalizedRouter';
 
 const MEDIA_URL = process.env.NEXT_PUBLIC_MEDIA_URL ?? '';
 
@@ -37,7 +37,8 @@ interface SpotSummaryCardProps {
 export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, startDate, endDate, highlighted, onHover }: SpotSummaryCardProps) {
   const { t } = useTranslation('search');
   const [cardHovered, setCardHovered] = useState(false);
-  const router = useRouter();
+  const router = useLocalizedRouter();
+  const lp = useLocalizePath();
   const navigate = () => {
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', startDate);
@@ -130,7 +131,7 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       {spot.hostId && currentUserId !== spot.hostId && (
         <div data-testid="host-footer" className="border-t border-[#EBF7F1] px-3 py-2 flex items-center gap-2">
           <Link
-            href={`/users/${spot.hostId}`}
+            href={lp(`/users/${spot.hostId}`)}
             data-testid="host-footer-link"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             onClick={(e) => e.stopPropagation()}

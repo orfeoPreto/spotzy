@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../../lib/locales/useLocalizedRouter';
 
 interface RCExpiryBannerProps {
   rcInsuranceStatus: string;
@@ -9,7 +9,7 @@ interface RCExpiryBannerProps {
 }
 
 export function RCExpiryBanner({ rcInsuranceStatus, rcInsuranceExpiryDate, previousSubmissionId }: RCExpiryBannerProps) {
-  const router = useRouter();
+  const router = useLocalizedRouter();
 
   if (rcInsuranceStatus === 'EXPIRED') {
     return (

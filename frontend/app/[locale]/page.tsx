@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
 import { useListYourSpotDestination } from '../../hooks/useListYourSpotDestination';
 import { useTranslation } from '../../lib/locales/TranslationProvider';
+import { useLocalizedRouter, useLocalizePath } from '../../lib/locales/useLocalizedRouter';
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 function Hero() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { t } = useTranslation('landing');
 
   return (
@@ -81,6 +81,7 @@ function HowItWorks() {
 function BuiltForEveryoneCards() {
   const { destination: listSpotDest } = useListYourSpotDestination();
   const { t } = useTranslation('landing');
+  const lp = useLocalizePath();
   const spotterFeatureKeys = ['features.spotter_1', 'features.spotter_2', 'features.spotter_3', 'features.spotter_4', 'features.spotter_5', 'features.spotter_6'];
   const hostFeatureKeys = ['features.host_1', 'features.host_2', 'features.host_3', 'features.host_4', 'features.host_5', 'features.host_6'];
 
@@ -102,7 +103,7 @@ function BuiltForEveryoneCards() {
               </li>
             ))}
           </ul>
-          <Link href="/search" className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
+          <Link href={lp('/search')} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
             {t('built_for_everyone.spotter_button')}
           </Link>
         </div>
@@ -121,7 +122,7 @@ function BuiltForEveryoneCards() {
               </li>
             ))}
           </ul>
-          <Link href={listSpotDest} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
+          <Link href={lp(listSpotDest)} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
             {t('built_for_everyone.host_button')}
           </Link>
         </div>
@@ -243,6 +244,7 @@ function QuickLinks() {
   const { user } = useAuth();
   const { destination: listSpotDest } = useListYourSpotDestination();
   const { t } = useTranslation('landing');
+  const lp = useLocalizePath();
   const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
@@ -279,7 +281,7 @@ function QuickLinks() {
         <h2 className="mb-8 text-center text-2xl font-bold text-[#004526]">{t('quick_links.heading')}</h2>
         <div className="grid grid-cols-3 gap-4">
           {cards.map((l) => (
-            <Link key={l.label} href={l.href} className="grow group flex flex-col gap-2 rounded-xl border border-[#F0F7F3] bg-[#F0F7F3] p-5 hover:border-[#AD3614] hover:shadow-sm">
+            <Link key={l.label} href={lp(l.href)} className="grow group flex flex-col gap-2 rounded-xl border border-[#F0F7F3] bg-[#F0F7F3] p-5 hover:border-[#AD3614] hover:shadow-sm">
               <span className="wiggle text-[#004526]">{l.icon}</span>
               <span className="font-semibold text-[#004526] group-hover:text-[#AD3614]">{l.label}</span>
               <span className="text-xs text-gray-500">{l.desc}</span>
@@ -296,6 +298,7 @@ function QuickLinks() {
 function CallToAction() {
   const { user } = useAuth();
   const { t } = useTranslation('landing');
+  const lp = useLocalizePath();
   if (user) return null;
 
   return (
@@ -304,10 +307,10 @@ function CallToAction() {
         <h2 className="mb-4 text-3xl font-bold text-[#004526]">{t('cta.heading')}</h2>
         <p className="mb-8 text-gray-600">{t('cta.description')}</p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link href="/search" className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white hover:bg-[#005A30]">
+          <Link href={lp('/search')} className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white hover:bg-[#005A30]">
             {t('cta.button_find')}
           </Link>
-          <Link href="/auth/register" className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]">
+          <Link href={lp('/auth/register')} className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]">
             {t('cta.button_register')}
           </Link>
         </div>

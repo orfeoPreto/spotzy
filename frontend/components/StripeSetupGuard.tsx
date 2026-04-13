@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../lib/locales/useLocalizedRouter';
 import { useAuth } from '../hooks/useAuth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
@@ -26,7 +27,7 @@ const EXEMPT_PREFIXES = [
 const EXEMPT_EXACT = new Set(['/']);
 
 export default function StripeSetupGuard() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
   const [checked, setChecked] = useState(false);

@@ -1,11 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ConversationRow } from '../../../components/ConversationRow';
-
-const mockPush = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
-}));
+import { mockRouterPush } from '../../../test/mock-translations';
 
 const mockConversation = {
   bookingId: 'b1',
@@ -21,7 +17,7 @@ const mockConversation = {
 };
 
 beforeEach(() => {
-  mockPush.mockReset();
+  mockRouterPush.mockClear();
 });
 
 describe('ConversationRow', () => {
@@ -45,7 +41,7 @@ describe('ConversationRow', () => {
   it('tapping conversation row navigates to /chat/{bookingId}', () => {
     render(<ConversationRow conversation={mockConversation} index={0} />);
     fireEvent.click(screen.getByTestId('conversation-row-0'));
-    expect(mockPush).toHaveBeenCalledWith('/chat/b1');
+    expect(mockRouterPush).toHaveBeenCalledWith('/chat/b1');
   });
 
   it('displays listing address and other party name', () => {

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { signUp } from 'aws-amplify/auth';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../lib/locales/TranslationProvider';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -28,7 +29,7 @@ type Step = 'persona' | 'stripe-gate' | 'invoicing' | 'profile';
 
 export default function RegisterPage() {
   const { t } = useTranslation('auth');
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('persona');
   const [selectedRole, setSelectedRole] = useState('');

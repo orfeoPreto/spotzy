@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useListYourSpotDestination } from '../hooks/useListYourSpotDestination';
 import { useTranslation } from '../lib/locales/TranslationProvider';
+import { useLocalizePath } from '../lib/locales/useLocalizedRouter';
 import LocaleSwitcher from './LocaleSwitcher';
 
 interface NavUser {
@@ -66,6 +67,7 @@ const MOBILE_TABS = [
 export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
   const pathname = usePathname();
   const { t } = useTranslation('common');
+  const lp = useLocalizePath();
   const baseLinkKeys = user?.isHost ? HOST_LINK_KEYS : SPOTTER_LINK_KEYS;
   const navLinks = [...baseLinkKeys];
   if (user?.isSpotManager) {
@@ -97,7 +99,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+          <Link href={lp('/')} className="flex items-center gap-2 text-lg font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="spin-360">
               <rect x="0" y="0" width="36" height="36" rx="8" fill="#004526"/>
               <circle cx="18" cy="18" r="12" stroke="white" strokeWidth="2.5" fill="none"/>
@@ -115,7 +117,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                   return (
                     <Link
                       key={l.href}
-                      href={l.href}
+                      href={lp(l.href)}
                       className={`relative pb-0.5 text-sm font-medium transition-colors ${
                         active ? 'text-[#004526]' : 'text-gray-500 hover:text-[#004526]'
                       }`}
@@ -130,7 +132,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
                 })}
                 {user?.isAdmin && (
                   <Link
-                    href="/backoffice"
+                    href="/backoffice"  /* backoffice stays un-prefixed — English only */
                     className={`relative pb-0.5 text-sm font-medium transition-colors ${
                       pathname.startsWith('/backoffice') ? 'text-[#AD3614]' : 'text-gray-500 hover:text-[#AD3614]'
                     }`}
@@ -144,10 +146,10 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="text-sm font-medium text-gray-500 hover:text-[#004526]">
+                <Link href={lp('/auth/login')} className="text-sm font-medium text-gray-500 hover:text-[#004526]">
                   {t('nav.login')}
                 </Link>
-                <Link href="/auth/register" className="text-sm font-medium text-gray-500 hover:text-[#004526]">
+                <Link href={lp('/auth/register')} className="text-sm font-medium text-gray-500 hover:text-[#004526]">
                   {t('nav.register')}
                 </Link>
               </>
@@ -158,7 +160,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
           <div className="flex items-center gap-3">
             {user && !user.isHost && (
               <Link
-                href={listSpotDest}
+                href={lp(listSpotDest)}
                 className="btn-gold grow-btn rounded-lg px-3 py-1.5 text-sm"
               >
                 {t('nav.becomeHost')}
@@ -167,14 +169,14 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
             {user?.isHost && (
               user?.isSpotManager ? (
                 <Link
-                  href="/dashboard/host"
+                  href={lp('/dashboard/host')}
                   className="rounded-lg border border-[#004526] px-3 py-1.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors"
                 >
                   {t('nav.hostDashboard')}
                 </Link>
               ) : (
                 <Link
-                  href="/account/spot-manager/apply"
+                  href={lp('/account/spot-manager/apply')}
                   className="rounded-lg bg-gradient-to-r from-[#004526] to-[#006B3C] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-opacity"
                   title="Unlock multi-bay pools and block reservations"
                 >
@@ -185,7 +187,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
             <LocaleSwitcher />
             {user && (
               <Link
-                href="/profile"
+                href={lp('/profile')}
                 aria-label="Profile"
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-[#004526] text-sm font-bold text-white hover:bg-[#006B3C]"
               >
@@ -208,7 +210,7 @@ export default function Navigation({ user, unreadCount = 0 }: NavigationProps) {
             return (
               <Link
                 key={tab.href}
-                href={tab.href}
+                href={lp(tab.href)}
                 onClick={() => { navigator.vibrate?.(10); }}
                 className={`group flex flex-1 flex-col items-center justify-center gap-0.5 transition-colors ${
                   active ? 'text-[#AD3614]' : 'text-[#004526]'

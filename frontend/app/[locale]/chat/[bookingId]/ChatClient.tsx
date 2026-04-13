@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useChat } from '../../../../hooks/useChat';
 import ChatBubble from '../../../../components/ChatBubble';
@@ -24,7 +25,7 @@ export default function ChatPage() {
   const { t } = useTranslation('chat');
   const _pathname = usePathname();
   const bookingId = _pathname.split('/').filter(Boolean)[1] ?? '';
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { user } = useAuth();
   const [booking, setBooking] = useState<BookingContext | null>(null);
   const [otherPartyName, setOtherPartyName] = useState<string | null>(null);

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../../lib/locales/useLocalizedRouter';
 import { useAuth } from '../../../../../hooks/useAuth';
 import { useListing } from '../../../../../hooks/useListing';
 
@@ -19,7 +20,7 @@ interface GeoSuggestion { place_name: string; center: [number, number] }
 interface PhotoSlot { status: 'idle' | 'uploading' | 'validating' | 'PASS' | 'FAIL'; reason?: string; thumbnail?: string }
 
 export default function EditListingClient() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const pathname = usePathname();
   const listingId = pathname.split('/').filter(Boolean)[1] ?? '';
   const { user } = useAuth();

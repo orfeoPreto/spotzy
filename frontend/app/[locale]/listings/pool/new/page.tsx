@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { spotManagerApi } from '../../../../../lib/apiUrls';
+import { useLocalizedRouter } from '../../../../../lib/locales/useLocalizedRouter';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -64,7 +64,7 @@ function deriveTierRates(pricePerHourEur: number, daily: number, weekly: number,
 }
 
 export default function PoolListingNewPage() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [state, setState] = useState<WizardState>({
     step: 1,
     address: '', lat: null, lng: null,

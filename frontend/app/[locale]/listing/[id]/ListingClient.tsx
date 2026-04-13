@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 import { useListing } from '../../../../hooks/useListing';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useBookingIntent } from '../../../../hooks/useBookingIntent';
@@ -22,7 +23,7 @@ export default function ListingPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const id = pathname.split('/').filter(Boolean)[1] ?? '';
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { listing, isLoading, error } = useListing(id);
   const { user } = useAuth();
   const isOwnListing = !!(user && listing && user.userId === listing.hostId);

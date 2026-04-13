@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -14,7 +14,7 @@ async function getAuthToken(): Promise<string> {
 }
 
 export default function NewPoolPage() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [spotType, setSpotType] = useState('');

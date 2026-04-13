@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslation } from '../lib/locales/TranslationProvider';
+import { useLocalizePath } from '../lib/locales/useLocalizedRouter';
 
 interface FooterUser {
   userId: string;
@@ -36,16 +37,17 @@ const ANON_LINK_KEYS = [
 
 export default function Footer({ user }: FooterProps) {
   const { t } = useTranslation('footer');
+  const lp = useLocalizePath();
   const linkKeys = !user ? ANON_LINK_KEYS : user.isHost ? HOST_LINK_KEYS : GUEST_LINK_KEYS;
 
   return (
     <footer className="border-t border-[#004526]/10 bg-white px-6 py-10">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <Link href="/" className="text-lg font-bold text-[#004526]">Spotzy</Link>
+          <Link href={lp('/')} className="text-lg font-bold text-[#004526]">Spotzy</Link>
           <nav className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
             {linkKeys.map((l) => (
-              <Link key={l.href + l.key} href={l.href} className="hover:text-[#004526] transition-colors">
+              <Link key={l.href + l.key} href={lp(l.href)} className="hover:text-[#004526] transition-colors">
                 {t(l.key)}
               </Link>
             ))}
