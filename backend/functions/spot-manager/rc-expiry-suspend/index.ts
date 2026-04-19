@@ -8,8 +8,8 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const scheduler = new SchedulerClient({});
 const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-const FROM = process.env.SES_FROM_EMAIL ?? 'noreply@spotzy.com';
-const APP_URL = process.env.APP_URL ?? 'https://spotzy.com';
+const FROM = process.env.SES_FROM_EMAIL ?? 'noreply@spotzy.be';
+const APP_URL = process.env.APP_URL ?? 'https://spotzy.be';
 
 interface RcExpiryEvent {
   submissionId: string;

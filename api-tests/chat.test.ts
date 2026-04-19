@@ -9,7 +9,7 @@ beforeAll(async () => {
   const [ht, st, ut] = await Promise.all([
     loginAndGetToken(TEST_HOST.email, TEST_HOST.password),
     loginAndGetToken(TEST_SPOTTER.email, TEST_SPOTTER.password),
-    loginAndGetToken('spotter2@test.spotzy.com', process.env.TEST_SPOTTER_2_PASSWORD!),
+    loginAndGetToken('spotter2@test.spotzy.be', process.env.TEST_SPOTTER_2_PASSWORD!),
   ]);
   hostToken = ht;
   spotterToken = st;

@@ -51,10 +51,10 @@ describe('chat-send', () => {
   });
 
   it('IMAGE message with imageUrl → stored with imageUrl', async () => {
-    const res = await handler(makeEvent({ type: 'IMAGE', imageUrl: 'https://cdn.spotzy.com/img.jpg' }), {} as any, () => {});
+    const res = await handler(makeEvent({ type: 'IMAGE', imageUrl: 'https://cdn.spotzy.be/img.jpg' }), {} as any, () => {});
     expect(res!.statusCode).toBe(201);
     const item = ddbMock.commandCalls(PutCommand)[0].args[0].input.Item!;
-    expect(item.imageUrl).toBe('https://cdn.spotzy.com/img.jpg');
+    expect(item.imageUrl).toBe('https://cdn.spotzy.be/img.jpg');
   });
 
   it('TEXT > 2000 chars → 400 MESSAGE_TOO_LONG', async () => {

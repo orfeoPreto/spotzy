@@ -1,15 +1,15 @@
 export const TEST_SPOTTER = {
-  email: 'spotter@test.spotzy.com',
+  email: 'spotter@test.spotzy.be',
   password: process.env.TEST_SPOTTER_PASSWORD ?? 'TestPassword123!',
 };
 
 export const TEST_HOST = {
-  email: 'host@test.spotzy.com',
+  email: 'host@test.spotzy.be',
   password: process.env.TEST_HOST_PASSWORD ?? 'TestPassword123!',
 };
 
 export const TEST_SPOTTER_2 = {
-  email: 'spotter2@test.spotzy.com',
+  email: 'spotter2@test.spotzy.be',
   password: process.env.TEST_SPOTTER_2_PASSWORD ?? 'TestPassword123!',
 };
 

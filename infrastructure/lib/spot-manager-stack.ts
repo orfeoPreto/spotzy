@@ -34,15 +34,15 @@ export class SpotManagerStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
+    const suffix = `-${env}`;
     const isLocalDev = env === 'dev-local';
-    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.be' : 'di96dohl3v2d6.cloudfront.net');
     const appUrl = isLocalDev ? 'http://localhost:3000' : `https://${cloudfrontDomain}`;
 
     const { table, eventBus, userPool } = props;
 
     const rcDocsBucketName = `spotzy-rc-documents${suffix}`;
-    const fromEmail = isProd ? 'noreply@spotzy.com' : 'quarcoo.duke@gmail.com';
+    const fromEmail = isProd ? 'noreply@spotzy.be' : 'quarcoo.duke@gmail.com';
 
     // -------------------------------------------------------------------------
     // Lambda factory
@@ -193,7 +193,7 @@ export class SpotManagerStack extends cdk.Stack {
       restApiName: `spotzy-spot-manager-api${suffix}`,
       description: 'Spotzy Spot Manager REST API (Session 26)',
       defaultCorsPreflightOptions: {
-        allowOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,

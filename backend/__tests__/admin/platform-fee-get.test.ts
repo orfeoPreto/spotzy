@@ -8,7 +8,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const mockAdminEvent = (overrides: Partial<APIGatewayProxyEvent> = {}): APIGatewayProxyEvent =>
   ({
     requestContext: {
-      authorizer: { claims: { sub: 'admin-1', email: 'admin@spotzy.com', 'cognito:groups': 'admin' } },
+      authorizer: { claims: { sub: 'admin-1', email: 'admin@spotzy.be', 'cognito:groups': 'admin' } },
       requestId: 'req-1',
     },
     body: null,
@@ -28,7 +28,7 @@ const mockAdminEvent = (overrides: Partial<APIGatewayProxyEvent> = {}): APIGatew
 const mockNonAdminEvent = (): APIGatewayProxyEvent =>
   ({
     requestContext: {
-      authorizer: { claims: { sub: 'user-1', email: 'user@spotzy.com', 'cognito:groups': 'users' } },
+      authorizer: { claims: { sub: 'user-1', email: 'user@spotzy.be', 'cognito:groups': 'users' } },
       requestId: 'req-2',
     },
     body: null,

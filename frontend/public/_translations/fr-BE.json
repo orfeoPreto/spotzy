@@ -446,7 +446,7 @@
     "agent_api": {
       "badge": "Bientôt disponible · Aperçu développeur",
       "heading": "Réservez un parking en une seule commande.",
-      "description": "L'API Agent Spotzy permet aux assistants IA comme Claude, ChatGPT et les agents LangChain de trouver, réserver et gérer un parking en votre nom — via une interface en langage naturel basée sur la même plateforme que spotzy.com.",
+      "description": "L'API Agent Spotzy permet aux assistants IA comme Claude, ChatGPT et les agents LangChain de trouver, réserver et gérer un parking en votre nom — via une interface en langage naturel basée sur la même plateforme que spotzy.be.",
       "terminal_header": "claude.ai · spotzy mcp",
       "prompt_label": "Vous",
       "example_prompt": "J'ai une réunion près de la Rue de la Loi 175 jeudi de 14h à 17h. Réservez-moi une place couverte à moins de 5 min à pied, pour moins de 8 € au total. Utilisez Spotzy.",
@@ -589,7 +589,7 @@
       "deleted_heading": "Ce qui sera définitivement supprimé :",
       "kept_heading": "Ce qui est conservé pour des raisons légales :",
       "legal_explanation": "Les enregistrements de paiement et de Réservation sont conservés pendant 7 ans conformément à la législation comptable belge (Code des sociétés). Vos informations personnelles sont remplacées par un identifiant anonyme. Vous ne pouvez pas être identifié(e) à partir de ces enregistrements.",
-      "dpo_contact": "Des questions ? Contactez notre Délégué à la Protection des Données à l'adresse dpo@spotzy.com",
+      "dpo_contact": "Des questions ? Contactez notre Délégué à la Protection des Données à l'adresse dpo@spotzy.be",
       "confirm_instruction": "Saisissez votre adresse e-mail pour confirmer",
       "email_placeholder": "votre adresse e-mail",
       "confirm_button": "Confirmer la suppression définitive"
@@ -609,9 +609,18 @@
       "features": "Fonctionnalités",
       "covered": "Couvert",
       "privately_owned": "Propriété privée",
+      "available_only": "Disponibles uniquement",
       "clear_all": "Tout effacer",
       "show_spots": "Afficher {count} places"
     }
+  },
+  "prelaunch": {
+    "badge": "Lancement imminent",
+    "title_1": "Votre place de parking.",
+    "title_2": "Votre revenu.",
+    "description": "Spotzy met en relation conducteurs et places de parking privées. Listez votre place et commencez a gagner de l'argent.",
+    "cta_button": "S'inscrire en tant qu'hote",
+    "subtext": "L'inscription pour les conducteurs ouvrira bientot. Restez a l'ecoute."
   },
   "pricing": {
     "earnings_ladder_title": "Vos revenus par palier",

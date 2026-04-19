@@ -38,7 +38,7 @@ built_for_everyone:
 agent_api:
   badge: "Bientôt disponible · Aperçu développeur"
   heading: "Réservez un parking en une seule commande."
-  description: "L'API Agent Spotzy permet aux assistants IA comme Claude, ChatGPT et les agents LangChain de trouver, réserver et gérer un parking en votre nom — via une interface en langage naturel basée sur la même plateforme que spotzy.com."
+  description: "L'API Agent Spotzy permet aux assistants IA comme Claude, ChatGPT et les agents LangChain de trouver, réserver et gérer un parking en votre nom — via une interface en langage naturel basée sur la même plateforme que spotzy.be."
   terminal_header: "claude.ai · spotzy mcp"
   prompt_label: "Vous"
   example_prompt: "J'ai une réunion près de la Rue de la Loi 175 jeudi de 14h à 17h. Réservez-moi une place couverte à moins de 5 min à pied, pour moins de 8 € au total. Utilisez Spotzy."

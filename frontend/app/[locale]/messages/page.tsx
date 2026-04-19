@@ -1,3 +1,4 @@
+export function generateStaticParams() { return [{}]; }
 import dynamic from 'next/dynamic';
 
 const MessagesClient = dynamic(() => import('./MessagesClient'), { ssr: false });

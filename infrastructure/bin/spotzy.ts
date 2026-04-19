@@ -15,8 +15,9 @@ import { EmailTemplatesStack } from '../lib/email-templates-stack';
 const app = new cdk.App();
 
 const envName = process.env.ENVIRONMENT ?? 'dev';
-// Existing dev stacks were deployed without suffix — keep them as-is for backwards compatibility
-const stackSuffix = (envName === 'prod' || envName === 'dev') ? '' : `-${envName}`;
+// Existing dev stacks were deployed without suffix — keep them as-is for backwards compatibility.
+// Prod gets its own '-prod' suffix to avoid colliding with legacy dev stacks.
+const stackSuffix = envName === 'dev' ? '' : `-${envName}`;
 
 const env: cdk.Environment = {
   account: process.env.CDK_DEFAULT_ACCOUNT,

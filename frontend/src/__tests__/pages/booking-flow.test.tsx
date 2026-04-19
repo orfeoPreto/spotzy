@@ -152,7 +152,7 @@ describe('BookingFlow Step 3 — Confirmation', () => {
     await user.click(screen.getByRole('button', { name: /pay €/i }));
 
     await waitFor(() => {
-      const msgBtn = screen.getByRole('link', { name: /message host/i }) ||
+      const msgBtn = screen.getByRole('button', { name: /message host/i }) ||
         screen.getByText(/message host/i);
       expect(msgBtn).toBeInTheDocument();
     });

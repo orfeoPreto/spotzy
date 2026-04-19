@@ -85,6 +85,13 @@ export default function SearchBar({
     onDatesChange(startDate, val);
   };
 
+  // Compute the current datetime string for the `min` attribute (YYYY-MM-DDTHH:MM)
+  const nowMin = (() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  })();
+
   const validateDates = (start: string, end: string) => {
     if (start && end && new Date(end) < new Date(start)) {
       setDateError(t('search_bar.date_error'));
@@ -128,12 +135,14 @@ export default function SearchBar({
         <input
           type="datetime-local"
           value={startDate}
+          min={nowMin}
           onChange={(e) => handleStartChange(e.target.value)}
           className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004526]"
         />
         <input
           type="datetime-local"
           value={endDate}
+          min={startDate || nowMin}
           onChange={(e) => handleEndChange(e.target.value)}
           className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004526]"
         />

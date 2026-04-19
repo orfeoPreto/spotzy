@@ -8,7 +8,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const mockAuthEvent = (body: Record<string, unknown> = {}): APIGatewayProxyEvent =>
   ({
     requestContext: {
-      authorizer: { claims: { sub: 'user-1', email: 'user@spotzy.com' } },
+      authorizer: { claims: { sub: 'user-1', email: 'user@spotzy.be' } },
       requestId: 'req-1',
     },
     body: JSON.stringify(body),

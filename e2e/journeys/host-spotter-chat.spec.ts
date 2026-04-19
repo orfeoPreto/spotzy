@@ -14,7 +14,7 @@ async function loginAs(browser: Browser, email: string, password: string, baseUR
 }
 
 test.skip('Host and spotter can exchange messages in real time', async ({ browser, baseURL }) => {
-  const base = baseURL ?? 'https://staging.spotzy.com';
+  const base = baseURL ?? 'https://staging.spotzy.be';
 
   // Open two browser contexts simultaneously
   const { page: hostPage, context: hostCtx } = await loginAs(browser, TEST_HOST.email, TEST_HOST.password, base);

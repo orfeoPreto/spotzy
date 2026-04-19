@@ -66,8 +66,8 @@ export function DeleteAccountModal({ userEmail, token, onClose, onDeleted }: Del
             {t('delete_account.legal_explanation')}
           </p>
           <p className="text-sm text-[#4B6354] mt-2">
-            {t('delete_account.dpo_contact').split('dpo@spotzy.com')[0]}
-            <a href="mailto:dpo@spotzy.com" className="text-[#006B3C] underline">dpo@spotzy.com</a>
+            {t('delete_account.dpo_contact').split('dpo@spotzy.be')[0]}
+            <a href="mailto:dpo@spotzy.be" className="text-[#006B3C] underline">dpo@spotzy.be</a>
           </p>
         </div>
 

@@ -226,7 +226,7 @@ describe('messages-list', () => {
     setupMocks({
       spotterBookings: [confirmedBooking('b1', USER_ID, HOST_ID, 'CONFIRMED')],
       userProfiles: {
-        [HOST_ID]: userProfile(HOST_ID, 'Marc Dupont', 'https://cdn.spotzy.com/avatar.jpg'),
+        [HOST_ID]: userProfile(HOST_ID, 'Marc Dupont', 'https://cdn.spotzy.be/avatar.jpg'),
       },
       listings: {
         [LISTING_ID]: listingItem(LISTING_ID, '12 Rue de Rivoli, Paris'),

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { useLocalizedRouter } from '../../../../lib/locales/useLocalizedRouter';
+import Link from 'next/link';
+import { useLocalizedRouter, useLocalizePath } from '../../../../lib/locales/useLocalizedRouter';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useChat } from '../../../../hooks/useChat';
 import ChatBubble from '../../../../components/ChatBubble';
@@ -35,6 +36,7 @@ export default function ChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const lp = useLocalizePath();
   const { messages, sendText, sendImage } = useChat(
     bookingId ?? '',
     user?.token ?? '',
@@ -119,7 +121,7 @@ export default function ChatPage() {
               <>
                 {otherPartyName && (
                   <p className="text-sm font-semibold text-gray-900 truncate">
-                    <a href={`/users/${otherPartyId}`} className="hover:underline">{otherPartyName}</a>
+                    <Link href={lp(`/users/${otherPartyId}`)} className="hover:underline">{otherPartyName}</Link>
                   </p>
                 )}
                 <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>

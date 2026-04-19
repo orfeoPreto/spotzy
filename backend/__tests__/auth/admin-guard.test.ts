@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { extractAdminClaims } from '../../shared/utils/admin-guard';
 
-const buildEvent = (groups?: string, sub = 'admin-1', email = 'admin@spotzy.com'): APIGatewayProxyEvent =>
+const buildEvent = (groups?: string, sub = 'admin-1', email = 'admin@spotzy.be'): APIGatewayProxyEvent =>
   ({
     requestContext: {
       authorizer: {
@@ -28,12 +28,12 @@ const buildEvent = (groups?: string, sub = 'admin-1', email = 'admin@spotzy.com'
 describe('extractAdminClaims', () => {
   it('returns claims when cognito:groups contains admin', () => {
     const result = extractAdminClaims(buildEvent('admin'));
-    expect(result).toEqual({ userId: 'admin-1', email: 'admin@spotzy.com' });
+    expect(result).toEqual({ userId: 'admin-1', email: 'admin@spotzy.be' });
   });
 
   it('returns claims when cognito:groups contains admin among other groups', () => {
     const result = extractAdminClaims(buildEvent('users,admin'));
-    expect(result).toEqual({ userId: 'admin-1', email: 'admin@spotzy.com' });
+    expect(result).toEqual({ userId: 'admin-1', email: 'admin@spotzy.be' });
   });
 
   it('returns null when cognito:groups does not contain admin', () => {

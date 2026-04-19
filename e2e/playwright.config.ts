@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './journeys',
   use: {
-    baseURL: process.env.STAGING_URL ?? 'https://staging.spotzy.com',
+    baseURL: process.env.STAGING_URL ?? 'https://staging.spotzy.be',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'retain-on-failure',

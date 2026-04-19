@@ -28,7 +28,7 @@ const booking = {
 const mockAdminEvent = (overrides: Partial<APIGatewayProxyEvent> = {}): APIGatewayProxyEvent =>
   ({
     requestContext: {
-      authorizer: { claims: { sub: 'admin-1', email: 'admin@spotzy.com', 'cognito:groups': 'admin' } },
+      authorizer: { claims: { sub: 'admin-1', email: 'admin@spotzy.be', 'cognito:groups': 'admin' } },
       requestId: 'req-1',
     },
     body: JSON.stringify({ outcome: 'RESOLVED_FOR_GUEST', refundAmount: 5000 }),

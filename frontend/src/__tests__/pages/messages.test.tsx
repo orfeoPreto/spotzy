@@ -9,7 +9,7 @@ vi.mock('next/navigation', () => ({
 // Mock useAuth - must match exact import path used by MessagesClient
 vi.mock('../../../hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { userId: 'user-1', email: 'test@spotzy.com', token: 'mock-token' },
+    user: { userId: 'user-1', email: 'test@spotzy.be', token: 'mock-token' },
     isLoading: false,
   }),
 }));
@@ -17,7 +17,7 @@ vi.mock('../../../hooks/useAuth', () => ({
 // Also mock the path as resolved from app/messages/
 vi.mock('../../../../hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { userId: 'user-1', email: 'test@spotzy.com', token: 'mock-token' },
+    user: { userId: 'user-1', email: 'test@spotzy.be', token: 'mock-token' },
     isLoading: false,
   }),
 }));

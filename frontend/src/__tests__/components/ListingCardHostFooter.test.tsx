@@ -22,7 +22,7 @@ const mockListing: SpotListing = {
   hostId: 'h1',
   hostFirstName: 'Jean',
   hostLastName: 'D.',
-  hostPhotoUrl: 'https://cdn.spotzy.com/avatar.jpg',
+  hostPhotoUrl: 'https://cdn.spotzy.be/avatar.jpg',
 };
 
 describe('ListingCard host footer', () => {

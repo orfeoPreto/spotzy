@@ -8,8 +8,8 @@ import { createLogger } from '../../../shared/utils/logger';
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-const FROM = process.env.SES_FROM_EMAIL ?? 'noreply@spotzy.com';
-const APP_URL = process.env.APP_URL ?? 'https://spotzy.com';
+const FROM = process.env.SES_FROM_EMAIL ?? 'noreply@spotzy.be';
+const APP_URL = process.env.APP_URL ?? 'https://spotzy.be';
 
 const sendEmail = async (toUserId: string, subject: string, html: string): Promise<void> => {
   const result = await ddb.send(new GetCommand({ TableName: TABLE, Key: userProfileKey(toUserId) }));

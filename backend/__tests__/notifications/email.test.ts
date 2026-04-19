@@ -80,10 +80,10 @@ describe('notify-email', () => {
     expect(input.Destination!.ToAddresses).toContain(hostUser.email);
   });
 
-  it('Source is noreply@spotzy.com', async () => {
+  it('Source is noreply@spotzy.be', async () => {
     await handler(makeEvent('booking.confirmed', { hostId: HOST_ID, spotterId: SPOTTER_ID, listingAddress: '123', bookingId: BOOKING_ID, startTime: '2025-06-01T10:00:00Z', endTime: '2025-06-01T12:00:00Z', totalPrice: 7.00 }), {} as any, () => {});
     const input = sesMock.commandCalls(SendEmailCommand)[0].args[0].input;
-    expect(input.Source).toBe('noreply@spotzy.com');
+    expect(input.Source).toBe('noreply@spotzy.be');
   });
 
   it('user has no email → no send, no throw', async () => {

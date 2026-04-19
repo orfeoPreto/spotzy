@@ -1,16 +1,16 @@
-export const API_URL = process.env.TEST_API_URL ?? 'https://api-test.spotzy.com';
+export const API_URL = process.env.TEST_API_URL ?? 'https://api-test.spotzy.be';
 
 // Pre-created test users — credentials from Secrets Manager in CI
 export const TEST_HOST = {
-  email: 'host@test.spotzy.com',
+  email: 'host@test.spotzy.be',
   password: process.env.TEST_HOST_PASSWORD!,
 };
 export const TEST_SPOTTER = {
-  email: 'spotter@test.spotzy.com',
+  email: 'spotter@test.spotzy.be',
   password: process.env.TEST_SPOTTER_PASSWORD!,
 };
 export const TEST_SPOTTER_2 = {
-  email: 'spotter2@test.spotzy.com',
+  email: 'spotter2@test.spotzy.be',
   password: process.env.TEST_SPOTTER_2_PASSWORD!,
 };
 

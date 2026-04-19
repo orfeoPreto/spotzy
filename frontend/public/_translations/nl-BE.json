@@ -446,7 +446,7 @@
     "agent_api": {
       "badge": "Binnenkort beschikbaar · Ontwikkelaarspreview",
       "heading": "Boek parking met één enkele opdracht.",
-      "description": "De Spotzy Agent API laat AI-assistenten zoals Claude, ChatGPT en aangepaste LangChain-agents parkeerplaatsen zoeken, boeken en beheren namens u — via een interface in natuurlijke taal op hetzelfde platform als spotzy.com.",
+      "description": "De Spotzy Agent API laat AI-assistenten zoals Claude, ChatGPT en aangepaste LangChain-agents parkeerplaatsen zoeken, boeken en beheren namens u — via een interface in natuurlijke taal op hetzelfde platform als spotzy.be.",
       "terminal_header": "claude.ai · spotzy mcp",
       "prompt_label": "U",
       "example_prompt": "Ik rijd naar een vergadering bij Wetstraat 175 op donderdag 14–17u. Boek een overdekte plaats binnen 5 min wandelen, onder €8 totaal. Gebruik Spotzy.",
@@ -589,7 +589,7 @@
       "deleted_heading": "Wat wordt permanent verwijderd:",
       "kept_heading": "Wat om wettelijke redenen bewaard blijft:",
       "legal_explanation": "Betalings- en boekingsgegevens worden 7 jaar bewaard zoals vereist door de Belgische boekhoudwetgeving (Wetboek van vennootschappen). Uw persoonlijke gegevens worden vervangen door een anonieme identificator. U kunt niet worden geïdentificeerd aan de hand van deze gegevens.",
-      "dpo_contact": "Vragen? Contacteer onze Data Protection Officer via dpo@spotzy.com",
+      "dpo_contact": "Vragen? Contacteer onze Data Protection Officer via dpo@spotzy.be",
       "confirm_instruction": "Typ uw e-mailadres ter bevestiging",
       "email_placeholder": "uw e-mailadres",
       "confirm_button": "Bevestig definitieve verwijdering"
@@ -609,9 +609,18 @@
       "features": "Functies",
       "covered": "Overdekt",
       "privately_owned": "Privé-eigendom",
+      "available_only": "Alleen beschikbare",
       "clear_all": "Alles wissen",
       "show_spots": "Toon {count} spots"
     }
+  },
+  "prelaunch": {
+    "badge": "Binnenkort beschikbaar",
+    "title_1": "Jouw parkeerplaats.",
+    "title_2": "Jouw inkomen.",
+    "description": "Spotzy verbindt bestuurders met prive-parkeerplaatsen in de buurt. Vermeld je plek en begin vandaag nog te verdienen.",
+    "cta_button": "Registreer als verhuurder",
+    "subtext": "Registratie voor bestuurders opent binnenkort. Blijf op de hoogte."
   },
   "pricing": {
     "earnings_ladder_title": "Uw verdienstenstaffel",

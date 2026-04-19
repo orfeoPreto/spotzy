@@ -27,7 +27,7 @@ export class IntegrationStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
+    const suffix = `-${env}`;
     const removalPolicy = isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY;
 
     // -----------------------------------------------------------------------
@@ -262,10 +262,11 @@ export class IntegrationStack extends cdk.Stack {
       tlsPolicy: ses.ConfigurationSetTlsPolicy.REQUIRE,
     });
 
-    // SES domain identity is account-global — only create for primary dev or prod
-    if (env === 'dev' || isProd) {
+    // SES domain identity is account-global — only create once (from primary dev stack).
+    // Prod reuses the same verified identity; creating it again causes AlreadyExists errors.
+    if (env === 'dev') {
       new ses.EmailIdentity(this, 'SpotzyDomainIdentity', {
-        identity: ses.Identity.domain('spotzy.com'),
+        identity: ses.Identity.domain('spotzy.be'),
         configurationSet: this.sesConfigSet,
       });
     }

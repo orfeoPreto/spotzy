@@ -1,3 +1,4 @@
+export function generateStaticParams() { return [{}]; }
 export const dynamic = 'force-static';
 
 export default function PrivacyPage() {
@@ -105,7 +106,7 @@ export default function PrivacyPage() {
             If you have questions about your privacy or wish to exercise your rights, contact our Data Protection Officer:
           </p>
           <p className="mt-2 font-medium">
-            <a href="mailto:dpo@spotzy.com" className="text-[#006B3C] underline">dpo@spotzy.com</a>
+            <a href="mailto:dpo@spotzy.be" className="text-[#006B3C] underline">dpo@spotzy.be</a>
           </p>
           <p className="mt-4 text-xs text-[#4B6354]">
             Spotzy is operated by Exu Consult, registered in Belgium. For complaints, you may also contact the Belgian Data Protection Authority (Autorit&eacute; de protection des donn&eacute;es).

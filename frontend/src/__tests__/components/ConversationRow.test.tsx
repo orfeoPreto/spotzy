@@ -10,7 +10,7 @@ const mockConversation = {
   listingAddress: '12 Rue de Rivoli, Paris',
   otherPartyId: 'u2',
   otherPartyName: 'Marc D.',
-  otherPartyPhotoUrl: 'https://cdn.spotzy.com/avatar.jpg',
+  otherPartyPhotoUrl: 'https://cdn.spotzy.be/avatar.jpg',
   lastMessagePreview: 'Hello, is the spot available?',
   lastMessageAt: '2025-01-15T10:00:00.000Z',
   unreadCount: 3,

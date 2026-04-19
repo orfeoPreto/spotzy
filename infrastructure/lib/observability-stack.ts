@@ -22,7 +22,7 @@ export class ObservabilityStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
+    const suffix = `-${env}`;
 
     // -----------------------------------------------------------------------
     // SNS topic for alarm notifications (PagerDuty / OpsGenie integration)

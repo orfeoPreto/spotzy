@@ -24,7 +24,7 @@ import { server } from '../mocks/server';
 
 import ProfilePage from '../../../app/[locale]/profile/page';
 
-const mockUserProfile = { userId: 'u1', name: 'Jean Dupont', email: 'jean@spotzy.com' };
+const mockUserProfile = { userId: 'u1', name: 'Jean Dupont', email: 'jean@spotzy.be' };
 const mockMetrics = { listingCount: 2, bookingCount: 5, liveListings: 2, activeBookings: 5 };
 
 beforeEach(() => {

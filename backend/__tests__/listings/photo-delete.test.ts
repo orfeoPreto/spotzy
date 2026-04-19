@@ -23,7 +23,7 @@ const makeEvent = (listingId: string, index: string, userId: string): APIGateway
     queryStringParameters: {},
     requestContext: {
       requestId: 'test',
-      authorizer: { claims: { sub: userId, email: 'test@spotzy.com' } },
+      authorizer: { claims: { sub: userId, email: 'test@spotzy.be' } },
     },
   } as unknown as APIGatewayProxyEvent);
 

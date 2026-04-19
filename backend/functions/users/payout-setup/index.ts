@@ -10,7 +10,7 @@ import { createLogger } from '../../../shared/utils/logger';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
-const APP_URL = process.env.APP_URL ?? 'https://spotzy.com';
+const APP_URL = process.env.APP_URL ?? 'https://spotzy.be';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const claims = extractClaims(event);

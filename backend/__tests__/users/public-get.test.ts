@@ -29,7 +29,7 @@ const makeEvent = (userId: string, callerId: string): APIGatewayProxyEvent =>
     queryStringParameters: {},
     requestContext: {
       requestId: 'test',
-      authorizer: { claims: { sub: callerId, email: 'caller@spotzy.com' } },
+      authorizer: { claims: { sub: callerId, email: 'caller@spotzy.be' } },
     },
   } as unknown as APIGatewayProxyEvent);
 

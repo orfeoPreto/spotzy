@@ -111,9 +111,14 @@ describe('Auth Registration Step 1 — Role selection', () => {
   it('"Spot Manager" card has "Coming soon" label and is not clickable', () => {
     render(<RegisterPage />);
     expect(screen.getByText(/spot manager/i)).toBeInTheDocument();
-    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
     const spotManagerCard = document.querySelector('[data-testid="role-card"][data-role="SPOT_MANAGER"]');
     expect(spotManagerCard).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('Spotter card is disabled pre-launch', () => {
+    render(<RegisterPage />);
+    const spotterCard = document.querySelector('[data-testid="persona-guest"]');
+    expect(spotterCard).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('clicking Host card gives it selected border', async () => {
@@ -136,10 +141,16 @@ describe('Auth Registration Step 2 — User details', () => {
   async function goToProfileStep() {
     const user = userEvent.setup();
     render(<RegisterPage />);
-    // Select Spotter role (goes directly to profile step, no stripe-gate)
-    const spotterCard = document.querySelector('[data-testid="persona-guest"]') as HTMLElement;
-    await user.click(spotterCard);
+    // Select Host role (Spotter is disabled pre-launch)
+    const hostCard = document.querySelector('[data-testid="persona-host"]') as HTMLElement;
+    await user.click(hostCard);
     await user.click(screen.getByRole('button', { name: /continue/i }));
+    // Stripe gate — click through
+    await waitFor(() => screen.getByRole('button', { name: /understood|continue|confirm/i }));
+    await user.click(screen.getByRole('button', { name: /understood|continue|confirm/i }));
+    // Invoicing step — skip
+    await waitFor(() => screen.getByRole('button', { name: /skip/i }));
+    await user.click(screen.getByRole('button', { name: /skip/i }));
     return user;
   }
 

@@ -18,17 +18,17 @@ export class FrontendStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
-    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const suffix = `-${env}`;
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.be' : 'di96dohl3v2d6.cloudfront.net');
     const removalPolicy = isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY;
     const autoDeleteObjects = !isProd;
 
     // Domain aliases per environment
     const domainAliases: string[] = isProd
-      ? ['spotzy.com', 'www.spotzy.com']
+      ? ['spotzy.be', 'www.spotzy.be']
       : env === 'staging'
-      ? ['staging.spotzy.com']
-      : ['dev.spotzy.com'];
+      ? ['staging.spotzy.be']
+      : ['dev.spotzy.be'];
 
     // -----------------------------------------------------------------------
     // S3 Buckets (owned here so OAC grants stay within this stack)
@@ -50,7 +50,7 @@ export class FrontendStack extends cdk.Stack {
       cors: [{
         allowedHeaders: ['*'],
         allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET],
-        allowedOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [`https://${cloudfrontDomain}`, 'http://localhost:3000'],
+        allowedOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [`https://${cloudfrontDomain}`, 'http://localhost:3000'],
         exposedHeaders: ['ETag'],
         maxAge: 3600,
       }],

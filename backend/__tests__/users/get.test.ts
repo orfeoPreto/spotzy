@@ -9,7 +9,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const existingUser = {
   PK: `USER#${TEST_USER_ID}`, SK: 'PROFILE',
   userId: TEST_USER_ID,
-  email: 'test@spotzy.com',
+  email: 'test@spotzy.be',
   name: 'Test User',
   role: 'HOST',
   stripeConnectAccountId: 'acct_secret_123',

@@ -5,7 +5,7 @@ import { handler, businessHoursBetween } from '../../functions/spot-manager/admi
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 const mockAdminEvent = (adminId: string, overrides: any = {}) => ({
-  requestContext: { authorizer: { claims: { sub: adminId, email: `${adminId}@spotzy.com`, 'cognito:groups': 'admin' } }, requestId: 'test-req' },
+  requestContext: { authorizer: { claims: { sub: adminId, email: `${adminId}@spotzy.be`, 'cognito:groups': 'admin' } }, requestId: 'test-req' },
   body: overrides.body ? JSON.stringify(overrides.body) : null,
   pathParameters: overrides.pathParameters ?? null,
   ...overrides,

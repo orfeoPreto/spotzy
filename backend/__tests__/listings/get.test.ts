@@ -21,7 +21,7 @@ beforeEach(() => {
 
 const makeJwt = (sub: string) => {
   const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString('base64url');
-  const payload = Buffer.from(JSON.stringify({ sub, email: 'test@spotzy.com' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub, email: 'test@spotzy.be' })).toString('base64url');
   return `${header}.${payload}.fakesig`;
 };
 

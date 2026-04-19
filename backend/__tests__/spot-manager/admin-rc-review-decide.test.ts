@@ -16,7 +16,7 @@ const ebMock = mockClient(EventBridgeClient);
 const mockAdminEvent = (adminId: string, overrides: any = {}) => {
   const { body, pathParameters, ...rest } = overrides;
   return {
-    requestContext: { authorizer: { claims: { sub: adminId, email: `${adminId}@spotzy.com`, 'cognito:groups': 'admin' } }, requestId: 'test-req' },
+    requestContext: { authorizer: { claims: { sub: adminId, email: `${adminId}@spotzy.be`, 'cognito:groups': 'admin' } }, requestId: 'test-req' },
     body: body ? JSON.stringify(body) : null,
     pathParameters: pathParameters ?? null,
     ...rest,

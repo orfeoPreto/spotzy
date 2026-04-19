@@ -16,6 +16,7 @@ export interface FilterState {
   maxPrice: number;
   covered: boolean;
   privatelyOwned: boolean;
+  availableOnly: boolean;
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -24,6 +25,7 @@ const DEFAULT_FILTERS: FilterState = {
   maxPrice: 50,
   covered: false,
   privatelyOwned: false,
+  availableOnly: true,
 };
 
 interface FilterPanelProps {
@@ -55,7 +57,15 @@ export default function FilterPanel({ resultCount, onApply, onClear }: FilterPan
       {/* Availability section */}
       <section>
         <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('filter.availability')}</h3>
-        {/* Availability filters would go here */}
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={filters.availableOnly}
+            onChange={(e) => setFilters((p) => ({ ...p, availableOnly: e.target.checked }))}
+            aria-label={t('filter.available_only')}
+          />
+          {t('filter.available_only')}
+        </label>
       </section>
 
       {/* Price section */}

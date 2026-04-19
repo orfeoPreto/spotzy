@@ -10,6 +10,7 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { getStripe } from '../../../../lib/stripe';
 import { formatDateTime } from '../../../../lib/formatDate';
 import { useTranslation } from '../../../../lib/locales/TranslationProvider';
+import { useLocalizeError } from '../../../../lib/errors/useLocalizeError';
 
 const STEP_KEYS = ['steps.review', 'steps.payment', 'steps.confirmation'];
 
@@ -200,12 +201,13 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
         <p className="mt-1 font-mono text-lg font-bold text-[#004526]">{bookingRef}</p>
       </div>
       <div className="flex flex-col gap-3">
-        <a
-          href={`/chat/${bookingId}`}
+        <button
+          type="button"
+          onClick={() => router.push(`/chat/${bookingId}`)}
           className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] text-center"
         >
           {t('confirmation.message_host')}
-        </a>
+        </button>
         <button
           type="button"
           onClick={() => router.push('/dashboard/spotter')}
@@ -221,6 +223,7 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
 // ─── Main page ────────────────────────────────────────────────────────────
 export default function BookPage() {
   const { t: tBooking } = useTranslation('booking');
+  const localizeError = useLocalizeError();
   const pathname = usePathname();
   const id = pathname.split('/').filter(Boolean)[2] ?? '';
   const router = useLocalizedRouter();
@@ -292,8 +295,8 @@ export default function BookPage() {
         });
         if (res.status === 401) { router.push('/auth/login'); return; }
         if (!res.ok) {
-          const err = await res.json().catch(() => null) as { message?: string; error?: string } | null;
-          setProceedError(err?.message ?? err?.error ?? tBooking('create_error'));
+          const err = await res.json().catch(() => null) as { message?: string; error?: string; details?: Record<string, unknown> } | null;
+          setProceedError(localizeError(err) || tBooking('create_error'));
           return;
         }
         const booking = await res.json() as { bookingId: string; reference?: string };
@@ -309,8 +312,8 @@ export default function BookPage() {
         body: JSON.stringify({ bookingId: currentBookingId }),
       });
       if (!piRes.ok) {
-        const err = await piRes.json().catch(() => null) as { message?: string } | null;
-        setProceedError(err?.message ?? tBooking('payment_init_error'));
+        const err = await piRes.json().catch(() => null) as { message?: string; error?: string; details?: Record<string, unknown> } | null;
+        setProceedError(localizeError(err) || tBooking('payment_init_error'));
         return;
       }
       const pi = await piRes.json() as { clientSecret: string };

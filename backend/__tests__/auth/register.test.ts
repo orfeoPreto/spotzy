@@ -31,7 +31,7 @@ const makeEvent = (body: Record<string, unknown>): APIGatewayProxyEvent =>
   } as unknown as APIGatewayProxyEvent);
 
 const validBody = {
-  email: 'test@spotzy.com',
+  email: 'test@spotzy.be',
   password: 'Str0ngP@ss!',
   firstName: 'Jean',
   lastName: 'Dupont',

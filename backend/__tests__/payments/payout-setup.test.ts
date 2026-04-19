@@ -29,7 +29,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const USER_ID = 'user-payout-test';
 const userWithoutStripe = {
   PK: `USER#${USER_ID}`, SK: 'PROFILE',
-  userId: USER_ID, email: 'host@spotzy.com', name: 'Test Host',
+  userId: USER_ID, email: 'host@spotzy.be', name: 'Test Host',
 };
 const userWithStripe = { ...userWithoutStripe, stripeConnectAccountId: 'acct_existing' };
 
@@ -54,7 +54,7 @@ describe('payout-setup', () => {
     expect(mockAccountCreate).toHaveBeenCalledWith(expect.objectContaining({
       type: 'express',
       country: 'BE',
-      email: 'host@spotzy.com',
+      email: 'host@spotzy.be',
     }));
     expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
   });

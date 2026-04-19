@@ -8,7 +8,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 
 const existingUser = {
   PK: `USER#${TEST_USER_ID}`, SK: 'PROFILE',
-  userId: TEST_USER_ID, email: 'test@spotzy.com',
+  userId: TEST_USER_ID, email: 'test@spotzy.be',
   name: 'Old Name', phone: '+32471000001',
   vehicles: [],
 };

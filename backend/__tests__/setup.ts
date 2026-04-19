@@ -15,6 +15,6 @@ export const TEST_HOST_ID = 'user_01HX1234';
 // JWT claims mock
 export const mockAuthContext = (userId = TEST_USER_ID) => ({
   requestContext: {
-    authorizer: { claims: { sub: userId, email: 'test@spotzy.com' } }
+    authorizer: { claims: { sub: userId, email: 'test@spotzy.be' } }
   }
 });

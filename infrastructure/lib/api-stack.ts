@@ -135,9 +135,9 @@ export class ApiStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
+    const suffix = `-${env}`;
     // CloudFront domain — pass via CLOUDFRONT_DOMAIN env var for new environments, default to existing dev domain
-    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.be' : 'di96dohl3v2d6.cloudfront.net');
     const isLocalDev = env === 'dev-local';
     const appUrl = isLocalDev ? 'http://localhost:3000' : `https://${cloudfrontDomain}`;
 
@@ -472,7 +472,7 @@ export class ApiStack extends cdk.Stack {
     const gdprDeleteFn = mkFn(LAMBDA_NAMES.gdprDelete, {
       ...cognitoEnv,
       MEDIA_PUBLIC_BUCKET: mediaPublicBucket.bucketName,
-      FROM_EMAIL: 'noreply@spotzy.com',
+      FROM_EMAIL: 'noreply@spotzy.be',
       CURRENT_POLICY_VERSION: '2026-04-01',
     });
     gdprDeleteFn.addToRolePolicy(new iam.PolicyStatement({
@@ -589,7 +589,7 @@ export class ApiStack extends cdk.Stack {
 
     const notifyEmailFn = mkFn(LAMBDA_NAMES.notifyEmail, {
       APP_URL: appUrl,
-      SES_FROM_EMAIL: isProd ? 'noreply@spotzy.com' : 'quarcoo.duke@gmail.com',
+      SES_FROM_EMAIL: isProd ? 'noreply@spotzy.be' : 'quarcoo.duke@gmail.com',
     });
     notifyEmailFn.addToRolePolicy(new iam.PolicyStatement({
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -671,7 +671,7 @@ export class ApiStack extends cdk.Stack {
       restApiName: `spotzy-api${suffix}`,
       description: 'Spotzy REST API',
       defaultCorsPreflightOptions: {
-        allowOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,

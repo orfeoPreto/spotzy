@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from '../lib/locales/TranslationProvider';
+import { useLocalizeError } from '../lib/errors/useLocalizeError';
 
 const SPOTTER_SECTION_KEYS = ['LOCATION', 'CLEANLINESS', 'VALUE', 'ACCESS'];
 
@@ -28,6 +29,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 export default function RatingModal({ bookingId, onClose, onSubmitted, token, existingReview }: RatingModalProps) {
   const { t } = useTranslation('booking');
   const { t: tCommon } = useTranslation('common');
+  const localizeError = useLocalizeError();
 
   // Build section labels from YAML array
   const SPOTTER_SECTIONS = SPOTTER_SECTION_KEYS.map((key, i) => ({
@@ -74,13 +76,13 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
         onSubmitted();
         onClose();
       } else {
-        const err = await res.json().catch(() => null) as { message?: string; error?: string; reason?: string } | null;
+        const err = await res.json().catch(() => null) as { message?: string; error?: string; reason?: string; details?: Record<string, unknown> } | null;
         if (err?.error === 'REVIEW_LOCKED') {
           setError(err.reason === 'OTHER_PARTY_REVIEWED'
             ? t('rating.error_other_party')
             : t('rating.error_window_closed'));
         } else {
-          setError(err?.message ?? err?.error ?? 'Could not submit review. Please try again.');
+          setError(localizeError(err) || 'Could not submit review. Please try again.');
         }
       }
     } catch {

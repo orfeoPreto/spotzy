@@ -33,9 +33,9 @@ export class BlockReservationsStack extends cdk.Stack {
 
     const env = process.env.ENVIRONMENT ?? 'dev';
     const isProd = env === 'prod';
-    const suffix = isProd ? '' : `-${env}`;
+    const suffix = `-${env}`;
     const isLocalDev = env === 'dev-local';
-    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.com' : 'di96dohl3v2d6.cloudfront.net');
+    const cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN ?? (isProd ? 'spotzy.be' : 'di96dohl3v2d6.cloudfront.net');
     const appUrl = isLocalDev ? 'http://localhost:3000' : `https://${cloudfrontDomain}`;
 
     const { table, eventBus, userPool } = props;
@@ -86,7 +86,7 @@ export class BlockReservationsStack extends cdk.Stack {
 
     const stripeSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/secret-key*`;
     const stripeWebhookSecretArn = `arn:aws:secretsmanager:${this.region}:${this.account}:secret:spotzy/stripe/webhook-secret*`;
-    const fromEmail = isProd ? 'noreply@spotzy.com' : 'quarcoo.duke@gmail.com';
+    const fromEmail = isProd ? 'noreply@spotzy.be' : 'quarcoo.duke@gmail.com';
 
     // Scheduler policy shared across multiple Lambdas
     const schedulerPolicy = new iam.PolicyStatement({
@@ -183,7 +183,7 @@ export class BlockReservationsStack extends cdk.Stack {
       restApiName: `spotzy-block-api${suffix}`,
       description: 'Spotzy Block Reservations REST API (Session 27)',
       defaultCorsPreflightOptions: {
-        allowOrigins: isProd ? ['https://spotzy.com', 'https://www.spotzy.com'] : [appUrl, 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,

@@ -55,7 +55,7 @@ beforeEach(() => {
 
   // Default host profile mock
   ddbMock.on(GetCommand).resolves({
-    Item: { userId: 'host1', name: 'Marc Dupont', photoUrl: 'https://cdn.spotzy.com/avatar.jpg' },
+    Item: { userId: 'host1', name: 'Marc Dupont', photoUrl: 'https://cdn.spotzy.be/avatar.jpg' },
   });
 });
 
@@ -143,7 +143,7 @@ describe('listing-search', () => {
       return { Items: [{ type: 'ALWAYS', PK: 'LISTING#l1', SK: 'AVAIL_RULE#r1' }] };
     });
     ddbMock.on(GetCommand).resolves({
-      Item: { userId: 'host1', name: 'Marc Dupont', photoUrl: 'https://cdn.spotzy.com/avatar.jpg' },
+      Item: { userId: 'host1', name: 'Marc Dupont', photoUrl: 'https://cdn.spotzy.be/avatar.jpg' },
     });
 
     const res = await handler(makeEvent({ lat: '37.7749', lng: '-122.4194' }), {} as any, () => {});
@@ -152,7 +152,7 @@ describe('listing-search', () => {
       const listing = body.listings[0];
       expect(listing.hostFirstName).toBe('Marc');
       expect(listing.hostLastName).toBe('D.');
-      expect(listing.hostPhotoUrl).toBe('https://cdn.spotzy.com/avatar.jpg');
+      expect(listing.hostPhotoUrl).toBe('https://cdn.spotzy.be/avatar.jpg');
     }
   });
 });

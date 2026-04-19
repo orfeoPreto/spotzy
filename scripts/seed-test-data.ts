@@ -57,19 +57,19 @@ const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({ region: REGION }
 
 const TEST_USERS = [
   {
-    email: 'host@test.spotzy.com',
+    email: 'host@test.spotzy.be',
     password: process.env.TEST_HOST_PASSWORD ?? 'TestPassword123!',
     role: 'HOST',
     stripeAccountId: 'acct_test_host',
   },
   {
-    email: 'spotter@test.spotzy.com',
+    email: 'spotter@test.spotzy.be',
     password: process.env.TEST_SPOTTER_PASSWORD ?? 'TestPassword123!',
     role: 'SPOTTER',
     stripeCustomerId: 'cus_test_spotter',
   },
   {
-    email: 'spotter2@test.spotzy.com',
+    email: 'spotter2@test.spotzy.be',
     password: process.env.TEST_SPOTTER_2_PASSWORD ?? 'TestPassword123!',
     role: 'SPOTTER',
   },

@@ -452,7 +452,7 @@
     "agent_api": {
       "badge": "Coming soon · Developer preview",
       "heading": "Book parking with a single prompt.",
-      "description": "The Spotzy Agent API lets AI assistants like Claude, ChatGPT, and custom LangChain agents find, book, and manage parking on your behalf — through a natural-language interface backed by the same platform that powers spotzy.com.",
+      "description": "The Spotzy Agent API lets AI assistants like Claude, ChatGPT, and custom LangChain agents find, book, and manage parking on your behalf — through a natural-language interface backed by the same platform that powers spotzy.be.",
       "terminal_header": "claude.ai · spotzy mcp",
       "prompt_label": "You",
       "example_prompt": "I'm driving to a meeting near Rue de la Loi 175 on Thursday 2–5pm. Book me a covered spot within 5 min walk, under €8 total. Use Spotzy.",
@@ -601,7 +601,7 @@
       ],
       "kept_heading": "What is kept for legal reasons:",
       "legal_explanation": "Payment and booking records are retained for 7 years as required by Belgian accounting law (Code des sociétés). Your personal information is replaced with an anonymous identifier. You cannot be identified from these records.",
-      "dpo_contact": "Questions? Contact our Data Protection Officer at dpo@spotzy.com",
+      "dpo_contact": "Questions? Contact our Data Protection Officer at dpo@spotzy.be",
       "confirm_instruction": "Type your email address to confirm",
       "email_placeholder": "your email",
       "confirm_button": "Confirm permanent deletion"
@@ -621,9 +621,18 @@
       "features": "Features",
       "covered": "Covered",
       "privately_owned": "Privately owned",
+      "available_only": "Available only",
       "clear_all": "Clear all",
       "show_spots": "Show {count} spots"
     }
+  },
+  "prelaunch": {
+    "badge": "Launching soon",
+    "title_1": "Your parking spot.",
+    "title_2": "Your income.",
+    "description": "Spotzy connects drivers with private parking spots near their destination. List your spot and start earning today.",
+    "cta_button": "Register as a Host",
+    "subtext": "Spotter registration opens soon. Stay tuned."
   },
   "pricing": {
     "earnings_ladder_title": "Your earnings ladder",

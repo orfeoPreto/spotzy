@@ -38,7 +38,7 @@ built_for_everyone:
 agent_api:
   badge: "Binnenkort beschikbaar · Ontwikkelaarspreview"
   heading: "Boek parking met één enkele opdracht."
-  description: "De Spotzy Agent API laat AI-assistenten zoals Claude, ChatGPT en aangepaste LangChain-agents parkeerplaatsen zoeken, boeken en beheren namens u — via een interface in natuurlijke taal op hetzelfde platform als spotzy.com."
+  description: "De Spotzy Agent API laat AI-assistenten zoals Claude, ChatGPT en aangepaste LangChain-agents parkeerplaatsen zoeken, boeken en beheren namens u — via een interface in natuurlijke taal op hetzelfde platform als spotzy.be."
   terminal_header: "claude.ai · spotzy mcp"
   prompt_label: "U"
   example_prompt: "Ik rijd naar een vergadering bij Wetstraat 175 op donderdag 14–17u. Boek een overdekte plaats binnen 5 min wandelen, onder €8 totaal. Gebruik Spotzy."

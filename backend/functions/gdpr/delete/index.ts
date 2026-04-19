@@ -26,7 +26,7 @@ const ses = new SESClient({});
 const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID ?? '';
 const MEDIA_BUCKET = process.env.MEDIA_PUBLIC_BUCKET ?? '';
-const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@spotzy.com';
+const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@spotzy.be';
 
 const ANON_PREFIX = 'ANONYMISED_USER_';
 const getAnonId = (userId: string) =>
@@ -75,7 +75,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           Subject: { Data: 'Your Spotzy account has been deleted' },
           Body: {
             Text: {
-              Data: `Your account and personal data have been removed from Spotzy.\n\nPayment and booking records are retained for 7 years as required by Belgian accounting law (Code des sociétés). Your personal information has been replaced with an anonymous identifier — you cannot be identified from these records.\n\nIf you have questions, contact our Data Protection Officer at dpo@spotzy.com.`,
+              Data: `Your account and personal data have been removed from Spotzy.\n\nPayment and booking records are retained for 7 years as required by Belgian accounting law (Code des sociétés). Your personal information has been replaced with an anonymous identifier — you cannot be identified from these records.\n\nIf you have questions, contact our Data Protection Officer at dpo@spotzy.be.`,
             },
           },
         },
