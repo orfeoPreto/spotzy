@@ -34,7 +34,7 @@ Be factual and neutral. Do not recommend a resolution.`;
     modelId: 'eu.anthropic.claude-sonnet-4-6',
     system: [{ text: 'You are a factual dispute summariser for Spotzy customer support.' }],
     messages: [{ role: 'user', content: [{ text: summaryPrompt }] }],
-    inferenceConfig: { maxTokens: 200 },
+    inferenceConfig: { maxTokens: 200, temperature: 1.3 },
   }));
 
   const text = response.output?.message?.content?.[0]?.text;

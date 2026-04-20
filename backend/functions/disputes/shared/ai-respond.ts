@@ -30,7 +30,7 @@ export async function generateDisputeResponse(
         role: m.role,
         content: [{ text: m.content }],
       })),
-      inferenceConfig: { maxTokens: 200 },
+      inferenceConfig: { maxTokens: 200, temperature: 0.6 },
     }));
 
     const text = response.output?.message?.content?.[0]?.text;
