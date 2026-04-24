@@ -35,6 +35,8 @@ signup:
   form_type_open: "Espace ouvert"
   form_cta: "Inscription gratuite"
   form_privacy: "Vos données sont 100 % sécurisées et ne sont jamais partagées."
+  success_title: "Merci !"
+  success_body: "Nous vous recontactons dès que Spotzy ouvre à votre code postal."
 how_it_works:
   heading: "Comment ça marche"
   subheading: "Réservez une place en moins de 2 minutes"
@@ -136,9 +138,6 @@ how:
   step2_desc: "Ajoutez les détails, fixez votre prix et vos disponibilités."
   step3_title: "Gagnez de l'argent"
   step3_desc: "Recevez des réservations et gagnez pendant que nous nous occupons du reste."
-signup:
-  success_title: "Merci !"
-  success_body: "Nous vous recontactons dès que Spotzy ouvre à votre code postal."
 faq:
   title: "Questions fréquentes"
   q1_q: "Comment fixez-vous mes revenus ?"

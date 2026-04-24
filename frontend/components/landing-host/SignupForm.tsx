@@ -70,8 +70,10 @@ export default function SignupForm() {
     }
     const params = new URLSearchParams({
       intent: 'host',
-      email: form.email,
-      zip: form.zip,
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      email: form.email.trim(),
+      zip: form.zip.trim(),
       parkingType: form.parkingType,
     });
     router.push(`/auth/register?${params.toString()}`);

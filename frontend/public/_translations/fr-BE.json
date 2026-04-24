@@ -408,7 +408,42 @@
       "title_1": "Trouvez un parking.",
       "title_2": "Rapidement.",
       "description": "Réservez des places de parking privées à l'heure — directement auprès d'hôtes locaux près de votre destination.",
-      "cta_button": "Rechercher des places de parking"
+      "cta_button": "Rechercher des places de parking",
+      "status_live": "Bientôt en ligne — places limitées"
+    },
+    "ribbon": {
+      "head": "0 % de commission pendant 3 mois",
+      "sub": "Puis seulement 10 %"
+    },
+    "benefits": {
+      "price_title": "Vous fixez le prix",
+      "price_desc": "Contrôle total sur votre tarif et vos disponibilités.",
+      "flex_title": "100 % flexible",
+      "flex_desc": "Louez quand vous voulez, sans engagement.",
+      "easy_title": "Zéro tracas",
+      "easy_desc": "Nous gérons les paiements et la communication."
+    },
+    "signup": {
+      "eyebrow": "PRÊT·E À GAGNER ?",
+      "title": "Devenez hôte Spotzy dès aujourd'hui.",
+      "bullet_1": "Aucun frais de démarrage",
+      "bullet_2": "0 % de commission pendant 3 mois",
+      "bullet_3": "Commencez à gagner quand vous voulez",
+      "social": "Déjà 30+ hôtes à Forest & Saint-Gilles",
+      "form_title": "Inscrivez-vous gratuitement",
+      "form_first": "Prénom",
+      "form_last": "Nom",
+      "form_email": "Adresse e-mail",
+      "form_zip": "Code postal",
+      "form_type": "Type de parking",
+      "form_type_garage": "Garage",
+      "form_type_carport": "Carport",
+      "form_type_driveway": "Allée",
+      "form_type_open": "Espace ouvert",
+      "form_cta": "Inscription gratuite",
+      "form_privacy": "Vos données sont 100 % sécurisées et ne sont jamais partagées.",
+      "success_title": "Merci !",
+      "success_body": "Nous vous recontactons dès que Spotzy ouvre à votre code postal."
     },
     "how_it_works": {
       "heading": "Comment ça marche",
@@ -493,6 +528,59 @@
       "description": "Rejoignez les milliers de conducteurs et d'hôtes qui utilisent déjà Spotzy.",
       "button_find": "Trouver un parking",
       "button_register": "Créer un compte"
+    },
+    "nav": {
+      "how": "Comment ça marche",
+      "benefits": "Avantages",
+      "hosts": "Pour les hôtes",
+      "faq": "Questions fréquentes",
+      "cta": "Devenir hôte"
+    },
+    "host_hero": {
+      "eyebrow": "Bientôt · hôtes recherchés",
+      "title": "Gagnez de l'argent avec votre place de parking",
+      "subtitle": "Votre place vaut plus que vous ne le pensez.",
+      "body": "Profitez de la demande de stationnement à Forest & Saint-Gilles. Réservations à l'heure, à la journée ou au mois — c'est vous qui décidez.",
+      "cta": "Devenir hôte",
+      "status": "Bientôt en ligne — places limitées"
+    },
+    "how": {
+      "eyebrow": "C'est aussi simple que ça",
+      "title": "Comment ça marche ?",
+      "step1_title": "Inscrivez-vous gratuitement",
+      "step1_desc": "Remplissez le formulaire et devenez hôte en quelques minutes.",
+      "step2_title": "Publiez votre place en ligne",
+      "step2_desc": "Ajoutez les détails, fixez votre prix et vos disponibilités.",
+      "step3_title": "Gagnez de l'argent",
+      "step3_desc": "Recevez des réservations et gagnez pendant que nous nous occupons du reste."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1_q": "Comment fixez-vous mes revenus ?",
+      "q1_a": "Vous fixez vous-même votre tarif horaire. Nous ne prenons qu'une petite commission — 0 % pendant les 3 premiers mois, puis 10 %.",
+      "q2_q": "Qui est responsable si quelque chose arrive à mon parking ?",
+      "q2_a": "Spotzy offre une protection hôte pour chaque réservation. Nos conditions couvrent la responsabilité pendant la période réservée.",
+      "q3_q": "Comment suis-je payé ?",
+      "q3_a": "Les paiements sont versés directement sur votre compte bancaire via Stripe Connect sous 2-3 jours ouvrables après chaque réservation.",
+      "q4_q": "Puis-je bloquer des dates ?",
+      "q4_a": "Oui — vous avez un contrôle total sur votre calendrier de disponibilités. Bloquez les dates ou créneaux dont vous avez besoin.",
+      "q5_q": "Quelles informations sont partagées publiquement ?",
+      "q5_a": "Uniquement votre prénom, la localisation approximative, le type de place et votre note. Votre adresse complète n'est partagée qu'après confirmation d'une réservation.",
+      "q6_q": "Quand Spotzy ouvre-t-il dans ma commune ?",
+      "q6_a": "Nous lançons d'abord à Forest et Saint-Gilles. Inscrivez-vous et nous vous avertirons dès que votre zone sera active."
+    },
+    "host_footer": {
+      "tagline": "Votre place. Vos revenus.",
+      "discover": "Découvrir",
+      "how_it_works": "Comment ça marche",
+      "for_hosts": "Pour les hôtes",
+      "faq_link": "Questions fréquentes",
+      "contact_link": "Contact",
+      "available": "Disponible à",
+      "contact": "Contact",
+      "rights": "Tous droits réservés",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions générales"
     }
   },
   "listings": {

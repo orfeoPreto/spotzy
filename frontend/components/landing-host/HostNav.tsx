@@ -33,7 +33,7 @@ export default function HostNav() {
         </a>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6 min-w-0 overflow-hidden">
           {NAV_LINKS.map((l) => (
             <button
               key={l.href}
@@ -49,8 +49,8 @@ export default function HostNav() {
         </div>
 
         {/* Right — CTA + locale */}
-        <div className="flex items-center gap-3">
-          <button onClick={() => scrollTo('#signup')} className="btn-sun-outline text-sm" aria-label={t('nav.cta')}>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <button onClick={() => scrollTo('#signup')} className="btn-sun-outline text-sm whitespace-nowrap" aria-label={t('nav.cta')}>
             {t('nav.cta')}
           </button>
           <LocaleSwitcher />

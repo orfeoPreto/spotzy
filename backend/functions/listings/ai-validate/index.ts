@@ -13,12 +13,20 @@ const TABLE = process.env.TABLE_NAME ?? 'spotzy-main';
 const UPLOADS_BUCKET = process.env.UPLOADS_BUCKET ?? 'spotzy-media-uploads';
 const PUBLIC_BUCKET = process.env.PUBLIC_BUCKET ?? 'spotzy-media-public';
 
-const PARKING_LABELS = new Set(['Parking', 'Garage', 'Car Park', 'Parking Lot', 'Carport', 'Driveway']);
-const CLEANLINESS_LABELS = new Set(['Trash', 'Garbage', 'Rubbish', 'Clutter']);
-const PASS_CONFIDENCE = 80;
-const REVIEW_CONFIDENCE = 50;
+const PARKING_LABELS = new Set([
+  'Parking', 'Garage', 'Car Park', 'Parking Lot', 'Carport', 'Driveway',
+  'Parking Garage', 'Underground Garage', 'Indoor Parking',
+]);
+const PARKING_ADJACENT_LABELS = new Set([
+  'Road', 'Asphalt', 'Vehicle', 'Car', 'Floor', 'Concrete',
+  'Building', 'Warehouse', 'Path', 'Sidewalk', 'Gate', 'Door',
+]);
+const CLEANLINESS_LABELS = new Set(['Trash', 'Garbage', 'Rubbish']);
+const PASS_CONFIDENCE = 60;
+const REVIEW_CONFIDENCE = 35;
 const MODERATION_THRESHOLD = 70;
-const CLEANLINESS_THRESHOLD = 60;
+const CLEANLINESS_THRESHOLD = 80;
+const ADJACENT_REVIEW_CONFIDENCE = 60;
 
 type ValidationStatus = 'PASS' | 'FAIL' | 'REVIEW';
 
@@ -85,15 +93,23 @@ export const handler: S3Handler = async (event) => {
         } else {
           // Check parking labels
           const parkingLabel = labels.find((l) => PARKING_LABELS.has(l.Name ?? ''));
-          if (!parkingLabel || (parkingLabel.Confidence ?? 0) < REVIEW_CONFIDENCE) {
-            status = 'FAIL';
-            validationReason = 'No parking-related content detected';
-          } else if ((parkingLabel.Confidence ?? 0) >= PASS_CONFIDENCE) {
+          if (parkingLabel && (parkingLabel.Confidence ?? 0) >= PASS_CONFIDENCE) {
             status = 'PASS';
-          } else {
-            // Between REVIEW_CONFIDENCE and PASS_CONFIDENCE
+          } else if (parkingLabel && (parkingLabel.Confidence ?? 0) >= REVIEW_CONFIDENCE) {
             status = 'REVIEW';
             validationReason = `Low confidence parking detection: ${parkingLabel.Confidence?.toFixed(1)}%`;
+          } else {
+            // No parking label or below REVIEW threshold — check adjacent labels
+            const adjacentLabel = labels.find(
+              (l) => PARKING_ADJACENT_LABELS.has(l.Name ?? '') && (l.Confidence ?? 0) >= ADJACENT_REVIEW_CONFIDENCE
+            );
+            if (adjacentLabel) {
+              status = 'REVIEW';
+              validationReason = `No direct parking label, but related content detected: ${adjacentLabel.Name}`;
+            } else {
+              status = 'FAIL';
+              validationReason = 'No parking-related content detected';
+            }
           }
         }
       }

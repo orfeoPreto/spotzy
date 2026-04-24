@@ -81,6 +81,14 @@ export default function RegisterPage() {
     if (searchParams.get('intent') === 'host') {
       setSelectedRole('HOST');
     }
+    // Prefill from landing page signup form
+    const prefillFirst = searchParams.get('firstName');
+    const prefillLast = searchParams.get('lastName');
+    const prefillEmail = searchParams.get('email');
+    if (prefillFirst) setFirstName(prefillFirst);
+    if (prefillLast) setLastName(prefillLast);
+    if (prefillEmail) setEmail(prefillEmail);
+
     if (searchParams.get('stripe') === 'success') {
       setSelectedRole('HOST');
       setStripeCompleted(true);
@@ -320,7 +328,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="vatNumber" className={labelClass}>
-                {t('register.invoicing.vat_label')} <span className="text-[#4B6354]/60">{t('register.form_optional')}</span>
+                {t('register.invoicing.vat_label')}
               </label>
               <input id="vatNumber" type="text" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)}
                 placeholder={t('register.invoicing.vat_placeholder')} className={inputClass} />
@@ -328,7 +336,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="billingAddress" className={labelClass}>
-                {t('register.invoicing.address_label')} <span className="text-[#4B6354]/60">{t('register.form_optional')}</span>
+                {t('register.invoicing.address_label')}
               </label>
               <textarea id="billingAddress" rows={2} value={billingAddress} onChange={(e) => setBillingAddress(e.target.value)}
                 placeholder={t('register.invoicing.address_placeholder')}
@@ -343,13 +351,10 @@ export default function RegisterPage() {
                 placeholder={t('register.invoicing.billing_email_placeholder')} className={inputClass} />
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={handleInvoicingSkip}
-                className="rounded-lg border border-[#004526] px-4 py-2.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors">
-                {t('register.invoicing.skip_button')}
-              </button>
+            <div className="pt-2">
               <button type="button" onClick={handleInvoicingContinue}
-                className="grow-btn flex-1 rounded-lg bg-[#006B3C] py-2.5 text-sm font-semibold text-white font-head hover:bg-[#005A30] transition-colors">
+                disabled={!billingAddress.trim()}
+                className="grow-btn w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-semibold text-white font-head hover:bg-[#005A30] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                 {t('register.invoicing.continue_button')}
               </button>
             </div>

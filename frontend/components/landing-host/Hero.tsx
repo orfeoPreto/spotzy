@@ -17,8 +17,8 @@ export default function Hero() {
         {/* Left — text */}
         <div>
           <span className="text-eyebrow">{t('host_hero.eyebrow')}</span>
-          <h1 className="text-hero mt-4">{t('host_hero.title')}</h1>
-          <p className="mt-4 text-lg font-medium text-[#3AD57A]" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <h1 className="text-hero mt-4 text-white">{t('host_hero.title')}</h1>
+          <p className="mt-4 text-lg font-medium text-[#6EE7A0]" style={{ fontFamily: 'Inter, sans-serif' }}>
             {t('host_hero.subtitle')}
           </p>
           <p className="mt-5 max-w-[480px] text-base leading-relaxed" style={{ color: 'var(--paper-dim)', fontFamily: 'Inter, sans-serif' }}>

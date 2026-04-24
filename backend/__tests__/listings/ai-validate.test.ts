@@ -45,7 +45,7 @@ describe('listing-ai-validate', () => {
     expect(Object.values(vals)).toContain('PASS');
   });
 
-  it('no parking labels → FAIL, file NOT copied', async () => {
+  it('no parking or adjacent labels → FAIL, file NOT copied', async () => {
     rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Tree', Confidence: 95 }] });
     rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
     await handler(makeEvent(), {} as any, () => {});
@@ -54,8 +54,17 @@ describe('listing-ai-validate', () => {
     expect(s3Mock.commandCalls(CopyObjectCommand)).toHaveLength(0);
   });
 
-  it('parking label confidence 60% (50-80%) → REVIEW, file NOT copied', async () => {
+  it('parking label confidence 60% → PASS (lowered threshold)', async () => {
     rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 60 }] });
+    rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
+    await handler(makeEvent(), {} as any, () => {});
+    const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+    expect(Object.values(vals)).toContain('PASS');
+    expect(s3Mock.commandCalls(CopyObjectCommand)).toHaveLength(1);
+  });
+
+  it('parking label confidence 40% (35-60%) → REVIEW, file NOT copied', async () => {
+    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 40 }] });
     rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
     await handler(makeEvent(), {} as any, () => {});
     const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
@@ -72,16 +81,33 @@ describe('listing-ai-validate', () => {
     expect(s3Mock.commandCalls(CopyObjectCommand)).toHaveLength(0);
   });
 
-  it('Trash label ≥60% → FAIL', async () => {
-    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 90 }, { Name: 'Trash', Confidence: 65 }] });
+  it('Trash label ≥80% → FAIL', async () => {
+    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 90 }, { Name: 'Trash', Confidence: 85 }] });
     rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
     await handler(makeEvent(), {} as any, () => {});
     const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
     expect(Object.values(vals)).toContain('FAIL');
   });
 
-  it('Clutter label ≥60% → FAIL', async () => {
-    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 90 }, { Name: 'Clutter', Confidence: 70 }] });
+  it('Trash label 65% (below raised threshold 80%) → PASS', async () => {
+    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Parking', Confidence: 90 }, { Name: 'Trash', Confidence: 65 }] });
+    rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
+    await handler(makeEvent(), {} as any, () => {});
+    const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+    expect(Object.values(vals)).toContain('PASS');
+  });
+
+  it('no parking labels but Vehicle ≥60% → REVIEW (adjacent label fallback)', async () => {
+    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Vehicle', Confidence: 75 }, { Name: 'Road', Confidence: 80 }] });
+    rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
+    await handler(makeEvent(), {} as any, () => {});
+    const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+    expect(Object.values(vals)).toContain('REVIEW');
+    expect(s3Mock.commandCalls(CopyObjectCommand)).toHaveLength(0);
+  });
+
+  it('no parking labels and no adjacent labels → FAIL', async () => {
+    rekMock.on(DetectLabelsCommand).resolves({ Labels: [{ Name: 'Tree', Confidence: 95 }, { Name: 'Sky', Confidence: 90 }] });
     rekMock.on(DetectModerationLabelsCommand).resolves({ ModerationLabels: [] });
     await handler(makeEvent(), {} as any, () => {});
     const vals = ddbMock.commandCalls(UpdateCommand)[0].args[0].input.ExpressionAttributeValues as Record<string, unknown>;

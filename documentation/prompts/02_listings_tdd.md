@@ -214,18 +214,20 @@ Implement to make all the above tests pass. Requirements:
 
 ### Tests first: `__tests__/listings/ai-validate.test.ts`
 
-**Rekognition label detection:**
+**Rekognition label detection (thresholds revised 2026-04-20 to reduce false rejections):**
 - Labels include `Garage` with confidence 90% → validationStatus=PASS, file copied to public bucket
 - Labels include `Parking` with confidence 85% → PASS
-- No parking-related labels found → FAIL, rejection reason set, file NOT copied
-- Parking label confidence 60% (between 50-80%) → REVIEW, flagged for manual review
+- Parking label confidence 60% → PASS (PASS threshold lowered from 80% to 60%)
+- Parking label confidence 40% (between 35-60%) → REVIEW, flagged for manual review
+- No parking labels but adjacent label (e.g. `Vehicle`, `Road`, `Asphalt`, `Concrete`, `Building`) ≥60% → REVIEW (adjacent label fallback)
+- No parking or adjacent labels found → FAIL, rejection reason set, file NOT copied
 
 **Moderation:**
 - `detectModerationLabels` returns `SuggestiveFemale` with confidence 75% → FAIL regardless of label detection result
 
-**Cleanliness:**
-- Label `Trash` with confidence 65% → FAIL
-- Label `Clutter` with confidence 70% → FAIL
+**Cleanliness (threshold raised from 60% to 80% to reduce false positives from typical garage clutter):**
+- Label `Trash` with confidence 85% → FAIL
+- Label `Trash` with confidence 65% (below 80% threshold) → does NOT fail
 
 **S3 copy:**
 - On PASS: `CopyObject` called from uploads bucket to public bucket with correct key
@@ -239,9 +241,10 @@ Implement to make all the above tests pass. Requirements:
 
 - Triggered by S3 event (photo upload).
 - Extract `listingId`, `photoIndex` from S3 key: `listings/{listingId}/photos/{photoIndex}.jpg`.
-- Call Rekognition detectLabels — check for parking-related labels at 80% confidence.
+- Call Rekognition detectLabels — check for parking-related labels (`Parking`, `Garage`, `Car Park`, `Parking Lot`, `Carport`, `Driveway`, `Parking Garage`, `Underground Garage`, `Indoor Parking`) at 60% confidence (PASS) or 35% (REVIEW).
+- Adjacent label fallback: if no parking label found, check for `Road`, `Asphalt`, `Vehicle`, `Car`, `Floor`, `Concrete`, `Building`, `Warehouse`, `Path`, `Sidewalk`, `Gate`, `Door` at ≥60% confidence → REVIEW instead of FAIL.
 - Call Rekognition detectModerationLabels — fail on any label >= 70%.
-- Cleanliness heuristic: fail on Trash/Garbage/Clutter >= 60%.
+- Cleanliness heuristic: fail on Trash/Garbage/Rubbish >= 80% (`Clutter` removed — too common in real garages).
 - Write result back to DynamoDB listing record.
 - On PASS: copy to `spotzy-media-public`.
 

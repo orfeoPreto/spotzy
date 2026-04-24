@@ -671,7 +671,7 @@ export class ApiStack extends cdk.Stack {
       restApiName: `spotzy-api${suffix}`,
       description: 'Spotzy REST API',
       defaultCorsPreflightOptions: {
-        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000', 'http://localhost:3001'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,

@@ -35,6 +35,8 @@ signup:
   form_type_open: "Open space"
   form_cta: "Free registration"
   form_privacy: "Your data is 100% secure and never shared."
+  success_title: "Thanks!"
+  success_body: "We'll contact you as soon as Spotzy opens in your postcode."
 how_it_works:
   heading: "How it works"
   subheading: "Book a spot in under 2 minutes"
@@ -136,9 +138,6 @@ how:
   step2_desc: "Add details, set your price and availability."
   step3_title: "Earn money"
   step3_desc: "Receive bookings and earn while we handle the rest."
-signup:
-  success_title: "Thanks!"
-  success_body: "We'll contact you as soon as Spotzy opens in your postcode."
 faq:
   title: "Frequently asked questions"
   q1_q: "How do you decide my earnings?"
