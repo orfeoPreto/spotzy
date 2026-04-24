@@ -183,7 +183,7 @@ export class BlockReservationsStack extends cdk.Stack {
       restApiName: `spotzy-block-api${suffix}`,
       description: 'Spotzy Block Reservations REST API (Session 27)',
       defaultCorsPreflightOptions: {
-        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000'],
+        allowOrigins: isProd ? ['https://spotzy.be', 'https://www.spotzy.be'] : [appUrl, 'http://localhost:3000', 'http://localhost:3001'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
         allowCredentials: true,

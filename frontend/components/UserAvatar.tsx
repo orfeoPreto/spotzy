@@ -12,7 +12,7 @@ export function UserAvatar({ user, size, className = '' }: UserAvatarProps) {
   return (
     <div
       data-testid="avatar-container"
-      className={`rounded-full overflow-hidden ring-[1.5px] ring-[#004526] flex-shrink-0 ${className}`}
+      className={`rounded-full overflow-hidden ring-2 ring-[#004526] flex-shrink-0 ${className}`}
       style={{ width: size, height: size }}
     >
       {user.photoUrl ? (

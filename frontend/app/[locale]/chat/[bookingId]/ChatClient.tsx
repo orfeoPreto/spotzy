@@ -106,36 +106,45 @@ export default function ChatPage() {
   const currentUserId = user?.userId ?? '';
 
   return (
-    <main className="flex flex-col bg-gray-50 pt-2 pb-2" style={{ height: 'calc(100vh - 200px)' }}>
-      <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      {/* Header with back button and booking context */}
-      <div className="border-b border-gray-200 bg-[#F0F7F3] px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={() => router.back()} className="text-[#004526] hover:text-[#006B3C]" aria-label={t('back_to_bookings')}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
-          </button>
-          <div className="min-w-0 flex-1">
-            {booking && (
-              <>
-                {otherPartyName && (
-                  <p className="text-sm font-semibold text-gray-900 truncate">
-                    <Link href={lp(`/users/${otherPartyId}`)} className="hover:underline">{otherPartyName}</Link>
-                  </p>
-                )}
-                <p className="text-sm font-medium text-gray-900 truncate">{booking.address}</p>
-                <p className="text-xs text-gray-500">{t('booking_reference', { reference: booking.reference })}</p>
-              </>
-            )}
-          </div>
-        </div>
+    <main className="flex flex-col bg-[#EFF5F1] animate-page-enter" style={{ minHeight: '100dvh' }}>
+      {/* Pinned back navigation */}
+      <div className="sticky top-0 z-20 flex items-center gap-2 bg-[#EFF5F1] px-4 py-2 border-b border-[#B8E6D0]">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="flex items-center gap-1.5 text-[#004526] hover:text-[#006B3C] transition-colors duration-200"
+          aria-label={t('back_to_bookings')}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-4 w-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+          <span className="font-['Inter'] text-xs font-medium">{t('back_to_bookings')}</span>
+        </button>
       </div>
 
-      {/* Messages */}
-      <div data-testid="message-area" className="flex-1 overflow-y-auto px-4 py-4">
+      {/* Booking context banner — Forest bg, white text, 48px */}
+      {booking && (
+        <div className="bg-[#004526] px-4 text-white" style={{ minHeight: '48px', display: 'flex', alignItems: 'center' }}>
+          <div className="min-w-0 flex-1 py-2">
+            {otherPartyName && (
+              <p className="font-['DM_Sans'] text-sm font-semibold truncate">
+                <Link href={lp(`/users/${otherPartyId}`)} className="hover:underline">{otherPartyName}</Link>
+              </p>
+            )}
+            <p className="font-['DM_Sans'] text-sm font-medium truncate">{booking.address}</p>
+            <p className="font-['Inter'] text-[11px] text-[#B8E6D0]">{t('booking_reference', { reference: booking.reference })}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Message area — dynamic height, max 80vh, scrolls to bottom */}
+      <div
+        data-testid="message-area"
+        className="flex-1 overflow-y-auto px-4 py-4"
+        style={{ maxHeight: '80vh' }}
+      >
         {messages.length === 0 ? (
-          <p className="text-center text-sm text-gray-400">{t('no_messages')}</p>
+          <p className="text-center font-['Inter'] text-sm text-[#4B6354]">{t('no_messages')}</p>
         ) : (
           messages.map((m) => (
             m.type === 'ACCESS_CODE' ? (
@@ -150,26 +159,28 @@ export default function ChatPage() {
 
       {/* Image preview */}
       {pendingImage && (
-        <div className="border-t border-gray-200 px-4 py-2">
+        <div className="border-t border-[#B8E6D0] bg-[#EBF7F1] px-4 py-2">
           <img
             data-testid="image-preview"
             src={pendingImage.preview}
             alt={t('image_preview_alt')}
-            className="h-20 w-20 rounded-lg object-cover"
+            className="h-20 w-20 rounded-lg object-cover ring-2 ring-[#004526]/20"
           />
         </div>
       )}
 
-      {/* Input area */}
-      <div className="border-t border-gray-200 bg-white px-4 py-3">
+      {/* Input bar — Sage bg, Forest send button */}
+      <div className="border-t border-[#B8E6D0] bg-[#EBF7F1] px-4 py-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             aria-label={t('attach_image')}
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-lg p-2 text-gray-400 hover:text-gray-600"
+            className="rounded-lg p-2 text-[#4B6354] hover:text-[#004526] transition-colors duration-200"
           >
-            📎
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+            </svg>
           </button>
           <input
             ref={fileInputRef}
@@ -186,19 +197,18 @@ export default function ChatPage() {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
             }}
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="flex-1 rounded-lg border border-[#B8E6D0] bg-white px-3 py-2 font-['Inter'] text-sm text-[#1C2B1A] placeholder-[#4B6354]/60 focus:outline-none focus:ring-2 focus:ring-[#004526]/30"
           />
           <button
             type="button"
             aria-label={t('send_button')}
             onClick={() => void handleSend()}
             disabled={!inputText.trim() && !pendingImage}
-            className="rounded-lg bg-[#006B3C] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+            className="rounded-lg bg-[#004526] px-4 py-2 font-['Inter'] text-sm font-medium text-white transition-all duration-200 hover:bg-[#006B3C] active:scale-95 disabled:opacity-40"
           >
             {t('send_button')}
           </button>
         </div>
-      </div>
       </div>
     </main>
   );

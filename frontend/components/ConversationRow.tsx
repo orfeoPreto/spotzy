@@ -39,29 +39,29 @@ export function ConversationRow({ conversation, index }: ConversationRowProps) {
       data-testid={`conversation-row-${index}`}
       data-booking-id={conversation.bookingId}
       onClick={() => router.push(`/chat/${conversation.bookingId}`)}
-      className="flex items-center gap-3 px-4 py-3 h-[72px] cursor-pointer
-                 transition-colors duration-300 hover:bg-[#EBF7F1]"
+      className="flex items-center gap-3 px-4 h-[72px] cursor-pointer
+                 transition-colors duration-200 hover:bg-[#EBF7F1]"
     >
-      {/* Avatar with unread badge */}
+      {/* Avatar — 40px with Forest ring; unread gets Brick badge */}
       <div className="relative flex-shrink-0">
         {conversation.otherPartyPhotoUrl ? (
           <img
             src={conversation.otherPartyPhotoUrl}
             alt={conversation.otherPartyName}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-[#004526]"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-[#004526] flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
-              {conversation.otherPartyName.charAt(0)}
+          <div className="w-10 h-10 rounded-full bg-[#004526] ring-2 ring-[#004526] flex items-center justify-center">
+            <span className="font-['Inter'] text-white text-sm font-semibold">
+              {conversation.otherPartyName.charAt(0).toUpperCase()}
             </span>
           </div>
         )}
         {conversation.unreadCount > 0 && (
           <span
             data-testid={`unread-badge-${index}`}
-            className="absolute -top-1 -right-1 bg-[#AD3614] text-white text-[10px]
-                       font-bold rounded-full w-5 h-5 flex items-center justify-center"
+            className="absolute -top-1 -right-1 bg-[#AD3614] text-white font-['Inter'] text-[10px]
+                       font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm"
           >
             {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
           </span>
@@ -71,18 +71,18 @@ export function ConversationRow({ conversation, index }: ConversationRowProps) {
       {/* Text content */}
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline">
-          <p data-testid="listing-address" className="text-sm font-medium text-[#1C2B1A] truncate">
+          <p data-testid="listing-address" className="font-['DM_Sans'] text-sm font-semibold text-[#1C2B1A] truncate">
             {conversation.listingAddress}
           </p>
-          <span className="text-xs text-[#4B6354] ml-2 flex-shrink-0">
+          <span className="font-['Inter'] text-[11px] text-[#4B6354] ml-2 flex-shrink-0">
             {relativeTime(conversation.lastMessageAt)}
           </span>
         </div>
         <div className="flex gap-1 items-baseline">
-          <span data-testid="other-party-name" className="text-[13px] font-medium text-[#4B6354] flex-shrink-0">
+          <span data-testid="other-party-name" className="font-['Inter'] text-[13px] font-medium text-[#4B6354] flex-shrink-0">
             {conversation.otherPartyName}
           </span>
-          <span className="text-[13px] text-[#7A9A88] truncate">
+          <span className="font-['Inter'] text-[13px] text-[#4B6354]/60 truncate">
             {conversation.lastMessagePreview}
           </span>
         </div>

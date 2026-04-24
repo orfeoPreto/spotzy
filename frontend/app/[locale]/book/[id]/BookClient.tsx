@@ -18,20 +18,34 @@ const STEP_KEYS = ['steps.review', 'steps.payment', 'steps.confirmation'];
 function StepIndicator({ step }: { step: number }) {
   const { t } = useTranslation('booking');
   return (
-    <div className="mb-8 flex items-center justify-center gap-4">
-      {STEP_KEYS.map((key, i) => (
-        <div key={key} className="flex items-center gap-2">
-          <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-            step === i + 1 ? 'bg-[#006B3C] text-white' : step > i + 1 ? 'bg-[#004526] text-white' : 'bg-gray-200 text-gray-500'
-          }`}>
-            {i + 1}
+    <div className="mb-8 flex items-center justify-center gap-2">
+      {STEP_KEYS.map((key, i) => {
+        const isActive = step === i + 1;
+        const isCompleted = step > i + 1;
+        return (
+          <div key={key} className="flex items-center gap-2">
+            <div className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold font-head transition-all ${
+              isActive
+                ? 'bg-spotzy-forest text-white shadow-forest'
+                : isCompleted
+                  ? 'bg-spotzy-primary text-white'
+                  : 'bg-spotzy-mist text-spotzy-slate'
+            }`}>
+              {isCompleted ? (
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-3.5 w-3.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l3.5 3.5L13 5" />
+                </svg>
+              ) : (
+                <span className="text-xs">{i + 1}</span>
+              )}
+              {t(key)}
+            </div>
+            {i < STEP_KEYS.length - 1 && (
+              <div className={`h-px w-6 ${step > i + 1 ? 'bg-spotzy-primary' : 'bg-spotzy-mint'}`} />
+            )}
           </div>
-          <span className={`text-sm font-medium ${step === i + 1 ? 'text-[#AD3614]' : 'text-gray-500'}`}>
-            {t(key)}
-          </span>
-          {i < STEP_KEYS.length - 1 && <div className="h-px w-8 bg-gray-300" />}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -63,70 +77,75 @@ function ReviewStep({
   const { t } = useTranslation('booking');
   const { t: tCommon } = useTranslation('common');
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-gray-200 p-4">
-        <h2 className="mb-2 font-semibold text-gray-900">{address}</h2>
-        <p className="text-sm text-gray-600">{spotType}</p>
+    <div className="space-y-6 animate-page-enter">
+      {/* Spot summary card — Forest 4px left accent */}
+      <div className="rounded-xl border border-spotzy-mint bg-white p-4 pl-5 shadow-sm-spotzy"
+           style={{ borderLeft: '4px solid #004526' }}>
+        <h2 className="mb-1 font-head font-semibold text-spotzy-forest">{address}</h2>
+        <p className="text-sm text-spotzy-slate">{spotType}</p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 p-4">
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('review.dates_heading')}</h3>
-        <p className="text-sm text-gray-600">{formatDateTime(startDate)}</p>
-        <p className="text-sm text-gray-600">{t('review.dates_separator')} {formatDateTime(endDate)}</p>
+      {/* Dates */}
+      <div className="rounded-xl border border-spotzy-mint bg-spotzy-sage p-4">
+        <h3 className="mb-2 font-head text-sm font-semibold text-spotzy-forest">{t('review.dates_heading')}</h3>
+        <p className="text-sm text-spotzy-slate">{formatDateTime(startDate)}</p>
+        <p className="text-sm text-spotzy-slate">{t('review.dates_separator')} {formatDateTime(endDate)}</p>
       </div>
 
+      {/* Price breakdown */}
       {breakdown ? (
-        <div className="rounded-xl border border-gray-200 p-4 space-y-2">
-          <div className="flex justify-between text-sm">
+        <div className="rounded-xl border border-spotzy-mint bg-white p-4 shadow-sm-spotzy space-y-2">
+          <div className="flex justify-between text-sm text-spotzy-slate">
             <span>{breakdown.appliedTier} x {breakdown.tierUnitsBilled}</span>
             <span>{'\u20AC'}{breakdown.hostNetTotalEur.toFixed(2)}</span>
           </div>
           {breakdown.hostVatRate > 0 && (
-            <div className="flex justify-between text-sm text-gray-500">
+            <div className="flex justify-between text-sm text-spotzy-slate">
               <span>{t('review.host_vat', { rate: (breakdown.hostVatRate * 100).toFixed(0) })}</span>
               <span>{'\u20AC'}{breakdown.hostVatEur.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between text-sm text-gray-500">
+          <div className="flex justify-between text-sm text-spotzy-slate">
             <span>{t('review.service_fee_pct', { pct: (breakdown.platformFeePct * 100).toFixed(0) })}</span>
             <span>{'\u20AC'}{breakdown.platformFeeEur.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-sm text-gray-500">
+          <div className="flex justify-between text-sm text-spotzy-slate">
             <span>{t('review.vat_on_service_fee')}</span>
             <span>{'\u20AC'}{breakdown.platformFeeVatEur.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
-            <span>{t('review.total')}</span>
-            <span>{'\u20AC'}{breakdown.spotterGrossTotalEur.toFixed(2)}</span>
+          <div className="flex justify-between border-t border-spotzy-brick pt-2">
+            <span className="font-head text-sm font-bold text-spotzy-forest">{t('review.total')}</span>
+            <span className="font-head text-sm font-bold text-spotzy-forest">{'\u20AC'}{breakdown.spotterGrossTotalEur.toFixed(2)}</span>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 p-4 space-y-2">
-          <div className="flex justify-between text-sm">
+        <div className="rounded-xl border border-spotzy-mint bg-white p-4 shadow-sm-spotzy space-y-2">
+          <div className="flex justify-between text-sm text-spotzy-slate">
             <span>{t('review.subtotal')}</span>
             <span>{'\u20AC'}{subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-sm text-spotzy-slate">
             <span>{t('review.service_fee')}</span>
             <span>{'\u20AC'}{platformFee.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-2">
-            <span>{t('review.total')}</span>
-            <span>{'\u20AC'}{total.toFixed(2)}</span>
+          <div className="flex justify-between border-t border-spotzy-brick pt-2">
+            <span className="font-head text-sm font-bold text-spotzy-forest">{t('review.total')}</span>
+            <span className="font-head text-sm font-bold text-spotzy-forest">{'\u20AC'}{total.toFixed(2)}</span>
           </div>
         </div>
       )}
 
-      <div className="rounded-xl bg-amber-50 p-4">
-        <p className="text-xs font-semibold text-amber-800 mb-1">{t('review.cancellation_heading')}</p>
-        <p className="text-xs text-amber-700">{t('review.cancellation_policy')}</p>
+      {/* Cancellation policy — Brick light info box */}
+      <div className="rounded-xl bg-spotzy-brick-light border border-spotzy-brick-border p-4">
+        <p className="font-head text-xs font-semibold text-spotzy-brick mb-1">{t('review.cancellation_heading')}</p>
+        <p className="text-xs text-spotzy-brick">{t('review.cancellation_policy')}</p>
       </div>
 
       <button
         type="button"
         onClick={onProceed}
         disabled={disabled}
-        className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-50"
+        className="w-full rounded-lg bg-spotzy-primary py-3 font-head text-sm font-semibold text-white transition-all hover:bg-spotzy-forest active:scale-[0.98] disabled:opacity-50"
       >
         {disabled ? tCommon('status.processing') : t('review.proceed_button')}
       </button>
@@ -168,15 +187,18 @@ function PaymentForm({
   };
 
   return (
-    <div className="space-y-4">
-      <PaymentElement />
+    <div className="space-y-4 animate-page-enter">
+      {/* Stripe PaymentElement inherits Forest border / Emerald focus via appearance API on the Elements provider */}
+      <div className="rounded-xl border border-spotzy-forest bg-spotzy-sage p-4 focus-within:ring-2 focus-within:ring-spotzy-primary focus-within:ring-offset-1 transition-shadow">
+        <PaymentElement options={{ layout: 'tabs' }} />
+      </div>
       <button
         type="button"
         onClick={handlePay}
         disabled={paying}
-        className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-50"
+        className="w-full rounded-lg bg-spotzy-forest py-3 font-head text-sm font-semibold text-white shadow-forest transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
       >
-        {paying ? 'Processing\u2026' : `Pay €${total.toFixed(2)}`}
+        {paying ? 'Processing\u2026' : `Pay \u20AC${total.toFixed(2)}`}
       </button>
     </div>
   );
@@ -187,31 +209,41 @@ function ConfirmationStep({ bookingId, bookingRef }: { bookingId: string; bookin
   const { t } = useTranslation('booking');
   const router = useLocalizedRouter();
   return (
-    <div className="space-y-6 text-center">
+    <div className="space-y-6 text-center animate-page-enter">
+      {/* Success icon */}
       <div className="flex items-center justify-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#006B3C]">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="h-8 w-8">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-spotzy-forest shadow-forest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="h-10 w-10">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
       </div>
+
+      {/* Heading */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900">{t('confirmation.title')}</h2>
-        <p className="mt-1 text-sm text-gray-500">{t('confirmation.reference_label')}</p>
-        <p className="mt-1 font-mono text-lg font-bold text-[#004526]">{bookingRef}</p>
+        <h2 className="font-head text-[32px] font-bold leading-tight text-spotzy-forest">
+          {t('confirmation.title')}
+        </h2>
+        <p className="mt-2 text-sm text-spotzy-slate">{t('confirmation.reference_label')}</p>
+        {/* Booking ref — JetBrains Mono, Forest bg, white text */}
+        <div className="mt-2 inline-block rounded-lg bg-spotzy-forest px-4 py-2">
+          <span className="font-mono text-base font-bold tracking-widest text-white">{bookingRef}</span>
+        </div>
       </div>
+
+      {/* Actions */}
       <div className="flex flex-col gap-3">
         <button
           type="button"
           onClick={() => router.push(`/chat/${bookingId}`)}
-          className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] text-center"
+          className="w-full rounded-lg border border-spotzy-forest py-2.5 font-head text-sm font-semibold text-spotzy-forest transition-all hover:bg-spotzy-sage active:scale-[0.98]"
         >
           {t('confirmation.message_host')}
         </button>
         <button
           type="button"
           onClick={() => router.push('/dashboard/spotter')}
-          className="w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white"
+          className="w-full rounded-lg bg-spotzy-primary py-2.5 font-head text-sm font-semibold text-white transition-all hover:bg-spotzy-forest active:scale-[0.98]"
         >
           {t('confirmation.view_booking')}
         </button>
@@ -343,7 +375,7 @@ export default function BookPage() {
       {flow.step === 1 && listing && (
         <>
           {proceedError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{proceedError}</div>
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">{proceedError}</div>
           )}
           <ReviewStep
             address={listing.address}
@@ -363,7 +395,7 @@ export default function BookPage() {
       {flow.step === 2 && (
         <div className="space-y-4">
           {payError && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{payError}</div>
+            <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">{payError}</div>
           )}
           {clientSecret ? (
             <Elements stripe={getStripe()} options={{ clientSecret }}>

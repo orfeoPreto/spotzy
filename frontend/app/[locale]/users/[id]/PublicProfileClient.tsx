@@ -51,8 +51,8 @@ function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
           key={i}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill={i < Math.round(rating) ? '#AD3614' : 'none'}
-          stroke="#AD3614"
+          fill={i < Math.round(rating) ? '#059669' : 'none'}
+          stroke="#059669"
           strokeWidth={1.5}
           className="h-4 w-4"
         >
@@ -67,9 +67,9 @@ function RatingBar({ rating, max = 5 }: { rating: number; max?: number }) {
   const pct = Math.round((rating / max) * 100);
   return (
     <div className="flex items-center gap-2">
-      <span className="w-4 text-xs text-gray-500">{rating}</span>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
-        <div className="h-full rounded-full bg-[#006B3C]" style={{ width: `${pct}%` }} />
+      <span className="w-4 text-xs text-[#4B6354]">{rating}</span>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#EFF5F1]">
+        <div className="h-full rounded-full bg-[#006B3C] transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ export default function PublicProfilePage() {
   if (notFound) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-8 text-center">
-        <h1 className="text-xl font-bold text-gray-700">Profile not found</h1>
+        <h1 className="font-head text-xl font-bold text-[#004526]">Profile not found</h1>
       </main>
     );
   }
@@ -107,7 +107,7 @@ export default function PublicProfilePage() {
   if (!profile) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-8 text-center">
-        <p className="text-gray-400">Loading…</p>
+        <p className="text-[#4B6354]">Loading…</p>
       </main>
     );
   }
@@ -117,34 +117,48 @@ export default function PublicProfilePage() {
   const heading = displayName ?? name;
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="animate-page-enter mx-auto max-w-2xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
-        <UserAvatar
-          user={{ photoUrl: profilePhotoUrl ?? photoUrl, pseudo: null, firstName: displayName ?? name }}
-          size={80}
-        />
+        <div className="rounded-full ring-2 ring-[#004526] ring-offset-2">
+          <UserAvatar
+            user={{ photoUrl: profilePhotoUrl ?? photoUrl, pseudo: null, firstName: displayName ?? name }}
+            size={80}
+          />
+        </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+          <h1 className="font-head text-2xl font-bold text-[#004526]">
             {heading}
           </h1>
           {fullName && fullName !== heading && (
-            <p className="text-sm text-gray-500">{fullName}</p>
+            <p className="text-sm text-[#4B6354]">{fullName}</p>
           )}
-          {joinYear && <p className="text-sm text-gray-400">Member since {joinYear}</p>}
-          <div className="flex gap-3 mt-1">
+          {joinYear && <p className="text-sm text-[#4B6354]">Member since {joinYear}</p>}
+
+          {/* Trust bar — grow-chip stat chips in Sage bg */}
+          <div className="mt-2 flex flex-wrap gap-2">
             {completedBookings > 0 && (
-              <span className="text-xs text-gray-500">{completedBookings} booking{completedBookings !== 1 ? 's' : ''} completed</span>
+              <span className="grow-chip rounded-full bg-[#EBF7F1] px-2.5 py-0.5 text-xs font-semibold text-[#004526]">
+                {completedBookings} booking{completedBookings !== 1 ? 's' : ''} completed
+              </span>
             )}
             {responseRate !== null && (
-              <span data-testid="response-rate" className="text-xs text-gray-500">{responseRate}% response rate</span>
+              <span data-testid="response-rate" className="grow-chip rounded-full bg-[#EBF7F1] px-2.5 py-0.5 text-xs font-semibold text-[#004526]">
+                {responseRate}% response rate
+              </span>
+            )}
+            {averageRating !== null && (
+              <span className="grow-chip rounded-full bg-[#EBF7F1] px-2.5 py-0.5 text-xs font-semibold text-[#004526]">
+                {averageRating.toFixed(1)} / 5
+              </span>
             )}
           </div>
+
           {averageRating !== null && (
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2">
               <StarRating rating={averageRating} />
-              <span className="text-sm font-bold text-[#004526]">{averageRating.toFixed(1)}</span>
-              <span className="text-xs text-gray-400">({reviewCount} review{reviewCount !== 1 ? 's' : ''})</span>
+              <span className="font-head text-sm font-bold text-[#004526]">{averageRating.toFixed(1)}</span>
+              <span className="text-xs text-[#4B6354]">({reviewCount} review{reviewCount !== 1 ? 's' : ''})</span>
             </div>
           )}
         </div>
@@ -152,21 +166,21 @@ export default function PublicProfilePage() {
 
       {/* Bio */}
       {bio && (
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-sm text-gray-700">{bio}</p>
+        <div className="mb-6 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
+          <p className="text-sm text-[#1C2B1A]">{bio}</p>
         </div>
       )}
 
       {/* Active listings (host only) */}
       {listings.length > 0 && (
         <section data-testid="host-listings-section" className="mb-6">
-          <h2 className="mb-3 text-lg font-bold text-[#004526]">Active spots</h2>
+          <h2 className="mb-3 font-head text-lg font-bold text-[#004526]">Active spots</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {listings.map((l) => (
               <a
                 key={l.listingId}
                 href={`/listing/${l.listingId}`}
-                className="flex gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:shadow-sm"
+                className="grow group flex gap-3 rounded-xl border border-[#C8DDD2] bg-white p-3 shadow-sm hover:shadow-forest"
               >
                 {l.photos[0] && (
                   <img
@@ -179,9 +193,9 @@ export default function PublicProfilePage() {
                   />
                 )}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-900">{l.address}</p>
-                  <p className="text-xs text-gray-500">{spotTypeDisplay(l.spotType)}</p>
-                  <p className="text-sm font-bold text-[#004526]">from €{(l.pricePerHour ?? 0).toFixed(2)}/hr</p>
+                  <p className="truncate text-sm font-semibold text-[#1C2B1A]">{l.address}</p>
+                  <p className="text-xs text-[#4B6354]">{spotTypeDisplay(l.spotType)}</p>
+                  <p className="font-head text-sm font-bold text-[#004526]">from €{(l.pricePerHour ?? 0).toFixed(2)}/hr</p>
                 </div>
               </a>
             ))}
@@ -192,31 +206,33 @@ export default function PublicProfilePage() {
       {/* Reviews */}
       {reviews.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold text-[#004526]">Reviews</h2>
+          <h2 className="mb-3 font-head text-lg font-bold text-[#004526]">Reviews</h2>
           {averageRating !== null && reviewCount > 0 && (
-            <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+            <div className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-center gap-3">
-                <span className="text-3xl font-bold text-[#004526]">{averageRating.toFixed(1)}</span>
+                <span className="font-head text-3xl font-bold text-[#004526]">{averageRating.toFixed(1)}</span>
                 <div>
                   <StarRating rating={averageRating} />
-                  <p className="text-xs text-gray-400">{reviewCount} review{reviewCount !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-[#4B6354]">{reviewCount} review{reviewCount !== 1 ? 's' : ''}</p>
                 </div>
               </div>
-              {[5, 4, 3, 2, 1].map((r) => (
-                <RatingBar key={r} rating={r} />
-              ))}
+              <div className="space-y-1.5">
+                {[5, 4, 3, 2, 1].map((r) => (
+                  <RatingBar key={r} rating={r} />
+                ))}
+              </div>
             </div>
           )}
           <div className="space-y-3">
             {reviews.map((r) => (
-              <div key={r.reviewId} className="rounded-xl border border-gray-200 bg-white p-4">
+              <div key={r.reviewId} className="rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
                 <div className="mb-1 flex items-center gap-2">
                   <StarRating rating={r.rating} />
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[#4B6354]">
                     {formatDateOnly(r.createdAt)}
                   </span>
                 </div>
-                {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}
+                {r.comment && <p className="text-sm text-[#1C2B1A]">{r.comment}</p>}
               </div>
             ))}
           </div>
@@ -224,7 +240,7 @@ export default function PublicProfilePage() {
       )}
 
       {reviews.length === 0 && listings.length === 0 && (
-        <p className="text-center text-sm text-gray-400">No activity yet.</p>
+        <p className="text-center text-sm text-[#4B6354]">No activity yet.</p>
       )}
     </main>
   );

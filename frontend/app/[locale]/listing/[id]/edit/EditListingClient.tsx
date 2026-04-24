@@ -130,26 +130,195 @@ export default function EditListingClient() {
     } catch { setSaveError('Network error'); } finally { setSaving(false); }
   };
 
-  if (isLoading) return <main className="mx-auto max-w-2xl p-8"><div className="animate-pulse space-y-4"><div className="h-8 w-48 rounded bg-gray-200" /><div className="h-10 rounded bg-gray-200" /></div></main>;
-  if (loadError || !listing) return <main className="mx-auto max-w-2xl p-8"><p className="text-red-600">Failed to load listing.</p><button type="button" onClick={() => router.push('/dashboard/host')} className="mt-4 text-sm text-[#004526] hover:underline">Back to dashboard</button></main>;
+  if (isLoading) return (
+    <main className="mx-auto max-w-2xl p-8">
+      <div className="animate-pulse space-y-4">
+        <div className="h-8 w-48 rounded-xl bg-[#EBF7F1]" />
+        <div className="h-10 rounded-xl bg-[#EBF7F1]" />
+        <div className="h-10 rounded-xl bg-[#EBF7F1]" />
+        <div className="h-24 rounded-xl bg-[#EBF7F1]" />
+      </div>
+    </main>
+  );
+  if (loadError || !listing) return (
+    <main className="mx-auto max-w-2xl p-8">
+      <p className="text-red-600">Failed to load listing.</p>
+      <button type="button" onClick={() => router.push('/dashboard/host')} className="mt-4 text-sm text-[#004526] hover:underline">Back to dashboard</button>
+    </main>
+  );
 
   const isValid = !!address && addressLat !== null && !!spotType && pricePerHour !== '' && Number(pricePerHour) > 0;
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto max-w-2xl p-8 animate-page-enter">
+      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Edit listing</h1>
-        <button type="button" onClick={() => router.push('/dashboard/host')} className="text-sm text-[#004526] hover:underline">Back to dashboard</button>
+        <h1 className="font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">Edit listing</h1>
+        <button type="button" onClick={() => router.push('/dashboard/host')}
+          className="text-sm font-medium text-[#006B3C] hover:text-[#004526] hover:underline transition-colors">
+          Back to dashboard
+        </button>
       </div>
-      {saveSuccess && <div className="mb-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">Changes saved successfully.</div>}
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">Address</label><div className="relative"><input type="text" value={addressQuery} onChange={(e) => { setAddressQuery(e.target.value); setAddress(''); setAddressLat(null); setAddressLng(null); }} className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm" />{suggestions.length > 0 && <ul className="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg">{suggestions.map((s) => <li key={s.place_name} className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-50" onClick={() => selectAddress(s)}>{s.place_name}</li>)}</ul>}</div></div>
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">Spot type</label><div className="grid grid-cols-2 gap-3">{SPOT_TYPES.map((t) => <button key={t.value} type="button" onClick={() => setSpotType(t.value)} className={`rounded-xl border-2 p-4 text-left transition-colors ${spotType === t.value ? 'border-[#006B3C] bg-[#F0F7F3]' : 'border-gray-200 hover:border-gray-300'}`}><div className="mb-1 text-2xl">{t.icon}</div><p className="text-sm font-medium text-gray-900">{t.label}</p></button>)}</div></div>
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">Price per hour</label><input type="number" min={0.5} step={0.5} value={pricePerHour} onChange={(e) => setPricePerHour(e.target.value === '' ? '' : parseFloat(e.target.value))} placeholder="e.g. 3.50" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">EV charging available?</label><div className="flex gap-3"><button type="button" onClick={() => setEvCharging(true)} className={`flex-1 rounded-lg border py-2 text-sm font-medium ${evCharging ? 'border-[#059669] bg-[#EBF7F1] text-[#059669]' : 'border-gray-300 text-gray-600'}`}>Yes</button><button type="button" onClick={() => setEvCharging(false)} className={`flex-1 rounded-lg border py-2 text-sm font-medium ${!evCharging ? 'border-gray-400 bg-gray-50 text-gray-700' : 'border-gray-300 text-gray-600'}`}>No</button></div></div>
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">Description <span className="text-gray-400">(optional)</span></label><textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Access instructions..." className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
-      <div className="mb-6"><label className="mb-1 block text-sm font-medium text-gray-700">Photos</label><p className="mb-2 text-xs text-gray-500">Upload or replace photos.</p><div className="grid grid-cols-2 gap-4">{([0, 1] as const).map((idx) => { const slot = photos[idx]; const busy = slot.status === 'uploading' || slot.status === 'validating'; return <label key={idx} className={`relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${slot.status === 'PASS' ? 'border-green-500 bg-green-50' : slot.status === 'FAIL' ? 'border-red-400 bg-red-50' : busy ? 'border-amber-400 bg-amber-50' : 'border-gray-300 hover:border-gray-400'}`}><input type="file" accept="image/*" className="sr-only" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f) void handlePhotoUpload(idx, f); }} />{slot.thumbnail ? <img src={slot.thumbnail} alt="" className="h-full w-full rounded-xl object-cover" /> : <div className="text-center"><div className="text-3xl text-gray-400">+</div><p className="mt-1 text-xs text-gray-500">Photo {idx + 1}</p></div>}{busy && <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40"><span className="text-sm font-medium text-white">{slot.status === 'uploading' ? 'Uploading...' : 'Validating...'}</span></div>}{slot.status === 'PASS' && <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-green-600 text-white text-xs">OK</div>}{slot.status === 'FAIL' && slot.reason && <div className="absolute bottom-2 left-2 right-2 rounded bg-red-600/80 px-2 py-1 text-center"><p className="text-xs text-white">{slot.reason}</p></div>}</label>; })}</div></div>
+
+      {saveSuccess && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl bg-[#EBF7F1] px-4 py-2.5 text-sm text-[#004526]">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#004526] text-white text-xs">✓</span>
+          Changes saved successfully.
+        </div>
+      )}
+
+      {/* Address */}
+      <div className="mb-6">
+        <label className="mb-1 block text-sm font-medium text-[#004526]">Address</label>
+        <div className="relative">
+          <input
+            type="text"
+            value={addressQuery}
+            onChange={(e) => { setAddressQuery(e.target.value); setAddress(''); setAddressLat(null); setAddressLng(null); }}
+            className="w-full rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 hover:border-[#006B3C] focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20 transition-colors"
+          />
+          {suggestions.length > 0 && (
+            <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-xl border border-[#C8DDD2] bg-white shadow-[0_4px_20px_rgba(0,69,38,0.12)]">
+              {suggestions.map((s) => (
+                <li key={s.place_name}
+                  className="cursor-pointer border-l-2 border-l-transparent px-4 py-2.5 text-sm text-gray-700 transition-colors hover:border-l-[#006B3C] hover:bg-[#EBF7F1]"
+                  onClick={() => selectAddress(s)}>
+                  {s.place_name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Spot type icon tiles */}
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-medium text-[#004526]">Spot type</label>
+        <div className="grid grid-cols-2 gap-3">
+          {SPOT_TYPES.map((t) => (
+            <button key={t.value} type="button" onClick={() => setSpotType(t.value)}
+              className={`rounded-xl border-2 p-4 text-left transition-all duration-200 ${
+                spotType === t.value
+                  ? 'border-[#004526] bg-[#004526] shadow-md shadow-[#004526]/20'
+                  : 'border-[#C8DDD2] bg-[#EBF7F1] hover:border-[#006B3C] hover:shadow-sm'
+              }`}>
+              <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg text-xl ${
+                spotType === t.value ? 'bg-white/20' : 'bg-white'
+              }`}>
+                {t.icon}
+              </div>
+              <p className={`text-sm font-medium ${spotType === t.value ? 'text-white' : 'text-[#004526]'}`}>{t.label}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Price with brick accent */}
+      <div className="mb-6">
+        <label className="mb-1 block text-sm font-medium text-[#004526]">Net price per hour</label>
+        <div className="flex overflow-hidden rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] focus-within:border-[#006B3C] focus-within:ring-2 focus-within:ring-[#006B3C]/20 transition-all">
+          <span className="flex items-center border-r-2 border-[#AD3614] bg-[#AD3614]/10 px-3 text-sm font-semibold text-[#AD3614]">€</span>
+          <input
+            type="number" min={0.5} step={0.5} value={pricePerHour}
+            onChange={(e) => setPricePerHour(e.target.value === '' ? '' : parseFloat(e.target.value))}
+            placeholder="e.g. 3.50"
+            className="flex-1 bg-transparent px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* EV charging pill toggle */}
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-medium text-[#004526]">EV charging available?</label>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setEvCharging(true)}
+            className={`flex-1 rounded-full border-2 py-2 text-sm font-medium transition-all duration-200 ${
+              evCharging
+                ? 'border-[#004526] bg-[#004526] text-white shadow-sm shadow-[#004526]/30'
+                : 'border-[#C8DDD2] bg-[#EBF7F1] text-[#004526] hover:border-[#006B3C]'
+            }`}>
+            Yes
+          </button>
+          <button type="button" onClick={() => setEvCharging(false)}
+            className={`flex-1 rounded-full border-2 py-2 text-sm font-medium transition-all duration-200 ${
+              !evCharging
+                ? 'border-[#004526] bg-[#004526] text-white shadow-sm shadow-[#004526]/30'
+                : 'border-[#C8DDD2] bg-[#EBF7F1] text-[#004526] hover:border-[#006B3C]'
+            }`}>
+            No
+          </button>
+        </div>
+      </div>
+
+      {/* Description */}
+      <div className="mb-6">
+        <label className="mb-1 block text-sm font-medium text-[#004526]">Description <span className="text-gray-400">(optional)</span></label>
+        <textarea
+          rows={3} value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Access instructions..."
+          className="w-full resize-none rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 hover:border-[#006B3C] focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20 transition-colors"
+        />
+      </div>
+
+      {/* Photos */}
+      <div className="mb-6">
+        <label className="mb-1 block text-sm font-medium text-[#004526]">Photos</label>
+        <p className="mb-3 text-xs text-gray-500">Upload or replace photos.</p>
+        <div className="grid grid-cols-2 gap-4">
+          {([0, 1] as const).map((idx) => {
+            const slot = photos[idx];
+            const busy = slot.status === 'uploading' || slot.status === 'validating';
+            return (
+              <label key={idx}
+                className={`relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200 ${
+                  slot.status === 'PASS'
+                    ? 'border-[#004526] bg-[#EBF7F1]'
+                    : slot.status === 'FAIL'
+                    ? 'border-red-400 bg-red-50'
+                    : busy
+                    ? 'border-[#006B3C] bg-[#EBF7F1]'
+                    : 'border-[#C8DDD2] bg-white hover:border-[#006B3C] hover:bg-[#EBF7F1]'
+                }`}>
+                <input type="file" accept="image/*" className="sr-only" disabled={busy}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) void handlePhotoUpload(idx, f); }} />
+                {slot.thumbnail
+                  ? <img src={slot.thumbnail} alt="" className="h-full w-full rounded-xl object-cover" />
+                  : (
+                    <div className="text-center">
+                      <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full bg-[#EBF7F1] mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#004526" className="h-6 w-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                      </div>
+                      <p className="text-xs text-[#004526] font-medium">Photo {idx + 1}</p>
+                    </div>
+                  )}
+                {busy && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl bg-[#004526]/70 backdrop-blur-sm">
+                    <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="text-xs font-medium text-white">{slot.status === 'uploading' ? 'Uploading...' : 'Validating...'}</span>
+                  </div>
+                )}
+                {slot.status === 'PASS' && (
+                  <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#004526] text-white text-xs shadow-md">✓</div>
+                )}
+                {slot.status === 'FAIL' && slot.reason && (
+                  <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-red-600/85 px-2 py-1.5 text-center backdrop-blur-sm">
+                    <p className="text-xs text-white">{slot.reason}</p>
+                  </div>
+                )}
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
       {saveError && <p className="mb-4 text-sm text-red-600">{saveError}</p>}
-      <button type="button" onClick={() => void handleSave()} disabled={saving || !isValid} className="w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-40">{saving ? 'Saving...' : 'Save changes'}</button>
+      <button type="button" onClick={() => void handleSave()} disabled={saving || !isValid}
+        className="w-full rounded-xl bg-[#004526] py-3 text-sm font-semibold text-white shadow-md shadow-[#004526]/30 transition-all hover:bg-[#006B3C] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none">
+        {saving ? 'Saving...' : 'Save changes'}
+      </button>
     </main>
   );
 }

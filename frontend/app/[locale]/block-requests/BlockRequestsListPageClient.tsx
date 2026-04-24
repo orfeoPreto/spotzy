@@ -42,17 +42,24 @@ export default function BlockRequestsListPage() {
     async function load() {
       const token = await getAuthToken();
       if (!token) { router.push('/auth/login'); return; }
-      const res = await fetch(blockApi('/api/v1/block-requests?ownerUserId=me'), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Backend returns { items, cursor } — be defensive about shape
-        const list = Array.isArray(data) ? data
-                   : Array.isArray(data.items) ? data.items
-                   : Array.isArray(data.requests) ? data.requests
-                   : [];
-        setRequests(list);
+      try {
+        const res = await fetch(blockApi('/api/v1/block-requests?ownerUserId=me'), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 401 || res.status === 403) {
+          router.push('/auth/login');
+          return;
+        }
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data) ? data
+                     : Array.isArray(data.items) ? data.items
+                     : Array.isArray(data.requests) ? data.requests
+                     : [];
+          setRequests(list);
+        }
+      } catch {
+        // Network error or CORS — likely auth issue
       }
       setLoading(false);
     }

@@ -7,67 +7,96 @@ import { useListYourSpotDestination } from '../../hooks/useListYourSpotDestinati
 import { useTranslation } from '../../lib/locales/TranslationProvider';
 import { useLocalizedRouter, useLocalizePath } from '../../lib/locales/useLocalizedRouter';
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+// ─── Hero — Dark, two-column, yellow CTA ──────────────────────────────────────
 
 function Hero() {
   const router = useLocalizedRouter();
   const { t } = useTranslation('landing');
 
   return (
-    <section data-testid="hero-section" className="bg-[#F0F7F3] px-6 py-20 text-center md:py-32">
-      <div className="mx-auto max-w-3xl">
-        <span className="mb-4 inline-block rounded-full bg-[#F0F7F3] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#004526]">
-          {t('hero.badge')}
-        </span>
-        <h1 className="mt-4 text-4xl font-bold leading-tight text-[#004526] md:text-6xl">
-          {t('hero.title_1')}<br />
-          <span className="text-[#AD3614]">{t('hero.title_2')}</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-gray-600">
-          {t('hero.description')}
-        </p>
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => router.push('/search')}
-            className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#005A30]"
-          >
-            {t('hero.cta_button')}
-          </button>
+    <section className="theme-forest bg-[#0B2418] px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+        <div>
+          <span className="mb-4 inline-block text-sm font-semibold uppercase tracking-widest text-[#3AD57A]">
+            {t('hero.badge')}
+          </span>
+          <h1 className="text-hero text-[#F7F5EE] mt-3">
+            {t('hero.title_1')}<br />
+            <span className="text-[#F4C73B]">{t('hero.title_2')}</span>
+          </h1>
+          <p className="mt-4 max-w-lg text-lg text-[#F7F5EE]/60">
+            {t('hero.description')}
+          </p>
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={() => router.push('/search')}
+              className="btn-sun text-lg px-8 py-4"
+            >
+              {t('hero.cta_button')}
+            </button>
+          </div>
+          <div className="mt-4 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#3AD57A] animate-pulse" />
+            <span className="text-sm text-[#F7F5EE]/50">{t('hero.status_live')}</span>
+          </div>
+        </div>
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[420px] relative rounded-2xl overflow-hidden bg-[#0F2E1F]">
+          <img
+            src="/img/hero-garage.jpg"
+            alt="Private parking garage with car"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B2418] via-[#0B2418]/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B2418] via-[#0B2418]/30 to-transparent" />
         </div>
       </div>
     </section>
   );
 }
 
-// ─── How it works ────────────────────────────────────────────────────────────
+// ─── Yellow Ribbon ────────────────────────────────────────────────────────────
 
-const HOW_STEP_ICONS = [
-  <svg key="s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" /></svg>,
-  <svg key="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" /><path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" /></svg>,
-  <svg key="p" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10"><path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" /><path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" /><path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" /></svg>,
-];
+function YellowRibbon() {
+  const { t } = useTranslation('landing');
+  return (
+    <section className="bg-[#F4C73B] py-5 text-center">
+      <div className="flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#0B2418" className="h-5 w-5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+        </svg>
+        <span className="text-lg font-bold text-[#0B2418] font-head">{t('ribbon.head')}</span>
+      </div>
+      <p className="mt-1 text-sm text-[#0B2418]/70">{t('ribbon.sub')}</p>
+    </section>
+  );
+}
+
+// ─── How it works — Dark reskin ───────────────────────────────────────────────
 
 function HowItWorks() {
   const { t } = useTranslation('landing');
   const steps = [
-    { step: '01', icon: HOW_STEP_ICONS[0], titleKey: 'how_it_works.step_1_title', descKey: 'how_it_works.step_1_desc' },
-    { step: '02', icon: HOW_STEP_ICONS[1], titleKey: 'how_it_works.step_2_title', descKey: 'how_it_works.step_2_desc' },
-    { step: '03', icon: HOW_STEP_ICONS[2], titleKey: 'how_it_works.step_3_title', descKey: 'how_it_works.step_3_desc' },
+    { step: '1', titleKey: 'how_it_works.step_1_title', descKey: 'how_it_works.step_1_desc' },
+    { step: '2', titleKey: 'how_it_works.step_2_title', descKey: 'how_it_works.step_2_desc' },
+    { step: '3', titleKey: 'how_it_works.step_3_title', descKey: 'how_it_works.step_3_desc' },
   ];
 
   return (
-    <section className="bg-white px-6 py-20">
+    <section className="theme-forest bg-[#0B2418] px-6 py-20">
       <div className="mx-auto max-w-5xl">
-        <h2 className="mb-2 text-center text-3xl font-bold text-[#004526]">{t('how_it_works.heading')}</h2>
-        <p className="mb-12 text-center text-gray-500">{t('how_it_works.subheading')}</p>
-        <div className="grid gap-8 md:grid-cols-3">
+        <h2 className="mb-2 text-center text-3xl font-bold text-[#F7F5EE] font-head">{t('how_it_works.heading')}</h2>
+        <p className="mb-16 text-center text-[#F7F5EE]/60">{t('how_it_works.subheading')}</p>
+        <div className="relative grid gap-12 md:grid-cols-3 md:gap-8">
+          <div className="hidden md:block absolute top-4 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-[#059669]/30" />
           {steps.map((s) => (
-            <div key={s.step} className="grow group flex flex-col items-center rounded-2xl border border-[#F0F7F3] bg-[#F0F7F3] p-8 text-center">
-              <div className="card-icon-spin mb-4 text-[#004526]">{s.icon}</div>
-              <span className="mb-1 font-mono text-xs font-semibold text-[#AD3614]">{s.step}</span>
-              <h3 className="mb-2 text-lg font-bold text-[#004526]">{t(s.titleKey)}</h3>
-              <p className="text-sm leading-relaxed text-gray-600">{t(s.descKey)}</p>
+            <div key={s.step} className="relative flex flex-col items-center text-center">
+              <div className="relative z-10 mb-4 flex h-8 w-8 items-center justify-center rounded-full bg-[#059669] text-white font-bold text-sm">
+                {s.step}
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-[#F7F5EE] font-head">{t(s.titleKey)}</h3>
+              <p className="text-sm leading-relaxed text-[#F7F5EE]/60">{t(s.descKey)}</p>
             </div>
           ))}
         </div>
@@ -76,7 +105,35 @@ function HowItWorks() {
   );
 }
 
-// ─── Features / Agent API rotating showcase ─────────────────────────────────
+// ─── Benefits Strip ───────────────────────────────────────────────────────────
+
+function BenefitsStrip() {
+  const { t } = useTranslation('landing');
+  const benefits = [
+    { icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-7 w-7"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>,
+      titleKey: 'benefits.price_title', descKey: 'benefits.price_desc' },
+    { icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-7 w-7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>,
+      titleKey: 'benefits.flex_title', descKey: 'benefits.flex_desc' },
+    { icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-7 w-7"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456Z" /></svg>,
+      titleKey: 'benefits.easy_title', descKey: 'benefits.easy_desc' },
+  ];
+
+  return (
+    <section className="bg-[#EBF7F1] px-6 py-12">
+      <div className="mx-auto max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        {benefits.map((b, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div className="mb-3 text-[#059669]">{b.icon}</div>
+            <h3 className="mb-1 text-base font-semibold text-[#004526] font-head">{t(b.titleKey)}</h3>
+            <p className="text-sm text-[#4B6354]">{t(b.descKey)}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Features / Agent API rotating showcase ───────────────────────────────────
 
 function BuiltForEveryoneCards() {
   const { destination: listSpotDest } = useListYourSpotDestination();
@@ -87,44 +144,31 @@ function BuiltForEveryoneCards() {
 
   return (
     <div>
-      <h2 className="mb-12 text-center text-3xl font-bold text-[#004526] md:text-4xl">{t('built_for_everyone.heading')}</h2>
+      <h2 className="mb-12 text-center text-3xl font-bold text-[#F7F5EE] md:text-4xl font-head">{t('built_for_everyone.heading')}</h2>
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Spotter card */}
-        <div className="grow group rounded-2xl bg-white p-8 shadow-sm">
-          <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z" /><path d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z" /><path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" /></svg>
-          </div>
-          <h3 className="mb-1 text-xl font-bold text-[#004526]">{t('built_for_everyone.spotter_title')}</h3>
-          <p className="mb-6 text-sm text-gray-500">{t('built_for_everyone.spotter_description')}</p>
+        <div className="grow group rounded-2xl bg-[#0F2E1F] p-8">
+          <h3 className="mb-1 text-xl font-bold text-[#F7F5EE] font-head">{t('built_for_everyone.spotter_title')}</h3>
+          <p className="mb-6 text-sm text-[#F7F5EE]/50">{t('built_for_everyone.spotter_description')}</p>
           <ul className="mb-8 space-y-2">
             {spotterFeatureKeys.map((k) => (
-              <li key={k} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-[#006B3C]">✓</span> {t(k)}
+              <li key={k} className="flex items-center gap-2 text-sm text-[#F7F5EE]/70">
+                <span className="text-[#3AD57A]">✓</span> {t(k)}
               </li>
             ))}
           </ul>
-          <Link href={lp('/search')} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
-            {t('built_for_everyone.spotter_button')}
-          </Link>
+          <Link href={lp('/search')} className="btn-sun block w-full text-center text-sm">{t('built_for_everyone.spotter_button')}</Link>
         </div>
-
-        {/* Host card */}
-        <div className="grow group rounded-2xl bg-[#006B3C]/10 border border-[#006B3C]/20 p-8 shadow-sm">
-          <div className="card-icon-spin mb-4 h-10 w-10 text-[#004526]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" /><path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" /></svg>
-          </div>
-          <h3 className="mb-1 text-xl font-bold text-[#004526]">{t('built_for_everyone.host_title')}</h3>
-          <p className="mb-6 text-sm text-gray-500">{t('built_for_everyone.host_description')}</p>
+        <div className="grow group rounded-2xl bg-[#0F2E1F] border border-[#F4C73B]/20 p-8">
+          <h3 className="mb-1 text-xl font-bold text-[#F7F5EE] font-head">{t('built_for_everyone.host_title')}</h3>
+          <p className="mb-6 text-sm text-[#F7F5EE]/50">{t('built_for_everyone.host_description')}</p>
           <ul className="mb-8 space-y-2">
             {hostFeatureKeys.map((k) => (
-              <li key={k} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-[#006B3C]">✓</span> {t(k)}
+              <li key={k} className="flex items-center gap-2 text-sm text-[#F7F5EE]/70">
+                <span className="text-[#3AD57A]">✓</span> {t(k)}
               </li>
             ))}
           </ul>
-          <Link href={lp(listSpotDest)} className="grow-btn block w-full rounded-xl bg-[#006B3C] py-3 text-center text-sm font-semibold text-white hover:bg-[#005A30]">
-            {t('built_for_everyone.host_button')}
-          </Link>
+          <Link href={lp(listSpotDest)} className="btn-sun block w-full text-center text-sm">{t('built_for_everyone.host_button')}</Link>
         </div>
       </div>
     </div>
@@ -136,61 +180,51 @@ function AgentApiAnnouncement() {
   return (
     <div>
       <div className="mb-6 flex justify-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#006B3C]/30 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#006B3C] shadow-sm">
-          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#006B3C]"></span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#3AD57A]/30 bg-[#0F2E1F] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#3AD57A]">
+          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3AD57A]"></span>
           {t('agent_api.badge')}
         </span>
       </div>
-      <h2 className="mb-4 text-center text-3xl font-bold text-[#004526] md:text-4xl">{t('agent_api.heading')}</h2>
-      <p className="mx-auto mb-12 max-w-2xl text-center text-base text-gray-600">{t('agent_api.description')}</p>
-
-      <div className="mx-auto mb-12 max-w-3xl overflow-hidden rounded-2xl border border-[#006B3C]/20 bg-white shadow-lg">
-        <div className="flex items-center gap-2 border-b border-gray-100 bg-[#F0F7F3] px-4 py-2">
+      <h2 className="mb-4 text-center text-3xl font-bold text-[#F7F5EE] md:text-4xl font-head">{t('agent_api.heading')}</h2>
+      <p className="mx-auto mb-12 max-w-2xl text-center text-base text-[#F7F5EE]/60">{t('agent_api.description')}</p>
+      <div className="mx-auto mb-12 max-w-3xl overflow-hidden rounded-2xl border border-[#F7F5EE]/10 bg-[#0F2E1F]">
+        <div className="flex items-center gap-2 border-b border-[#F7F5EE]/10 bg-[#0B2418] px-4 py-2">
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
             <div className="h-2.5 w-2.5 rounded-full bg-amber-400"></div>
             <div className="h-2.5 w-2.5 rounded-full bg-green-400"></div>
           </div>
-          <span className="ml-2 text-xs font-mono text-gray-500">{t('agent_api.terminal_header')}</span>
+          <span className="ml-2 text-xs font-mono text-[#F7F5EE]/50">{t('agent_api.terminal_header')}</span>
         </div>
-        <div className="border-b border-gray-100 bg-white px-6 py-4">
-          <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">{t('agent_api.prompt_label')}</div>
-          <p className="text-sm text-gray-800">{t('agent_api.example_prompt')}</p>
+        <div className="border-b border-[#F7F5EE]/10 px-6 py-4">
+          <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#F7F5EE]/40">{t('agent_api.prompt_label')}</div>
+          <p className="text-sm text-[#F7F5EE]/80">{t('agent_api.example_prompt')}</p>
         </div>
-        <div className="bg-gradient-to-b from-white to-[#F0F7F3] px-6 py-4">
-          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#004526]">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.8l7 3.5v7.4l-7 3.5-7-3.5V8.3l7-3.5z" /></svg>
-            {t('agent_api.response_label')}
-          </div>
-          <div className="space-y-2 text-sm text-gray-700">
-            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_1_name')}</code> {t('agent_api.api_call_1_result')}</span></p>
-            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_2_name')}</code> {t('agent_api.api_call_2_result')}</span></p>
-            <p className="flex items-start gap-2"><span className="text-[#006B3C]">→</span><span><code className="rounded bg-[#F0F7F3] px-1.5 py-0.5 font-mono text-xs">{t('agent_api.api_call_3_name')}</code> {t('agent_api.api_call_3_result')}</span></p>
-            <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-800 shadow-sm">{t('agent_api.confirmation')}</p>
+        <div className="px-6 py-4">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#3AD57A]">{t('agent_api.response_label')}</div>
+          <div className="space-y-2 text-sm text-[#F7F5EE]/70">
+            {[1, 2, 3].map((i) => (
+              <p key={i} className="flex items-start gap-2"><span className="text-[#3AD57A]">→</span><span><code className="rounded bg-[#0B2418] px-1.5 py-0.5 font-mono text-xs text-[#F4C73B]">{t(`agent_api.api_call_${i}_name`)}</code> {t(`agent_api.api_call_${i}_result`)}</span></p>
+            ))}
+            <p className="mt-3 rounded-lg bg-[#0B2418] p-3 text-sm text-[#F7F5EE]/80">{t('agent_api.confirmation')}</p>
           </div>
         </div>
       </div>
-
       <div className="grid gap-4 md:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="rounded-xl border border-[#006B3C]/15 bg-white p-5 shadow-sm">
-            <h3 className="mb-1 text-sm font-bold text-[#004526]">{t(`agent_api.capability_${i}_title`)}</h3>
-            <p className="text-xs text-gray-600 leading-relaxed">{t(`agent_api.capability_${i}_desc`)}</p>
+          <div key={i} className="rounded-xl border border-[#F7F5EE]/10 bg-[#0F2E1F] p-5">
+            <h3 className="mb-1 text-sm font-bold text-[#F7F5EE] font-head">{t(`agent_api.capability_${i}_title`)}</h3>
+            <p className="text-xs text-[#F7F5EE]/50 leading-relaxed">{t(`agent_api.capability_${i}_desc`)}</p>
           </div>
         ))}
       </div>
-
       <div className="mt-10 flex flex-col items-center gap-4">
         <div className="flex flex-wrap items-center justify-center gap-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <span key={i} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-              {t(`agent_api.tech_chip_${i}`)}
-            </span>
+            <span key={i} className="rounded-full border border-[#F7F5EE]/10 bg-[#0F2E1F] px-3 py-1 text-xs font-medium text-[#F7F5EE]/60">{t(`agent_api.tech_chip_${i}`)}</span>
           ))}
         </div>
-        <p className="text-center text-xs text-gray-500">
-          {t('agent_api.waitlist_cta')}
-        </p>
+        <p className="text-center text-xs text-[#F7F5EE]/40">{t('agent_api.waitlist_cta')}</p>
       </div>
     </div>
   );
@@ -212,7 +246,7 @@ function Features() {
   }, [loggedIn, paused]);
 
   return (
-    <section className="bg-gradient-to-br from-[#F0F7F3] via-white to-[#F0F7F3] px-6 py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section className="theme-forest bg-[#0B2418] px-6 py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="mx-auto max-w-5xl">
         <div key={panel} className="animate-fade-in-soft">
           {panel === 'builtForEveryone' ? <BuiltForEveryoneCards /> : <AgentApiAnnouncement />}
@@ -220,7 +254,7 @@ function Features() {
         {!loggedIn && (
           <div className="mt-10 flex items-center justify-center gap-3">
             {(['builtForEveryone', 'agentApi'] as const).map((p) => (
-              <button key={p} onClick={() => setPanel(p)} aria-label={p} className={`h-2 rounded-full transition-all ${panel === p ? 'w-8 bg-[#006B3C]' : 'w-2 bg-[#006B3C]/30 hover:bg-[#006B3C]/60'}`} />
+              <button key={p} onClick={() => setPanel(p)} aria-label={p} className={`h-2 rounded-full transition-all ${panel === p ? 'w-8 bg-[#F4C73B]' : 'w-2 bg-[#F7F5EE]/20 hover:bg-[#F7F5EE]/40'}`} />
             ))}
           </div>
         )}
@@ -229,64 +263,82 @@ function Features() {
   );
 }
 
-// ─── Quick links ─────────────────────────────────────────────────────────────
+// ─── Signup Block ─────────────────────────────────────────────────────────────
 
-const ICONS = {
-  search: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" /></svg>,
-  add: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" /></svg>,
-  bookings: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" /></svg>,
-  listSpot: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" /><path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a1.83 1.83 0 0 0 .091-.086L12 5.432Z" /></svg>,
-  signIn: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 0 0 6 5.25v13.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5V15a.75.75 0 0 1 1.5 0v3.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V5.25a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3V9A.75.75 0 0 1 15 9V5.25a1.5 1.5 0 0 0-1.5-1.5h-6Zm10.72 4.72a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H9a.75.75 0 0 1 0-1.5h10.94l-1.72-1.72a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" /></svg>,
-  register: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7"><path d="M6.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM3.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM19.75 7.5a.75.75 0 0 0-1.5 0v2.25H16a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H22a.75.75 0 0 0 0-1.5h-2.25V7.5Z" /></svg>,
-};
-
-function QuickLinks() {
-  const { user } = useAuth();
-  const { destination: listSpotDest } = useListYourSpotDestination();
+function SignupBlock() {
   const { t } = useTranslation('landing');
   const lp = useLocalizePath();
-  const [isHost, setIsHost] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [zip, setZip] = useState('');
+  const [parkingType, setParkingType] = useState('');
 
-  useEffect(() => {
-    if (!user) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/users/me`, {
-      headers: { Authorization: `Bearer ${user.token}` },
-    })
-      .then((r) => r.json())
-      .then((p) => { setIsHost((p as Record<string, unknown>).isHost === true); })
-      .catch(() => {});
-  }, [user?.userId]);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    window.location.href = lp('/auth/register?intent=host');
+  };
 
-  const cards = !user
-    ? [
-        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
-        { href: '/auth/login', label: t('quick_links.login_label'), desc: t('quick_links.login_desc'), icon: ICONS.signIn },
-        { href: '/auth/register', label: t('quick_links.register_label'), desc: t('quick_links.register_desc'), icon: ICONS.register },
-      ]
-    : isHost
-    ? [
-        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
-        { href: '/listings/new', label: t('quick_links.host_listing_label'), desc: t('quick_links.host_listing_desc'), icon: ICONS.add },
-        { href: '/dashboard/spotter', label: t('quick_links.bookings_label'), desc: t('quick_links.bookings_desc'), icon: ICONS.bookings },
-      ]
-    : [
-        { href: '/search', label: t('quick_links.spotter_search_label'), desc: t('quick_links.spotter_search_desc'), icon: ICONS.search },
-        { href: listSpotDest, label: t('quick_links.list_spot_label'), desc: t('quick_links.list_spot_desc'), icon: ICONS.listSpot },
-        { href: '/dashboard/spotter', label: t('quick_links.bookings_label'), desc: t('quick_links.bookings_desc'), icon: ICONS.bookings },
-      ];
+  const inputClass = "w-full rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-3 py-2.5 text-[15px] text-[#1C2B1A] placeholder:text-[#4B6354]/60 hover:border-[#006B3C] focus:border-[#006B3C] focus:ring-2 focus:ring-[#006B3C]/20 outline-none transition-all";
 
   return (
-    <section className="bg-white px-6 py-16">
-      <div className="mx-auto max-w-5xl">
-        <h2 className="mb-8 text-center text-2xl font-bold text-[#004526]">{t('quick_links.heading')}</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {cards.map((l) => (
-            <Link key={l.label} href={lp(l.href)} className="grow group flex flex-col gap-2 rounded-xl border border-[#F0F7F3] bg-[#F0F7F3] p-5 hover:border-[#AD3614] hover:shadow-sm">
-              <span className="wiggle text-[#004526]">{l.icon}</span>
-              <span className="font-semibold text-[#004526] group-hover:text-[#AD3614]">{l.label}</span>
-              <span className="text-xs text-gray-500">{l.desc}</span>
-            </Link>
-          ))}
+    <section className="theme-forest bg-[#0B2418] px-6 py-20">
+      <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span className="text-sm font-semibold uppercase tracking-widest text-[#3AD57A]">{t('signup.eyebrow')}</span>
+          <h2 className="mt-3 text-4xl font-bold text-[#F7F5EE] font-head leading-tight">{t('signup.title')}</h2>
+          <ul className="mt-8 space-y-3">
+            {['signup.bullet_1', 'signup.bullet_2', 'signup.bullet_3'].map((k) => (
+              <li key={k} className="flex items-center gap-3 text-[#F7F5EE]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#059669" className="h-5 w-5 flex-shrink-0">
+                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                </svg>
+                {t(k)}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {['J', 'M', 'S', 'L'].map((initial, i) => (
+                <div key={i} className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F2E1F] border-2 border-[#0B2418] text-xs font-bold text-[#F7F5EE]/60">{initial}</div>
+              ))}
+            </div>
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <svg key={i} viewBox="0 0 20 20" fill="#F4C73B" className="h-4 w-4">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+            <span className="text-sm text-[#F7F5EE]/50">{t('signup.social')}</span>
+          </div>
+        </div>
+        <div className="rounded-2xl bg-[#F7F5EE] p-8 shadow-xl">
+          <h3 className="mb-6 text-lg font-semibold text-[#0B2418] font-head">{t('signup.form_title')}</h3>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <input type="text" placeholder={t('signup.form_first')} value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputClass} />
+              <input type="text" placeholder={t('signup.form_last')} value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputClass} />
+            </div>
+            <input type="email" placeholder={t('signup.form_email')} value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+            <div className="grid grid-cols-2 gap-3">
+              <input type="text" placeholder={t('signup.form_zip')} value={zip} onChange={(e) => setZip(e.target.value)} className={inputClass} />
+              <select value={parkingType} onChange={(e) => setParkingType(e.target.value)} className={inputClass}>
+                <option value="">{t('signup.form_type')}</option>
+                <option value="COVERED_GARAGE">{t('signup.form_type_garage')}</option>
+                <option value="CARPORT">{t('signup.form_type_carport')}</option>
+                <option value="DRIVEWAY">{t('signup.form_type_driveway')}</option>
+                <option value="OPEN_SPACE">{t('signup.form_type_open')}</option>
+              </select>
+            </div>
+            <button type="submit" className="btn-sun w-full text-base mt-2">{t('signup.form_cta')}</button>
+          </form>
+          <div className="mt-4 flex items-center gap-2 text-xs text-[#4B6354]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-3.5 w-3.5 flex-shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+            {t('signup.form_privacy')}
+          </div>
         </div>
       </div>
     </section>
@@ -302,17 +354,13 @@ function CallToAction() {
   if (user) return null;
 
   return (
-    <section className="bg-[#F0F7F3] px-6 py-20 text-center border-t border-[#006B3C]/10">
+    <section className="theme-forest bg-[#0B2418] px-6 py-20 text-center border-t border-[#F7F5EE]/10">
       <div className="mx-auto max-w-2xl">
-        <h2 className="mb-4 text-3xl font-bold text-[#004526]">{t('cta.heading')}</h2>
-        <p className="mb-8 text-gray-600">{t('cta.description')}</p>
+        <h2 className="mb-4 text-3xl font-bold text-[#F7F5EE] font-head">{t('cta.heading')}</h2>
+        <p className="mb-8 text-[#F7F5EE]/60">{t('cta.description')}</p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link href={lp('/search')} className="grow-btn rounded-xl bg-[#006B3C] px-8 py-3.5 text-base font-semibold text-white hover:bg-[#005A30]">
-            {t('cta.button_find')}
-          </Link>
-          <Link href={lp('/auth/register')} className="grow-btn rounded-xl border border-[#004526] px-8 py-3.5 text-base font-semibold text-[#004526] hover:bg-[#EBF7F1]">
-            {t('cta.button_register')}
-          </Link>
+          <Link href={lp('/search')} className="btn-sun text-base px-8 py-3.5">{t('cta.button_find')}</Link>
+          <Link href={lp('/auth/register')} className="btn-sun-outline text-base px-8 py-3.5">{t('cta.button_register')}</Link>
         </div>
       </div>
     </section>
@@ -325,9 +373,11 @@ export default function HomePage() {
   return (
     <main>
       <Hero />
+      <YellowRibbon />
       <HowItWorks />
+      <BenefitsStrip />
       <Features />
-      <QuickLinks />
+      <SignupBlock />
       <CallToAction />
     </main>
   );

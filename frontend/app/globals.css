@@ -3,94 +3,157 @@
 @tailwind utilities;
 
 /* ============================================================
-   Spotzy Design System v3 — Lacoste green + Brick red only
-   No gold. Slow-grow animation + 360° logo spin.
+   Spotzy Design System v7 — Full design token system
+   Emerald + Forest green + Brick red palette
    ============================================================ */
+
+/* ─── 1.2 Colour Tokens ──────────────────────────────────────── */
 :root {
+  /* Primary palette */
+  --primary: #006B3C;
+  --forest: #004526;
+  --brick: #AD3614;
+  --brick-light: #F5E6E1;
+  --brick-mid: #C94A28;
+  --brick-border: #D4826A;
+  --ink: #1C2B1A;
+  --sage: #EBF7F1;
+  --mint: #B8E6D0;
+  --mist: #EFF5F1;
+  --park: #059669;
+  --slate: #4B6354;
+  --concrete: #B0BEC5;
+  --muted: #4B6354;
+
+  /* Visual rehaul — premium dark brand */
+  --forest-deep: #0B2418;
+  --forest-card: #0F2E1F;
+  --sun: #F4C73B;
+  --sun-deep: #E5B520;
+  --paper: #F7F5EE;
+  --ink-on-sun: #0B2418;
+  --paper-dim: rgba(247,245,238,0.72);
+  --paper-soft: rgba(247,245,238,0.55);
+
+  /* Semantic tokens */
   --background: #F0F7F3;
   --foreground: #1C2B1A;
   --card: #FFFFFF;
   --card-foreground: #1C2B1A;
-  --primary: #006B3C;
   --primary-foreground: #FFFFFF;
   --secondary: #EBF7F1;
   --secondary-foreground: #004526;
-  --muted: #EFF5F1;
-  --muted-foreground: #4B6354;
   --accent: #B8E6D0;
   --accent-foreground: #004526;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --border: #C8DDD2;
   --ring: #006B3C;
-  --brick: #AD3614;
-  --brick-light: #F5E6E1;
-  --brick-mid: #C94A28;
-  --forest: #004526;
   --radius: 0.75rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 69, 38, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 69, 38, 0.10);
+  --shadow-lg: 0 8px 24px rgba(0, 69, 38, 0.14);
+  --shadow-forest: 0 4px 12px rgba(0, 69, 38, 0.18);
+  --shadow-brick: 0 4px 12px rgba(173, 54, 20, 0.18);
+
+  /* Spacing (referenced in Tailwind config, also available as CSS vars) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
 }
 
-/* Price text — forest green, bold */
-.price {
-  color: var(--forest);
-  font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
+/* Dark mode */
+.dark {
+  --background: #0A1F14;
+  --foreground: #EBF7F1;
+  --card: #132E1F;
+  --card-foreground: #EBF7F1;
+  --border: #1C4030;
+  --mist: #132E1F;
+  --sage: #1C4030;
 }
 
-.price-large {
-  color: var(--forest);
-  font-weight: 700;
-  font-size: 1.5rem;
-  font-family: 'DM Sans', sans-serif;
-}
+/* ─── 1.3 Typography ─────────────────────────────────────────── */
+/* Font families set via Tailwind config + Google Fonts import in layout.tsx */
+/* DM Sans: display/headings (600-700), Inter: body (400-600), JetBrains Mono: codes/refs */
 
-.nav-forest {
-  background-color: var(--forest);
-  color: #ffffff;
-}
+.text-display { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 2.5rem; line-height: 1.1; color: var(--forest); }
+.text-h1 { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; color: var(--forest); }
+.text-h2 { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1.25rem; line-height: 1.3; color: var(--forest); }
+.text-h3 { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; line-height: 1.4; color: #B8960C; }
+.text-body { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.9375rem; line-height: 1.6; color: var(--ink); }
+.text-caption { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.8125rem; line-height: 1.4; color: var(--slate); }
+.text-code { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 0.8125rem; }
 
-/* Emerald button (replaces .btn-gold) */
+/* Price text — forest green, bold DM Sans */
+.price { color: var(--forest); font-weight: 700; font-family: 'DM Sans', sans-serif; }
+.price-large { color: var(--forest); font-weight: 700; font-size: 1.5rem; font-family: 'DM Sans', sans-serif; }
+.price-xl { color: var(--forest); font-weight: 700; font-size: 2rem; font-family: 'DM Sans', sans-serif; }
+
+/* ─── 1.5 Spacing / Radius / Shadow utility classes ──────────── */
+.shadow-sm-spotzy { box-shadow: var(--shadow-sm); }
+.shadow-md-spotzy { box-shadow: var(--shadow-md); }
+.shadow-lg-spotzy { box-shadow: var(--shadow-lg); }
+.shadow-forest { box-shadow: var(--shadow-forest); }
+.shadow-brick { box-shadow: var(--shadow-brick); }
+
+/* ─── 1.6 Component base styles ──────────────────────────────── */
+
+/* Nav bar */
+.nav-forest { background-color: var(--forest); color: #ffffff; }
+
+/* Legacy btn-gold alias → Emerald button */
 .btn-gold {
   background-color: var(--primary);
   color: #ffffff;
   font-weight: 600;
   transition: box-shadow 0.15s, transform 0.15s;
 }
-.btn-gold:hover {
-  background-color: var(--forest);
-  transform: translateY(-1px);
-}
-.btn-gold:active {
-  transform: scale(0.97);
-}
+.btn-gold:hover { background-color: var(--forest); transform: translateY(-1px); }
+.btn-gold:active { transform: scale(0.97); }
 
 /* Brick utility classes */
-.bg-brick       { background-color: var(--brick); }
-.text-brick     { color: var(--brick); }
-.border-brick   { border-color: var(--brick); }
+.bg-brick { background-color: var(--brick); }
+.text-brick { color: var(--brick); }
+.border-brick { border-color: var(--brick); }
 .bg-brick-light { background-color: var(--brick-light); }
-.shadow-brick   { box-shadow: 0 4px 12px rgba(173,54,20,0.18); }
-.shadow-forest  { box-shadow: 0 4px 12px rgba(0,69,38,0.18); }
 
-/* Slow-grow animation — 0.5s delay, 1.5s spring (cards: scale 1.045) */
+/* ─── 1.7 Motion System ─────────────────────────────────────── */
+
+/* Slow-grow animation — cards: scale 1.045, 0.5s delay, 1.5s spring */
 .grow {
-  transition: transform 1.5s cubic-bezier(0.34,1.56,0.64,1) 0.5s,
+  transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s,
               box-shadow 1.5s ease 0.5s;
 }
-.grow:hover { transform: scale(1.045); box-shadow: 0 4px 16px rgba(0,69,38,0.20); }
+.grow:hover { transform: scale(1.045); box-shadow: var(--shadow-md); }
 .grow:not(:hover) { transform: scale(1); transition-delay: 0s; }
 
-/* Slow-grow for buttons — slightly more pronounced (scale 1.07) */
+/* Slow-grow for buttons — scale 1.07 */
 .grow-btn {
-  transition: transform 1.5s cubic-bezier(0.34,1.56,0.64,1) 0.5s,
+  transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s,
               box-shadow 1.5s ease 0.5s,
               background-color 180ms ease,
               color 180ms ease,
               border-color 180ms ease;
 }
-.grow-btn:hover { transform: scale(1.07); box-shadow: 0 4px 16px rgba(0,69,38,0.20); }
+.grow-btn:hover { transform: scale(1.07); box-shadow: var(--shadow-md); }
 .grow-btn:not(:hover) { transform: scale(1); transition-delay: 0s; }
 .grow-btn:active { transform: scale(0.97) !important; transition: transform 100ms !important; }
+
+/* Slow-grow for chips — scale 1.06 */
+.grow-chip {
+  transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s,
+              box-shadow 1.5s ease 0.5s;
+}
+.grow-chip:hover { transform: scale(1.06); }
+.grow-chip:not(:hover) { transform: scale(1); transition-delay: 0s; }
 
 /* Wiggle animation — feature/nav icons on hover */
 @keyframes wiggle {
@@ -99,38 +162,122 @@
   50%  { transform: rotate(6deg); }
   75%  { transform: rotate(-4deg); }
 }
-/* Triggered by parent card hover via .group class */
 .wiggle { display: inline-block; }
-.wiggle svg {
-  transform-origin: center;
-  transform-box: fill-box;
-}
+.wiggle svg { transform-origin: center; transform-box: fill-box; }
 .group:hover .wiggle svg { animation: wiggle 400ms ease; }
 
 /* 360° spin on hover — logo icon */
-.spin-360 { transition: transform 0.68s cubic-bezier(0.34,1.56,0.64,1); }
+.spin-360 { transition: transform 0.68s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .spin-360:hover { transform: rotate(360deg); }
 
 /* Card icon rotation — triggered by parent .group hover */
 .group:hover .card-icon-spin {
-  animation: card-icon-rotate 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: card-icon-rotate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 @keyframes card-icon-rotate {
-  0%   { transform: rotate(0deg); }
+  0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Page enter animation — fade + 20px slide up */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter { animation: pageEnter 600ms ease-out; }
 
 /* Soft fade-in for rotating showcase panels */
 @keyframes fadeInSoft {
   from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in-soft {
-  animation: fadeInSoft 0.6s ease-out;
+.animate-fade-in-soft { animation: fadeInSoft 0.6s ease-out; }
+
+/* ─── 1.7 Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .grow, .grow-btn, .grow-chip, .spin-360 {
+    transition-duration: 150ms !important;
+    transition-delay: 0s !important;
+  }
+  .grow:hover { transform: none; }
+  .grow-btn:hover { transform: none; }
+  .grow-chip:hover { transform: none; }
+  .spin-360:hover { transform: none; }
+  .animate-page-enter, .animate-fade-in-soft {
+    animation-duration: 150ms !important;
+    animation-name: simpleFade !important;
+  }
+  @keyframes simpleFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .group:hover .wiggle svg { animation: none; }
+  .group:hover .card-icon-spin { animation: none; }
 }
 
-/* Focus ring */
+/* ─── 1.8 Accessibility ──────────────────────────────────────── */
+/* Focus ring: 3px emerald at 20% opacity */
 *:focus-visible {
-  outline: 2px solid var(--ring);
+  outline: 3px solid rgba(0, 107, 60, 0.20);
   outline-offset: 2px;
+}
+
+/* Minimum touch target */
+.touch-target { min-width: 44px; min-height: 44px; }
+
+/* ─── Visual Rehaul — Dark marketing surfaces ────────────────── */
+
+.theme-forest {
+  --background: var(--forest-deep);
+  --foreground: var(--paper);
+  --card: var(--forest-card);
+  --border: rgba(247,245,238,0.10);
+}
+
+/* Sun CTA — yellow primary for marketing surfaces */
+.btn-sun {
+  background: var(--sun);
+  color: var(--ink-on-sun);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  border-radius: 12px;
+  padding: 14px 22px;
+  box-shadow: 0 6px 16px rgba(244,199,59,0.35);
+  transition: background 150ms, transform 150ms;
+}
+.btn-sun:hover { background: var(--sun-deep); transform: translateY(-1px); }
+.btn-sun:active { transform: scale(0.97); }
+
+/* Sun outline — nav CTA on dark backgrounds */
+.btn-sun-outline {
+  background: transparent;
+  color: var(--sun);
+  border: 1.5px solid var(--sun);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 18px;
+  transition: background 150ms, color 150ms;
+}
+.btn-sun-outline:hover { background: var(--sun); color: var(--ink-on-sun); }
+
+/* Eyebrow label — uppercase emerald */
+.text-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #3AD57A;
+}
+
+/* Hero headline — clamp responsive */
+.text-hero {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
 }

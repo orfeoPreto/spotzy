@@ -9,10 +9,8 @@ import FilterPanel, { type FilterState } from '../../../components/FilterPanel';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
-// Brussels default coordinates
 const BRUSSELS_CENTER = { lat: 50.8467, lng: 4.3525 };
 
-// Haversine distance in km → walking minutes (~5 km/h)
 function walkingMinutes(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -39,7 +37,6 @@ export default function SearchPage() {
   const [cardHoveredId, setCardHoveredId] = useState<string | null>(null);
   const listingsPanelRef = useRef<HTMLElement>(null);
 
-  // Scroll highlighted card into view within listings panel only
   useEffect(() => {
     if (!hoveredSpotId || !listingsPanelRef.current) return;
     const panel = listingsPanelRef.current;
@@ -107,7 +104,6 @@ export default function SearchPage() {
     }
   }, []);
 
-  // Load listings on mount with Brussels default
   useEffect(() => {
     fetchListings(buildParams(null, filters));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -146,59 +142,34 @@ export default function SearchPage() {
     (filters.availableOnly ? 0 : 1);
 
   return (
-    <main className="flex h-screen flex-col overflow-hidden">
+    <main className="flex h-screen flex-col overflow-hidden animate-page-enter">
       <h1 className="sr-only">{t('heading')}</h1>
 
-      {/* Search bar — centered, 50% max width on desktop */}
-      <div className="z-10 flex justify-center p-3 shadow-sm">
+      {/* Search bar — floating top, centered */}
+      <div className="z-10 flex justify-center p-3">
         <div className="w-full md:max-w-[50%]">
-        <SearchBar
-          onDestinationSelect={handleDestinationSelect}
-          onFilterOpen={() => setShowFilters(true)}
-          onDatesChange={(s, e) => { setStartDate(s); setEndDate(e); }}
-          activeFilterCount={activeFilterCount}
-        />
+          <SearchBar
+            onDestinationSelect={handleDestinationSelect}
+            onFilterOpen={() => setShowFilters(true)}
+            onDatesChange={(s, e) => { setStartDate(s); setEndDate(e); }}
+            activeFilterCount={activeFilterCount}
+          />
         </div>
       </div>
 
-      {/* Content: mobile = map top + listings below; md = side by side 4:6 */}
-      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-
-        {/* Map — full width on mobile, 40% on desktop */}
-        <div className="relative h-56 shrink-0 md:h-auto md:w-[40%]">
-          <SpotMap
-            spots={spots}
-            defaultCenter={BRUSSELS_CENTER}
-            onSpotSelect={(s) => setSelectedSpotId(s.listingId)}
-            onSpotHover={setHoveredSpotId}
-            selectedSpotId={selectedSpotId}
-            highlightedFromCard={cardHoveredId}
-            destinationCoords={destination}
-            onMoveEnd={handleMapMoveEnd}
-          />
-          {mapMoved && (
-            <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
-              <button
-                type="button"
-                onClick={handleSearchThisArea}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium text-[#004526] shadow-md hover:shadow-lg"
-              >
-                {t('search_this_area')}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Listings panel — full width on mobile, 60% on desktop */}
+      {/* Content: Desktop = listings LEFT (40%) + map RIGHT (60%) */}
+      <div className="flex flex-1 flex-col-reverse overflow-hidden md:flex-row">
+        {/* Listings panel — LEFT on desktop */}
         <aside
           ref={listingsPanelRef}
           data-testid="listings-panel"
-          className="flex-1 overflow-y-auto p-3"
+          className="flex-1 overflow-y-auto p-3 md:w-[40%] md:flex-none"
         >
           {loading && (
-            <p className="text-center text-sm text-gray-500" role="status">{t('loading')}</p>
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#006B3C] border-t-transparent" />
+            </div>
           )}
-          {/* 1 col mobile → 2 col sm → 3 col lg */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
             {spots.map((spot) => (
               <SpotSummaryCard
@@ -213,27 +184,73 @@ export default function SearchPage() {
             ))}
           </div>
           {!loading && spots.length === 0 && (
-            <p className="mt-8 text-center text-sm text-gray-400">
-              {t('no_results')}
-            </p>
+            <div className="mt-12 flex flex-col items-center gap-3 text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#004526" className="h-12 w-12 opacity-30">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <p className="text-sm text-[#4B6354]">{t('no_results')}</p>
+            </div>
           )}
         </aside>
+
+        {/* Map — RIGHT on desktop, top on mobile */}
+        <div className="relative h-56 shrink-0 md:h-auto md:flex-1">
+          <SpotMap
+            spots={spots}
+            defaultCenter={BRUSSELS_CENTER}
+            onSpotSelect={(s) => setSelectedSpotId(s.listingId)}
+            onSpotHover={setHoveredSpotId}
+            selectedSpotId={selectedSpotId}
+            highlightedFromCard={cardHoveredId}
+            destinationCoords={destination}
+            onMoveEnd={handleMapMoveEnd}
+          />
+          {/* Search this area button */}
+          {mapMoved && (
+            <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+              <button
+                type="button"
+                onClick={handleSearchThisArea}
+                className="grow-btn flex items-center gap-2 rounded-full border border-[#004526] bg-white px-4 py-2 text-sm font-medium text-[#004526] shadow-md-spotzy hover:shadow-lg-spotzy transition-shadow"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+                </svg>
+                {t('search_this_area')}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Filter panel overlay */}
+      {/* Filter panel — mobile: bottom sheet 70%; desktop: right sidebar 360px */}
       {showFilters && (
         <div
-          className="fixed inset-0 z-20 flex items-start justify-end bg-black/30 p-4"
+          className="fixed inset-0 z-20 bg-black/30"
           onClick={() => setShowFilters(false)}
         >
+          {/* Desktop: right sidebar */}
           <div
-            className="w-80 rounded-2xl bg-white shadow-xl"
+            className="hidden md:block absolute right-0 top-0 h-full w-[360px]"
             onClick={(e) => e.stopPropagation()}
           >
             <FilterPanel
               resultCount={spots.length}
               onApply={handleApplyFilters}
               onClear={handleClearFilters}
+              onClose={() => setShowFilters(false)}
+            />
+          </div>
+          {/* Mobile: bottom sheet */}
+          <div
+            className="md:hidden absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FilterPanel
+              resultCount={spots.length}
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+              onClose={() => setShowFilters(false)}
             />
           </div>
         </div>

@@ -124,7 +124,7 @@ export default function SpotMap({
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: initialCenter,
       zoom,
     });
@@ -174,7 +174,8 @@ export default function SpotMap({
       if (prev) {
         const inner = prev.getElement().querySelector('.spot-pin-inner') as HTMLElement | null;
         if (inner) {
-          inner.style.background = selectedSpotId === prevCardHoverRef.current ? AMBER : NAVY;
+          inner.style.background = selectedSpotId === prevCardHoverRef.current ? '#F4C73B' : 'white';
+          inner.style.color = '#0B2418';
           inner.style.transform = 'scale(1)';
         }
         prev.getElement().style.zIndex = '';
@@ -186,8 +187,9 @@ export default function SpotMap({
       if (cur) {
         const inner = cur.getElement().querySelector('.spot-pin-inner') as HTMLElement | null;
         if (inner) {
-          inner.style.background = '#AD3614';
-          inner.style.transform = 'scale(1.3)';
+          inner.style.background = '#F4C73B';
+          inner.style.color = '#0B2418';
+          inner.style.transform = 'scale(1.1)';
         }
         cur.getElement().style.zIndex = '10';
 
@@ -254,16 +256,19 @@ export default function SpotMap({
           <span>${bays}</span>
         `;
       } else {
+        const price = (spot.pricePerHour ?? 0).toFixed(0);
         inner.style.cssText = `
-          width: 32px; height: 32px; border-radius: 50%;
-          background: ${NAVY};
-          border: 2px solid white;
+          padding: 4px 10px; border-radius: 20px;
+          background: white;
+          border: 1px solid rgba(247,245,238,0.2);
           display: flex; align-items: center; justify-content: center;
-          font-size: 11px; font-weight: bold; color: white;
-          transition: transform 0.2s, background 0.2s;
+          font-size: 12px; font-weight: 700; color: #0B2418;
+          transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
           pointer-events: auto;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          font-family: 'DM Sans', sans-serif;
         `;
-        inner.textContent = `€${(spot.pricePerHour ?? 0).toFixed(0)}`;
+        inner.textContent = `${price} €`;
       }
       wrapper.appendChild(inner);
 
@@ -287,13 +292,19 @@ export default function SpotMap({
       });
 
       wrapper.addEventListener('mouseenter', () => {
-        inner.style.transform = 'scale(1.3)';
+        inner.style.background = '#F4C73B';
+        inner.style.color = '#0B2418';
+        inner.style.transform = 'scale(1.1)';
+        inner.style.boxShadow = '0 4px 12px rgba(244,199,59,0.4)';
         wrapper.style.zIndex = '10';
         onSpotHoverRef.current?.(spot.listingId);
       });
 
       wrapper.addEventListener('mouseleave', () => {
+        inner.style.background = 'white';
+        inner.style.color = '#0B2418';
         inner.style.transform = 'scale(1)';
+        inner.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
         wrapper.style.zIndex = '';
         onSpotHoverRef.current?.(null);
       });
@@ -311,7 +322,9 @@ export default function SpotMap({
     markersRef.current.forEach((marker, id) => {
       const inner = marker.getElement().querySelector('.spot-pin-inner') as HTMLElement | null;
       if (inner) {
-        inner.style.background = id === selectedSpotId ? AMBER : NAVY;
+        inner.style.background = id === selectedSpotId ? '#F4C73B' : 'white';
+        inner.style.color = '#0B2418';
+        inner.style.boxShadow = id === selectedSpotId ? '0 4px 12px rgba(244,199,59,0.4)' : '0 2px 8px rgba(0,0,0,0.15)';
       }
     });
   }, [selectedSpotId]);

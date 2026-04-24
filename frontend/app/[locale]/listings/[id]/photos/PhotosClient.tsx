@@ -145,23 +145,37 @@ export default function ListingPhotosPage() {
   };
 
   if (loading) {
-    return <main className="flex min-h-screen items-center justify-center"><p className="text-sm text-gray-400">Loading photos…</p></main>;
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[#004526] border-t-transparent" />
+          <p className="text-sm text-[#004526]">Loading photos…</p>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-2xl px-4 py-8 animate-page-enter">
+      {/* Toast */}
       {toast && (
-        <div className="fixed right-4 top-4 z-30 rounded-lg bg-[#004526] px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed right-4 top-4 z-30 flex items-center gap-2 rounded-xl bg-[#004526] px-4 py-2.5 text-sm text-white shadow-[0_4px_20px_rgba(0,69,38,0.35)]">
+          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-xs">✓</span>
           {toast}
         </div>
       )}
 
+      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+        <h1 className="font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">
           Manage photos
         </h1>
-        <button type="button" onClick={() => router.back()} className="text-sm text-gray-500 hover:text-gray-700">
-          ← Back
+        <button type="button" onClick={() => router.back()}
+          className="flex items-center gap-1.5 text-sm font-medium text-[#006B3C] transition-colors hover:text-[#004526]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back
         </button>
       </div>
 
@@ -180,25 +194,32 @@ export default function ListingPhotosPage() {
             onDragOver={(e) => { e.preventDefault(); setDragOver(i); }}
             onDragLeave={() => setDragOver(null)}
             onDrop={() => handleDrop(i)}
-            className={`relative aspect-square overflow-hidden rounded-xl border-2 transition-all ${
-              dragOver === i ? 'border-[#AD3614] scale-105' : 'border-gray-200'
+            className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+              dragOver === i
+                ? 'border-[#AD3614] scale-105 shadow-lg shadow-[#AD3614]/20'
+                : i === 0
+                ? 'border-[#004526] shadow-md shadow-[#004526]/15'
+                : 'border-[#C8DDD2] hover:border-[#006B3C]'
             } cursor-grab active:cursor-grabbing`}
           >
             <img src={photo.url} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
 
-            {/* Primary badge */}
+            {/* Primary badge — brick crown */}
             {i === 0 && (
               <span
                 data-testid="primary-badge"
-                className="absolute left-1 top-1 rounded-full bg-[#006B3C] px-1.5 py-0.5 text-[10px] font-bold text-white"
+                className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-[#AD3614] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-2.5 w-2.5">
+                  <path fillRule="evenodd" d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L8 11.584l-3.136 1.81a.75.75 0 0 1-1.12-.814l.852-3.576-2.79-2.389a.75.75 0 0 1 .428-1.317l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z" clipRule="evenodd" />
+                </svg>
                 Primary
               </span>
             )}
 
             {/* Drag handle */}
-            <div className="absolute right-1 top-1 cursor-grab rounded bg-black/40 p-0.5 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="h-4 w-4">
+            <div className="absolute right-1.5 top-1.5 cursor-grab rounded-lg bg-black/50 p-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="h-3.5 w-3.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
               </svg>
             </div>
@@ -209,45 +230,51 @@ export default function ListingPhotosPage() {
               data-testid={`remove-photo-${i}`}
               disabled={photos.length <= 1}
               onClick={() => handleRemove(i)}
-              className="absolute bottom-1 right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40 group-hover:opacity-100"
+              className="absolute bottom-1.5 right-1.5 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-opacity hover:bg-red-600 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={`Remove photo ${i + 1}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-3 w-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </button>
 
             {/* Validation status */}
             {validationStatus[i] === 'pending' && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <div className="absolute inset-0 flex items-center justify-center bg-[#004526]/60 backdrop-blur-sm">
+                <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
               </div>
             )}
             {validationStatus[i] === 'pass' && (
-              <div data-testid="validation-pass" className="absolute bottom-1 left-1 rounded-full bg-green-500 p-1">
+              <div data-testid="validation-pass" className="absolute bottom-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#004526] shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="white" className="h-3 w-3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
               </div>
             )}
             {validationStatus[i] === 'fail' && (
-              <div className="absolute inset-0 flex items-center justify-center bg-red-500/60">
-                <p className="text-xs font-medium text-white">Validation failed</p>
+              <div className="absolute inset-0 flex items-center justify-center bg-red-500/65 backdrop-blur-sm">
+                <p className="text-xs font-semibold text-white">Validation failed</p>
               </div>
             )}
           </div>
         ))}
 
         {/* Add photo cell */}
-        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 hover:border-[#006B3C]">
+        <label className={`flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200 ${
+          uploading
+            ? 'border-[#006B3C] bg-[#EBF7F1]'
+            : 'border-[#C8DDD2] bg-white hover:border-[#006B3C] hover:bg-[#EBF7F1]'
+        }`}>
           {uploading ? (
-            <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[#006B3C] border-t-transparent" />
+            <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[#004526] border-t-transparent" />
           ) : (
             <>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#006B3C" className="h-8 w-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              <span className="mt-1 text-xs text-[#006B3C]">Add photo</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EBF7F1]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#004526" className="h-5 w-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </div>
+              <span className="mt-1.5 text-xs font-medium text-[#004526]">Add photo</span>
             </>
           )}
           <input

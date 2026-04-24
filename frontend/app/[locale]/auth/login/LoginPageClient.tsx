@@ -72,58 +72,64 @@ export default function LoginPage() {
     : '/auth/register';
 
   return (
-    <main className="mx-auto max-w-sm px-4 py-16">
-      <h1 className="mb-6 text-2xl font-bold text-[#004526]">{t('login.heading')}</h1>
+    <main className="flex min-h-[80vh] items-center justify-center px-4 py-16 animate-page-enter">
+      <div className="w-full max-w-[440px] rounded-2xl bg-white p-8 shadow-md-spotzy">
+        <h1 className="mb-6 text-2xl font-bold text-[#004526] font-head">{t('login.heading')}</h1>
 
-      {intent && <BookingSummaryStrip intent={intent} />}
+        {intent && <BookingSummaryStrip intent={intent} />}
 
-      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">{t('login.email_label')}</label>
-          <input
-            id="email"
-            data-testid="email-input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">{t('login.password_label')}</label>
-          <input
-            id="password"
-            data-testid="password-input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none"
-          />
-        </div>
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1 block text-[13px] font-medium text-[#004526]">{t('login.email_label')}</label>
+            <input
+              id="email"
+              data-testid="email-input"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-3 py-2.5 text-[15px] text-[#1C2B1A] placeholder:text-[#4B6354]/60 hover:border-[#006B3C] focus:border-[#006B3C] focus:ring-2 focus:ring-[#006B3C]/20 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="mb-1 block text-[13px] font-medium text-[#004526]">{t('login.password_label')}</label>
+            <input
+              id="password"
+              data-testid="password-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-3 py-2.5 text-[15px] text-[#1C2B1A] placeholder:text-[#4B6354]/60 hover:border-[#006B3C] focus:border-[#006B3C] focus:ring-2 focus:ring-[#006B3C]/20 outline-none transition-all"
+            />
+          </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <div className="rounded-lg bg-[#FEE2E2] border border-[#FCA5A5] px-3 py-2">
+              <p className="text-sm text-[#DC2626]">{error}</p>
+            </div>
+          )}
 
-        <button
-          type="submit"
-          data-testid="sign-in-btn"
-          disabled={!canSubmit || loading}
-          className="w-full rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40"
-        >
-          {loading ? t('login.submit_loading') : t('login.submit_button')}
-        </button>
-      </form>
+          <button
+            type="submit"
+            data-testid="sign-in-btn"
+            disabled={!canSubmit || loading}
+            className="grow-btn w-full rounded-lg bg-[#004526] py-3 text-[15px] font-semibold text-white font-head shadow-forest hover:bg-[#003318] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? t('login.submit_loading') : t('login.submit_button')}
+          </button>
+        </form>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
-        {t('login.register_prompt')}{' '}
-        <Link href={lp(registerHref)} data-testid="create-account-link" className="font-medium text-[#AD3614] hover:underline">
-          {t('login.register_link')}
-        </Link>
-      </p>
-      <p className="mt-2 text-center text-sm text-gray-500">
-        <Link href={lp('/auth/forgot-password')} className="text-[#AD3614] hover:underline">
-          {t('login.forgot_password_link')}
-        </Link>
-      </p>
+        <p className="mt-6 text-center text-sm text-[#4B6354]">
+          {t('login.register_prompt')}{' '}
+          <Link href={lp(registerHref)} data-testid="create-account-link" className="font-medium text-[#006B3C] hover:underline">
+            {t('login.register_link')}
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-sm">
+          <Link href={lp('/auth/forgot-password')} className="text-[#4B6354] hover:text-[#006B3C] hover:underline">
+            {t('login.forgot_password_link')}
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }

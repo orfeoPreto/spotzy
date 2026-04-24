@@ -55,21 +55,21 @@ export default function SpotterDashboardPage() {
   );
 
   return (
-    <main className="mx-auto max-w-4xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">{t('spotter.my_bookings')}</h1>
+    <main className="animate-page-enter mx-auto max-w-4xl p-8">
+      <h1 className="mb-6 font-head text-2xl font-bold text-[#004526]">{t('spotter.my_bookings')}</h1>
 
       {/* Tabs */}
-      <div role="tablist" className="mb-6 flex gap-2 border-b border-gray-200">
+      <div role="tablist" className="mb-6 flex gap-2 border-b border-[#C8DDD2]">
         {(['upcoming', 'past'] as Tab[]).map((t) => (
           <button
             key={t}
             role="tab"
             aria-selected={tab === t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${
+            className={`px-4 py-2 text-sm font-semibold capitalize transition-colors ${
               tab === t
-                ? 'border-b-2 border-[#AD3614] text-[#AD3614]'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-[#004526] text-[#004526]'
+                : 'text-[#4B6354] hover:text-[#004526]'
             }`}
           >
             {t}
@@ -89,7 +89,7 @@ export default function SpotterDashboardPage() {
           />
         ))}
         {visibleBookings.length === 0 && (
-          <p className="text-center text-sm text-gray-400">{t('spotter.no_bookings', { tab })}</p>
+          <p className="text-center text-sm text-[#4B6354]">{t('spotter.no_bookings', { tab })}</p>
         )}
       </div>
 

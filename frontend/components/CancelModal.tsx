@@ -99,38 +99,38 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
   };
 
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">{t('cancel.modal_title')}</h2>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg-spotzy animate-page-enter">
+        <h2 className="mb-4 font-head text-lg font-bold text-spotzy-forest">{t('cancel.modal_title')}</h2>
 
         {withinDeadline && (
-          <p className="mb-3 text-sm text-amber-700">
-            ⏱ {Math.max(0, Math.ceil(hoursLeft))} hours remaining before start — time remaining
+          <p className="mb-3 rounded-lg bg-spotzy-brick-light border border-spotzy-brick-border px-3 py-2 text-sm text-spotzy-brick">
+            {Math.max(0, Math.ceil(hoursLeft))}h remaining before start
           </p>
         )}
 
         {isActive ? (
-          <div className="mb-4 rounded-xl bg-red-50 p-4 text-center">
-            <p className="text-sm font-medium text-red-700">{t('cancel.active_error')}</p>
-            <p className="text-xs text-gray-500 mt-1">{t('cancel.active_message')}</p>
+          <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-4 text-center">
+            <p className="text-sm font-semibold text-red-700">{t('cancel.active_error')}</p>
+            <p className="text-xs text-spotzy-slate mt-1">{t('cancel.active_message')}</p>
           </div>
         ) : refundAmount > 0 ? (
-          <div className="mb-4 rounded-xl bg-green-50 p-4 text-center">
-            <p className="text-xs text-gray-500">{t('cancel.will_receive')}</p>
-            <p className="text-2xl font-bold text-green-700">€{refundAmount.toFixed(2)}</p>
-            <p className="text-xs text-gray-500">{t('cancel.refund_label')}</p>
-            <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
+          <div className="mb-4 rounded-xl bg-spotzy-sage border border-spotzy-mint p-4 text-center">
+            <p className="text-xs text-spotzy-slate">{t('cancel.will_receive')}</p>
+            <p className="font-head text-[28px] font-bold text-spotzy-park">&euro;{refundAmount.toFixed(2)}</p>
+            <p className="text-xs text-spotzy-slate">{t('cancel.refund_label')}</p>
+            <p className="mt-1 text-xs text-spotzy-slate/70">{refundTierLabel}</p>
           </div>
         ) : (
-          <div className="mb-4 rounded-xl bg-gray-100 p-4 text-center">
-            <p className="text-sm text-gray-500">{t('cancel.no_refund')}</p>
-            <p className="text-xl font-bold text-gray-400">€0.00</p>
-            <p className="mt-1 text-xs text-gray-400">{refundTierLabel}</p>
+          <div className="mb-4 rounded-xl bg-spotzy-mist border border-spotzy-mint p-4 text-center">
+            <p className="text-sm text-spotzy-slate">{t('cancel.no_refund')}</p>
+            <p className="font-head text-[28px] font-bold text-spotzy-slate">&euro;0.00</p>
+            <p className="mt-1 text-xs text-spotzy-slate/70">{refundTierLabel}</p>
           </div>
         )}
 
         {error && (
-          <div role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div role="alert" className="mb-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
             {error}
             <button
               type="button"
@@ -143,27 +143,29 @@ export default function CancelModal({ booking, refundAmount: _refundAmountProp, 
           </div>
         )}
 
-        <div className="flex gap-3">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onClose}
-            className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:opacity-50"
-          >
-            {t('cancel.keep_button')}
-          </button>
+        <div className="flex flex-col gap-3">
+          {/* Destructive — full width, red */}
           <button
             type="button"
             aria-label="Yes, cancel"
             disabled={loading || isActive}
             onClick={handleCancel}
-            className="flex-1 rounded-lg bg-[#C0392B] py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="w-full rounded-lg bg-red-600 py-2.5 font-head text-sm font-semibold text-white transition-all hover:bg-red-700 active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? (
               <span data-testid="spinner" className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               t('cancel.confirm_button')
             )}
+          </button>
+          {/* Safe option — Forest ghost */}
+          <button
+            type="button"
+            disabled={loading}
+            onClick={onClose}
+            className="w-full rounded-lg border border-spotzy-forest py-2.5 font-head text-sm font-semibold text-spotzy-forest transition-all hover:bg-spotzy-sage active:scale-[0.98] disabled:opacity-50"
+          >
+            {t('cancel.keep_button')}
           </button>
         </div>
       </div>

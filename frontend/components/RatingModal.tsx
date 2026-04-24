@@ -95,21 +95,23 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
   // Locked review — read-only display
   if (isLocked) {
     return (
-      <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-          <h2 className="mb-4 text-lg font-bold text-gray-900">{t('rating.locked_title')}</h2>
+      <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg-spotzy animate-page-enter">
+          <h2 className="mb-4 font-head text-lg font-bold text-spotzy-forest">{t('rating.locked_title')}</h2>
 
           <div className="space-y-4">
             {SPOTTER_SECTIONS.map((section) => (
               <div key={section.key} data-testid="rating-section">
-                <p className="mb-1.5 text-sm font-medium text-gray-700">{section.label}</p>
+                <p className="mb-1.5 font-head text-sm font-medium text-spotzy-slate">{section.label}</p>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
                       data-testid="star"
-                      className={`h-7 w-7 text-xl ${
-                        (initialRatings[section.key] ?? 0) >= star ? 'text-[#AD3614]' : 'text-gray-300'
+                      className={`text-2xl leading-none ${
+                        (initialRatings[section.key] ?? 0) >= star
+                          ? 'text-spotzy-park'
+                          : 'text-spotzy-concrete'
                       }`}
                     >
                       ★
@@ -120,7 +122,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
             ))}
           </div>
 
-          <div data-testid="lock-notice" className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <div data-testid="lock-notice" className="mt-4 rounded-lg bg-spotzy-brick-light border border-spotzy-brick-border px-3 py-2 text-sm text-spotzy-brick">
             {existingReview?.lockReason === 'OTHER_PARTY_REVIEWED'
               ? t('rating.locked_both')
               : t('rating.locked_window')}
@@ -128,7 +130,7 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
 
           <div className="mt-6">
             <button type="button" onClick={onClose}
-              className="w-full rounded-lg border border-gray-300 py-2 text-sm text-gray-700">
+              className="w-full rounded-lg border border-spotzy-forest py-2 font-head text-sm font-semibold text-spotzy-forest transition-all hover:bg-spotzy-sage active:scale-[0.98]">
               {tCommon('buttons.close')}
             </button>
           </div>
@@ -138,16 +140,16 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
   }
 
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg-spotzy animate-page-enter">
+        <h2 className="mb-4 font-head text-lg font-bold text-spotzy-forest">
           {isUpdate ? t('rating.update_title') : t('rating.create_title')}
         </h2>
 
         <div className="space-y-4">
           {SPOTTER_SECTIONS.map((section) => (
             <div key={section.key} data-testid="rating-section">
-              <p className="mb-1.5 text-sm font-medium text-gray-700">{section.label}</p>
+              <p className="mb-1.5 font-head text-sm font-medium text-spotzy-slate">{section.label}</p>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -155,9 +157,12 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
                     type="button"
                     data-testid="star"
                     onClick={() => setRating(section.key, star)}
-                    className={`h-7 w-7 text-xl transition-colors ${
-                      (ratings[section.key] ?? 0) >= star ? 'text-[#AD3614]' : 'text-gray-300'
+                    className={`text-2xl leading-none transition-all active:scale-125 ${
+                      (ratings[section.key] ?? 0) >= star
+                        ? 'text-spotzy-park drop-shadow-sm'
+                        : 'text-spotzy-concrete'
                     }`}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     ★
                   </button>
@@ -168,19 +173,19 @@ export default function RatingModal({ bookingId, onClose, onSubmitted, token, ex
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+          <div className="mt-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">{error}</div>
         )}
 
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onClose}
-            className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-700">
+            className="flex-1 rounded-lg border border-spotzy-forest py-2 font-head text-sm font-semibold text-spotzy-forest transition-all hover:bg-spotzy-sage active:scale-[0.98]">
             {tCommon('buttons.cancel')}
           </button>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className="flex-1 rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white disabled:opacity-40"
+            className="flex-1 rounded-lg bg-spotzy-forest py-2 font-head text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40"
           >
             {isUpdate ? t('rating.update_button') : t('rating.submit_button')}
           </button>

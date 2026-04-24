@@ -271,8 +271,8 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-gray-400">{t('loading')}</p>
+      <main className="flex min-h-screen items-center justify-center bg-[#EFF5F1]">
+        <p className="text-sm text-[#4B6354]">{t('loading')}</p>
       </main>
     );
   }
@@ -280,10 +280,13 @@ export default function ProfilePage() {
   const hasListings = (user.listingCount ?? 0) > 0;
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-8">
+    <main className="animate-page-enter mx-auto max-w-lg px-4 py-8">
       {/* Profile header */}
       <div className="mb-6 flex items-center gap-4">
-        <div className="cursor-pointer" onClick={() => photoInputRef.current?.click()}>
+        <div
+          className="cursor-pointer rounded-full ring-2 ring-[#004526] ring-offset-2"
+          onClick={() => photoInputRef.current?.click()}
+        >
           <UserAvatar
             user={{ photoUrl: user.profilePhotoUrl, pseudo: user.pseudo, firstName: user.name.split(' ')[0] || user.name }}
             size={80}
@@ -299,7 +302,7 @@ export default function ProfilePage() {
                   value={firstNameValue}
                   onChange={(e) => setFirstNameValue(e.target.value)}
                   placeholder={t('first_name_label')}
-                  className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                  className="flex-1 rounded-lg border border-[#004526] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#006B3C]/30"
                   autoFocus
                 />
                 <input
@@ -307,7 +310,7 @@ export default function ProfilePage() {
                   value={lastNameValue}
                   onChange={(e) => setLastNameValue(e.target.value)}
                   placeholder={t('last_name_label')}
-                  className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                  className="flex-1 rounded-lg border border-[#004526] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#006B3C]/30"
                 />
               </div>
               <div className="flex gap-2">
@@ -315,18 +318,18 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleSaveName}
                   disabled={saving || !firstNameValue.trim()}
-                  className="btn-gold rounded-lg px-3 py-1 text-xs"
+                  className="btn-gold grow-btn rounded-lg px-3 py-1 text-xs"
                 >
                   {saving ? tCommon('status.saving') : tCommon('buttons.save')}
                 </button>
-                <button type="button" onClick={() => setEditingName(false)} className="text-xs text-gray-400">
+                <button type="button" onClick={() => setEditingName(false)} className="text-xs text-[#4B6354] hover:text-[#004526]">
                   {tCommon('buttons.cancel')}
                 </button>
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#004526]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              <h1 className="font-head text-[20px] font-bold text-[#004526]">
                 {user.name}
               </h1>
               <button
@@ -334,7 +337,7 @@ export default function ProfilePage() {
                 data-testid="edit-name"
                 onClick={() => setEditingName(true)}
                 aria-label="Edit name"
-                className="text-gray-400 hover:text-[#004526]"
+                className="text-[#4B6354] hover:text-[#004526]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
@@ -343,26 +346,31 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* Member since */}
+          <p className="mt-0.5 text-xs text-[#4B6354]">
+            {user.name ? '' : ''}
+          </p>
+
           {/* Role badges */}
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
             {hasListings && (
               <span
                 data-testid="host-badge"
-                className="rounded-full bg-[#004526] px-2 py-0.5 text-xs font-medium text-white"
+                className="rounded-full bg-[#004526] px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm"
               >
                 {t('host_badge')}
               </span>
             )}
             <span
               data-testid="spotter-badge"
-              className="rounded-full bg-[#006B3C] px-2 py-0.5 text-xs font-medium text-white"
+              className="rounded-full bg-[#006B3C] px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm"
             >
               {t('spotter_badge')}
             </span>
             {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
               <span
                 data-testid="spot-manager-badge"
-                className={`rounded-full px-2 py-0.5 text-xs font-medium text-white ${user.spotManagerStatus === 'ACTIVE' ? 'bg-gradient-to-r from-[#004526] to-[#006B3C]' : 'bg-amber-600'}`}
+                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm ${user.spotManagerStatus === 'ACTIVE' ? 'bg-gradient-to-r from-[#004526] to-[#006B3C]' : 'bg-amber-600'}`}
                 title={user.spotManagerStatus === 'ACTIVE' ? t('spot_manager_active_tooltip') : t('spot_manager_staged_tooltip')}
               >
                 {t('spot_manager_badge')}{user.spotManagerStatus === 'STAGED' ? t('spot_manager_pending_suffix') : ''}
@@ -373,8 +381,8 @@ export default function ProfilePage() {
       </div>
 
       {/* Display name (pseudo) */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#004526]">{t('display_name.heading')}</h3>
+      <div className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm space-y-3">
+        <h3 className="font-head text-sm font-semibold text-[#004526]">{t('display_name.heading')}</h3>
         {editingPseudo ? (
           <div className="flex items-center gap-2">
             <input
@@ -382,21 +390,21 @@ export default function ProfilePage() {
               value={pseudoValue}
               onChange={(e) => setPseudoValue(e.target.value)}
               placeholder={t('display_name.placeholder')}
-              className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+              className="flex-1 rounded-lg border border-[#004526] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#006B3C]/30"
               autoFocus
             />
             <button type="button" onClick={() => void handleSavePseudo()} disabled={saving}
-              className="btn-gold rounded-lg px-3 py-1 text-xs">{saving ? tCommon('status.saving') : tCommon('buttons.save')}</button>
-            <button type="button" onClick={() => setEditingPseudo(false)} className="text-xs text-gray-400">{tCommon('buttons.cancel')}</button>
+              className="btn-gold grow-btn rounded-lg px-3 py-1 text-xs">{saving ? tCommon('status.saving') : tCommon('buttons.save')}</button>
+            <button type="button" onClick={() => setEditingPseudo(false)} className="text-xs text-[#4B6354] hover:text-[#004526]">{tCommon('buttons.cancel')}</button>
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-900">
+            <p className="text-sm text-[#1C2B1A]">
               {resolveDisplayName({ pseudo: user.pseudo, firstName: user.name.split(' ')[0] || user.name })}
             </p>
-            {user.pseudo && <span className="text-xs text-gray-400">{t('display_name.note')}</span>}
+            {user.pseudo && <span className="text-xs text-[#4B6354]">{t('display_name.note')}</span>}
             <button type="button" data-testid="edit-pseudo" onClick={() => setEditingPseudo(true)} aria-label="Edit display name"
-              className="text-gray-400 hover:text-[#004526]">
+              className="text-[#4B6354] hover:text-[#004526]">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
               </svg>
@@ -409,31 +417,31 @@ export default function ProfilePage() {
             id="showFullName"
             checked={showFullNamePublicly}
             onChange={(e) => void handleToggleFullName(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-[#006B3C] focus:ring-[#006B3C]"
+            className="h-4 w-4 rounded border-[#C8DDD2] text-[#006B3C] focus:ring-[#006B3C]"
           />
-          <label htmlFor="showFullName" className="text-sm text-gray-600">{t('show_full_name')}</label>
+          <label htmlFor="showFullName" className="text-sm text-[#4B6354]">{t('show_full_name')}</label>
         </div>
       </div>
 
       {/* Contact info */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#004526]">{t('contact_info.heading')}</h3>
+      <div className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm space-y-3">
+        <h3 className="font-head text-sm font-semibold text-[#004526]">{t('contact_info.heading')}</h3>
 
         {/* Email (read-only) */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{tCommon('labels.email')}</label>
-          <p className="text-sm text-gray-900">{user.email || tCommon('labels.not_set')}</p>
+          <label className="mb-1 block text-xs font-medium text-[#4B6354]">{tCommon('labels.email')}</label>
+          <p className="text-sm text-[#1C2B1A]">{user.email || tCommon('labels.not_set')}</p>
         </div>
 
         {/* Phone */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{tCommon('labels.phone')}</label>
+          <label className="mb-1 block text-xs font-medium text-[#4B6354]">{tCommon('labels.phone')}</label>
           {editingPhone ? (
             <div className="flex items-center gap-2">
               <select
                 value={phoneCountryCode}
                 onChange={(e) => setPhoneCountryCode(e.target.value)}
-                className="w-24 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                className="w-24 rounded-lg border border-[#004526] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#006B3C]/30"
               >
                 {COUNTRY_CODES.map((cc) => (
                   <option key={cc.value} value={cc.value}>{cc.label}</option>
@@ -445,30 +453,30 @@ export default function ProfilePage() {
                 value={phoneValue}
                 onChange={(e) => setPhoneValue(e.target.value)}
                 placeholder={t('contact_info.phone_placeholder')}
-                className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                className="flex-1 rounded-lg border border-[#004526] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#006B3C]/30"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={handleSavePhone}
                 disabled={saving}
-                className="btn-gold rounded-lg px-3 py-1 text-xs"
+                className="btn-gold grow-btn rounded-lg px-3 py-1 text-xs"
               >
                 {saving ? tCommon('status.saving') : tCommon('buttons.save')}
               </button>
-              <button type="button" onClick={() => setEditingPhone(false)} className="text-xs text-gray-400">
+              <button type="button" onClick={() => setEditingPhone(false)} className="text-xs text-[#4B6354] hover:text-[#004526]">
                 {tCommon('buttons.cancel')}
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-900">{user.phone || tCommon('labels.not_set')}</p>
+              <p className="text-sm text-[#1C2B1A]">{user.phone || tCommon('labels.not_set')}</p>
               <button
                 type="button"
                 data-testid="edit-phone"
                 onClick={() => setEditingPhone(true)}
                 aria-label="Edit phone"
-                className="text-gray-400 hover:text-[#004526]"
+                className="text-[#4B6354] hover:text-[#004526]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
@@ -481,18 +489,18 @@ export default function ProfilePage() {
 
       {/* Summary cards */}
       <div className="mb-4 grid grid-cols-2 gap-3">
-        <div data-testid="spots-summary" className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">{t('my_spots.label')}</p>
-          <p className="text-lg font-bold text-[#004526]">{(user.listingCount ?? 0) !== 1 ? t('my_spots.live_listings_other', { count: String(user.listingCount ?? 0) }) : t('my_spots.live_listings_one', { count: String(user.listingCount ?? 0) })}</p>
-          <Link href={lp('/dashboard/host')} className="mt-1 block text-xs text-[#006B3C] hover:underline">
+        <div data-testid="spots-summary" className="grow group rounded-xl border-l-4 border-[#004526] bg-[#B8E6D0] p-4 shadow-forest">
+          <p className="text-xs font-medium text-[#004526]">{t('my_spots.label')}</p>
+          <p className="mt-0.5 font-head text-lg font-bold text-[#004526]">{(user.listingCount ?? 0) !== 1 ? t('my_spots.live_listings_other', { count: String(user.listingCount ?? 0) }) : t('my_spots.live_listings_one', { count: String(user.listingCount ?? 0) })}</p>
+          <Link href={lp('/dashboard/host')} className="mt-1 block text-xs font-semibold text-[#006B3C] hover:underline">
             {t('my_spots.view_link')}
           </Link>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">{t('my_bookings.label')}</p>
-          <p className="text-lg font-bold text-[#004526]">{t('my_bookings.active_count', { count: String(user.bookingCount ?? 0) })}</p>
-          <Link href={lp('/dashboard/spotter')} className="mt-1 block text-xs text-[#006B3C] hover:underline">
+        <div className="grow group rounded-xl border-l-4 border-[#006B3C] bg-[#EBF7F1] p-4 shadow-forest">
+          <p className="text-xs font-medium text-[#006B3C]">{t('my_bookings.label')}</p>
+          <p className="mt-0.5 font-head text-lg font-bold text-[#004526]">{t('my_bookings.active_count', { count: String(user.bookingCount ?? 0) })}</p>
+          <Link href={lp('/dashboard/spotter')} className="mt-1 block text-xs font-semibold text-[#006B3C] hover:underline">
             {t('my_bookings.view_link')}
           </Link>
         </div>
@@ -500,32 +508,32 @@ export default function ProfilePage() {
 
       {/* Spot Manager status (Session 26) */}
       {(user.spotManagerStatus === 'ACTIVE' || user.spotManagerStatus === 'STAGED') && (
-        <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-[#004526]">{t('spot_manager.heading')}</p>
-            <Link href={lp('/spot-manager/portfolio')} className="text-xs text-[#006B3C] hover:underline">
+            <p className="font-head text-sm font-semibold text-[#004526]">{t('spot_manager.heading')}</p>
+            <Link href={lp('/spot-manager/portfolio')} className="text-xs font-semibold text-[#006B3C] hover:underline">
               {t('spot_manager.portfolio_link')}
             </Link>
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">{t('spot_manager.status_label')}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+              <span className="text-[#4B6354] w-32">{t('spot_manager.status_label')}</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                 user.spotManagerStatus === 'ACTIVE'
-                  ? 'bg-green-100 text-green-700'
+                  ? 'bg-[#EBF7F1] text-[#004526]'
                   : 'bg-amber-100 text-amber-700'
               }`}>
                 {user.spotManagerStatus === 'ACTIVE' ? t('spot_manager.status_active') : t('spot_manager.status_staged')}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">{t('spot_manager.rc_insurance_label')}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                user.rcInsuranceStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
+              <span className="text-[#4B6354] w-32">{t('spot_manager.rc_insurance_label')}</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                user.rcInsuranceStatus === 'APPROVED' ? 'bg-[#EBF7F1] text-[#004526]' :
                 user.rcInsuranceStatus === 'PENDING_REVIEW' ? 'bg-blue-100 text-blue-700' :
-                user.rcInsuranceStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                user.rcInsuranceStatus === 'EXPIRED' ? 'bg-red-100 text-red-700' :
-                'bg-gray-100 text-gray-600'
+                user.rcInsuranceStatus === 'REJECTED' ? 'bg-[#F5E6E1] text-[#AD3614]' :
+                user.rcInsuranceStatus === 'EXPIRED' ? 'bg-[#F5E6E1] text-[#AD3614]' :
+                'bg-[#EFF5F1] text-[#4B6354]'
               }`}>
                 {user.rcInsuranceStatus === 'PENDING_REVIEW' ? t('spot_manager.rc_pending') :
                  user.rcInsuranceStatus === 'APPROVED' ? t('spot_manager.rc_approved') :
@@ -535,13 +543,13 @@ export default function ProfilePage() {
             </div>
             {user.rcInsuranceExpiryDate && (
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 w-32">{t('spot_manager.rc_expires_label')}</span>
-                <span className="text-gray-700">{new Date(user.rcInsuranceExpiryDate).toLocaleDateString()}</span>
+                <span className="text-[#4B6354] w-32">{t('spot_manager.rc_expires_label')}</span>
+                <span className="text-[#1C2B1A]">{new Date(user.rcInsuranceExpiryDate).toLocaleDateString()}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 w-32">{t('spot_manager.block_reservations_label')}</span>
-              <span className={user.blockReservationCapable ? 'text-green-700' : 'text-gray-500'}>
+              <span className="text-[#4B6354] w-32">{t('spot_manager.block_reservations_label')}</span>
+              <span className={user.blockReservationCapable ? 'text-[#006B3C] font-semibold' : 'text-[#4B6354]'}>
                 {user.blockReservationCapable ? t('spot_manager.block_enabled') : t('spot_manager.block_disabled')}
               </span>
             </div>
@@ -550,17 +558,17 @@ export default function ProfilePage() {
       )}
 
       {/* Payment info */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+      <div className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[#004526]">{t('payment_info.heading')}</p>
-            <p className="text-xs text-gray-500">{t('payment_info.manage_via_stripe')}</p>
+            <p className="font-head text-sm font-semibold text-[#004526]">{t('payment_info.heading')}</p>
+            <p className="text-xs text-[#4B6354]">{t('payment_info.manage_via_stripe')}</p>
           </div>
           <a
             href="https://dashboard.stripe.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-[#006B3C] hover:underline"
+            className="text-xs font-semibold text-[#006B3C] hover:underline"
           >
             {t('payment_info.open_link')}
           </a>
@@ -568,40 +576,40 @@ export default function ProfilePage() {
       </div>
 
       {/* Invoicing details — only shown for hosts */}
-      {isHost && <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-        <h3 className="mb-3 text-sm font-semibold text-[#004526]">{t('invoicing.heading')}</h3>
+      {isHost && <div data-testid="invoicing-section" className="mb-4 rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm">
+        <h3 className="mb-3 font-head text-sm font-semibold text-[#004526]">{t('invoicing.heading')}</h3>
         <div className="space-y-3">
           <div>
-            <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.vat_label')}</label>
+            <label htmlFor="vatNumber" className="mb-1 block text-xs font-medium text-[#4B6354]">{t('invoicing.vat_label')}</label>
             <input id="vatNumber" type="text" placeholder={t('invoicing.vat_placeholder')} value={vatNumber}
               onChange={(e) => setVatNumber(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+              className="w-full rounded-lg border border-[#004526] px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20" />
           </div>
           <div>
-            <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.company_label')}</label>
+            <label htmlFor="companyName" className="mb-1 block text-xs font-medium text-[#4B6354]">{t('invoicing.company_label')}</label>
             <input id="companyName" type="text" placeholder={t('invoicing.company_placeholder')} value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+              className="w-full rounded-lg border border-[#004526] px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20" />
           </div>
           <div>
-            <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-gray-600">{t('invoicing.address_label')}</label>
+            <label htmlFor="billingAddress" className="mb-1 block text-xs font-medium text-[#4B6354]">{t('invoicing.address_label')}</label>
             <input id="billingAddress" type="text" placeholder={t('invoicing.address_placeholder')} value={billingAddress}
               onChange={(e) => setBillingAddress(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none" />
+              className="w-full rounded-lg border border-[#004526] px-3 py-2 text-sm focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20" />
           </div>
           <button type="button"
             onClick={() => void handleSaveInvoicing()}
             disabled={saving}
-            className="w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526] disabled:opacity-40">
+            className="grow-btn w-full rounded-lg bg-[#006B3C] py-2 text-sm font-semibold text-white hover:bg-[#004526] disabled:opacity-40 shadow-forest">
             {saving ? tCommon('status.saving') : t('invoicing.save_button')}
           </button>
-          {invoicingSaved && <p className="text-center text-xs text-green-600">{t('invoicing.saved_success')}</p>}
+          {invoicingSaved && <p className="text-center text-xs text-[#006B3C] font-semibold">{t('invoicing.saved_success')}</p>}
         </div>
       </div>}
 
       {/* Privacy & Data */}
-      <div className="rounded-2xl border border-[#C8DDD2] bg-white p-6 space-y-4" data-testid="privacy-section">
-        <h2 className="text-sm font-semibold text-[#004526]">{t('privacy.heading')}</h2>
+      <div className="mb-4 rounded-2xl border border-[#C8DDD2] bg-white p-6 space-y-4 shadow-sm" data-testid="privacy-section">
+        <h2 className="font-head text-sm font-semibold text-[#004526]">{t('privacy.heading')}</h2>
         <div className="flex flex-col gap-3">
           <Link href={lp('/privacy')} className="text-sm text-[#006B3C] underline" target="_blank">
             {t('privacy.view_policy')}
@@ -625,7 +633,7 @@ export default function ProfilePage() {
               }
             }}
             disabled={exportLoading}
-            className="w-full rounded-lg border border-[#004526] py-2.5 text-sm font-medium text-[#004526] hover:bg-[#EBF7F1] disabled:opacity-40"
+            className="grow-btn w-full rounded-lg border border-[#004526] py-2.5 text-sm font-semibold text-[#004526] hover:bg-[#EBF7F1] disabled:opacity-40"
           >
             {exportLoading ? t('privacy.download_preparing') : t('privacy.download_data')}
           </button>
@@ -658,12 +666,12 @@ export default function ProfilePage() {
               }
               setShowDeleteModal(true);
             }}
-            className="w-full rounded-lg border border-[#AD3614] py-2.5 text-sm font-medium text-[#AD3614] hover:bg-red-50"
+            className="grow-btn w-full rounded-lg border border-[#AD3614] py-2.5 text-sm font-semibold text-[#AD3614] hover:bg-[#F5E6E1]"
           >
             {t('privacy.delete_account')}
           </button>
           {deleteBlockError && (
-            <p data-testid="blocking-bookings-banner" className="text-sm text-[#AD3614] bg-red-50 p-3 rounded-lg">
+            <p data-testid="blocking-bookings-banner" className="text-sm text-[#AD3614] bg-[#F5E6E1] p-3 rounded-lg border border-[#D4826A]">
               {deleteBlockError}
             </p>
           )}
@@ -683,7 +691,7 @@ export default function ProfilePage() {
       <button
         type="button"
         onClick={handleSignOut}
-        className="w-full rounded-xl border border-red-200 py-3 text-sm font-medium text-red-600 hover:bg-red-50"
+        className="grow-btn w-full rounded-xl border border-red-300 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
       >
         {t('logout')}
       </button>

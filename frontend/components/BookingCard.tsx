@@ -60,9 +60,9 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
   const soon = isEndingSoon(endDate);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-spotzy-mint bg-white p-4 shadow-md-spotzy transition-shadow hover:shadow-forest">
       {soon && isUpcoming && (
-        <div className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+        <div className="mb-3 rounded-lg bg-spotzy-brick-light border border-spotzy-brick-border px-3 py-2 text-xs font-semibold text-spotzy-brick">
           {t('booking_card.ending_soon')}
         </div>
       )}
@@ -72,7 +72,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
           <Link
             href={`/listing/${booking.listingId}`}
             data-testid="booking-spot-link"
-            className="truncate font-medium text-[#004526] hover:underline"
+            className="truncate font-head font-semibold text-spotzy-forest hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             {booking.address || t('booking_card.fallback_address')}
@@ -81,7 +81,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
             <Link
               href={`/users/${booking.spotterId}`}
               data-testid="booking-person-link"
-              className="text-sm text-[#004526] hover:underline"
+              className="block text-sm text-spotzy-forest hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               {booking.spotterName}
@@ -91,16 +91,16 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
             <Link
               href={`/users/${booking.hostId}`}
               data-testid="booking-person-link"
-              className="text-sm text-[#004526] hover:underline"
+              className="block text-sm text-spotzy-forest hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               {booking.hostName}
             </Link>
           )}
-          <p className="text-xs text-gray-500">
+          <p className="mt-0.5 text-xs text-spotzy-slate">
             {formatDate(startDate)} — {formatDate(endDate)}
           </p>
-          <p className="mt-1 text-sm font-semibold text-[#004526]">€{(booking.totalPrice ?? 0).toFixed(2)}</p>
+          <p className="mt-1 font-head text-sm font-bold text-spotzy-forest">&euro;{(booking.totalPrice ?? 0).toFixed(2)}</p>
         </div>
         <StatusBadge status={booking.status} />
       </div>
@@ -109,7 +109,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
         <Link
           href={`/chat/${booking.bookingId}`}
           data-testid="booking-message-btn"
-          className="flex items-center gap-1 rounded-lg border border-[#004526] px-3 py-1 text-xs font-medium text-[#004526] hover:bg-[#EBF7F1] transition-colors"
+          className="flex items-center gap-1 rounded-lg border border-spotzy-forest px-3 py-1 text-xs font-semibold text-spotzy-forest transition-all hover:bg-spotzy-sage active:scale-[0.97]"
           onClick={(e) => e.stopPropagation()}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
@@ -121,13 +121,13 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
           <>
             {onModify && (
               <button type="button" onClick={() => onModify(booking)}
-                className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700">
+                className="rounded-lg border border-spotzy-slate px-3 py-1 text-xs font-semibold text-spotzy-slate transition-all hover:bg-spotzy-mist active:scale-[0.97]">
                 {t('booking_card.modify_button')}
               </button>
             )}
             {onCancel && booking.status !== 'ACTIVE' && (
               <button type="button" onClick={() => onCancel(booking)}
-                className="rounded-lg border border-red-300 px-3 py-1 text-xs font-medium text-red-600">
+                className="rounded-lg border border-red-400 px-3 py-1 text-xs font-semibold text-red-600 transition-all hover:bg-red-50 active:scale-[0.97]">
                 {t('booking_card.cancel_button')}
               </button>
             )}
@@ -135,18 +135,18 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
         )}
         {booking.status === 'COMPLETED' && !booking.hasReview && onReview && (
           <button type="button" onClick={() => onReview(booking)}
-            className="rounded-lg bg-[#006B3C] px-3 py-1 text-xs font-medium text-white">
+            className="rounded-lg bg-spotzy-primary px-3 py-1 text-xs font-semibold text-white transition-all hover:bg-spotzy-forest active:scale-[0.97]">
             {t('booking_card.leave_review')}
           </button>
         )}
         {booking.status === 'COMPLETED' && booking.hasReview && booking.userReview && (
           booking.userReview.isEditable === false ? (
-            <span data-testid="review-submitted-badge" className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+            <span data-testid="review-submitted-badge" className="rounded-lg bg-spotzy-mist px-3 py-1 text-xs font-semibold text-spotzy-slate">
               {t('booking_card.review_submitted')}
             </span>
           ) : onReview ? (
             <button type="button" onClick={() => onReview(booking)}
-              className="rounded-lg border border-[#006B3C] px-3 py-1 text-xs font-medium text-[#006B3C]">
+              className="rounded-lg border border-spotzy-primary px-3 py-1 text-xs font-semibold text-spotzy-primary transition-all hover:bg-spotzy-sage active:scale-[0.97]">
               {t('booking_card.update_review')}
             </button>
           ) : null
@@ -154,7 +154,7 @@ export default function BookingCard({ booking, viewAs, onCancel, onModify, onRev
         <Link
           href={`/dispute/${booking.bookingId}`}
           data-testid="booking-report-btn"
-          className="flex items-center gap-1 rounded-lg border border-[#AD3614] px-3 py-1 text-xs font-medium text-[#AD3614] hover:bg-[#F5E6E1] transition-colors"
+          className="flex items-center gap-1 rounded-lg border border-spotzy-brick px-3 py-1 text-xs font-semibold text-spotzy-brick transition-all hover:bg-spotzy-brick-light active:scale-[0.97]"
           onClick={(e) => e.stopPropagation()}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">

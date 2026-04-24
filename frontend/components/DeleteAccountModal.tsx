@@ -46,9 +46,10 @@ export function DeleteAccountModal({ userEmail, token, onClose, onDeleted }: Del
   };
 
   return (
-    <div role="dialog" className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-8 space-y-6">
-        <h2 className="text-xl font-bold text-[#004526]">{t('delete_account.modal_title')}</h2>
+    <div role="dialog" className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <div className="animate-page-enter bg-white rounded-2xl max-w-lg w-full p-8 space-y-6 shadow-brick">
+        {/* Forest heading */}
+        <h2 className="font-head text-xl font-bold text-[#004526]">{t('delete_account.modal_title')}</h2>
 
         <div>
           <p className="font-semibold text-[#1C2B1A] mb-2">{t('delete_account.deleted_heading')}</p>
@@ -60,8 +61,8 @@ export function DeleteAccountModal({ userEmail, token, onClose, onDeleted }: Del
           </ul>
         </div>
 
-        <div className="bg-[#EBF7F1] rounded-lg p-4">
-          <p className="font-semibold text-[#004526] mb-2">{t('delete_account.kept_heading')}</p>
+        <div className="bg-[#EBF7F1] rounded-lg p-4 border border-[#C8DDD2]">
+          <p className="font-head font-semibold text-[#004526] mb-2">{t('delete_account.kept_heading')}</p>
           <p className="text-sm text-[#4B6354] italic">
             {t('delete_account.legal_explanation')}
           </p>
@@ -71,8 +72,9 @@ export function DeleteAccountModal({ userEmail, token, onClose, onDeleted }: Del
           </p>
         </div>
 
+        {/* Type-email-to-confirm */}
         <div>
-          <label className="block text-sm font-medium text-[#1C2B1A] mb-1">
+          <label className="block text-sm font-semibold text-[#1C2B1A] mb-1.5">
             {t('delete_account.confirm_instruction')}
           </label>
           <input
@@ -80,27 +82,28 @@ export function DeleteAccountModal({ userEmail, token, onClose, onDeleted }: Del
             placeholder={t('delete_account.email_placeholder')}
             value={emailInput}
             onChange={e => setEmailInput(e.target.value)}
-            className="w-full border border-[#C8DDD2] rounded-lg px-4 py-2.5 text-sm
-                       focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20"
+            className="w-full border border-[#004526] rounded-lg px-4 py-2.5 text-sm
+                       focus:border-[#AD3614] focus:outline-none focus:ring-2 focus:ring-[#AD3614]/20"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-[#AD3614]">{error}</p>
+          <p className="text-sm text-[#AD3614] bg-[#F5E6E1] px-3 py-2 rounded-lg border border-[#D4826A]">{error}</p>
         )}
 
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 border border-[#004526] text-[#004526] rounded-lg font-semibold"
+            className="grow-btn flex-1 py-2.5 border border-[#004526] text-[#004526] rounded-lg font-semibold hover:bg-[#EBF7F1]"
           >
             {tCommon('buttons.cancel')}
           </button>
+          {/* Brick CTA: 'Confirm permanent deletion' */}
           <button
             onClick={handleDelete}
             disabled={!canConfirm || loading}
-            className="flex-1 py-2.5 bg-[#AD3614] text-white rounded-lg font-semibold
-                       disabled:opacity-40 disabled:cursor-not-allowed"
+            className="grow-btn flex-1 py-2.5 bg-[#AD3614] text-white rounded-lg font-semibold shadow-brick
+                       hover:bg-[#C94A28] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? tCommon('status.deleting') : t('delete_account.confirm_button')}
           </button>

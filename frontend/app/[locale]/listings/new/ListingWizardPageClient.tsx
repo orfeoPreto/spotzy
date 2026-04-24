@@ -326,7 +326,15 @@ export default function ListingWizardPage() {
   const HOURS = ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21'];
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto max-w-2xl p-8 animate-page-enter">
+      {/* Progress bar */}
+      <div className="mb-2 h-1 w-full overflow-hidden rounded-full bg-[#C8DDD2]">
+        <div
+          className="h-1 rounded-full bg-[#004526] transition-all duration-500"
+          style={{ width: `${(step / STEP_KEYS.length) * 100}%` }}
+        />
+      </div>
+
       {/* Step indicator */}
       <div className="mb-8 flex items-center justify-center gap-3">
         {STEP_KEYS.map((key, i) => (
@@ -336,16 +344,22 @@ export default function ListingWizardPage() {
               data-step={i + 1}
               data-active={step === i + 1 ? 'true' : 'false'}
               onClick={() => { if (i + 1 < step) setStep(i + 1); }}
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                step === i + 1 ? 'bg-[#006B3C] text-white' : step > i + 1 ? 'bg-[#004526] text-white' : 'bg-gray-200 text-gray-500'
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 ${
+                step === i + 1
+                  ? 'bg-[#006B3C] text-white shadow-md shadow-[#006B3C]/30'
+                  : step > i + 1
+                  ? 'bg-[#004526] text-white'
+                  : 'bg-[#EBF7F1] text-[#004526]'
               }`}
             >
-              {i + 1}
+              {step > i + 1 ? '✓' : i + 1}
             </button>
-            <span className={`hidden text-xs sm:block ${step === i + 1 ? 'font-semibold text-[#AD3614]' : 'text-gray-400'}`}>
+            <span className={`hidden text-xs sm:block ${step === i + 1 ? 'font-semibold text-[#AD3614]' : step > i + 1 ? 'text-[#004526]' : 'text-gray-400'}`}>
               {t(key)}
             </span>
-            {i < STEP_KEYS.length - 1 && <div className="h-px w-6 bg-gray-300" />}
+            {i < STEP_KEYS.length - 1 && (
+              <div className={`h-px w-6 transition-colors ${step > i + 1 ? 'bg-[#004526]' : 'bg-[#C8DDD2]'}`} />
+            )}
           </div>
         ))}
       </div>
@@ -353,7 +367,8 @@ export default function ListingWizardPage() {
       {/* Step 1 — Location */}
       {step === 1 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">{t('create.location_heading')}</h2>
+          <h2 className="mb-1 font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">{t('create.location_heading')}</h2>
+          <p className="mb-4 text-sm text-gray-500">{t('create.location_description', { defaultValue: 'Enter the exact address of your parking spot.' })}</p>
           <div className="relative">
             <input
               ref={addressInputRef}
@@ -362,13 +377,13 @@ export default function ListingWizardPage() {
               value={addressQuery}
               onChange={(e) => { setAddressQuery(e.target.value); setState((p) => ({ ...p, address: '', lat: null, lng: null })); }}
               onBlur={() => setTimeout(() => setSuggestions([]), 200)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+              className="w-full rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 hover:border-[#006B3C] focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20 transition-colors"
             />
             {suggestions.length > 0 && (
-              <ul className="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-xl border border-[#C8DDD2] bg-white shadow-[0_4px_20px_rgba(0,69,38,0.12)]">
                 {suggestions.map((s) => (
                   <li key={s.place_name}
-                    className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-50"
+                    className="cursor-pointer border-l-2 border-l-transparent px-4 py-2.5 text-sm text-gray-700 transition-colors hover:border-l-[#006B3C] hover:bg-[#EBF7F1]"
                     onClick={() => selectAddress(s)}>
                     {s.place_name}
                   </li>
@@ -377,9 +392,9 @@ export default function ListingWizardPage() {
             )}
           </div>
           {state.lat && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-gray-200">
+            <div className="mt-3 overflow-hidden rounded-xl border border-[#C8DDD2] shadow-sm">
               <div ref={mapContainerRef} className="h-48 w-full" />
-              <p className="bg-gray-50 px-3 py-1.5 text-xs text-gray-500">
+              <p className="bg-[#EBF7F1] px-3 py-1.5 text-xs text-[#004526]">
                 {state.lat.toFixed(4)}, {state.lng?.toFixed(4)}
               </p>
             </div>
@@ -390,7 +405,9 @@ export default function ListingWizardPage() {
       {/* Step 2 — Spot details */}
       {step === 2 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">{t('create.details_heading')}</h2>
+          <h2 className="mb-1 font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">{t('create.details_heading')}</h2>
+          <p className="mb-4 text-sm text-gray-500">{t('create.details_description', { defaultValue: 'Tell us about your spot.' })}</p>
+          {/* Spot type icon tiles */}
           <div className="mb-6 grid grid-cols-2 gap-3">
             {SPOT_TYPE_DEFS.map((st) => (
               <button
@@ -398,36 +415,45 @@ export default function ListingWizardPage() {
                 type="button"
                 data-testid="spot-type-tile"
                 onClick={() => setState((p) => ({ ...p, spotType: st.value }))}
-                className={`rounded-xl border-2 p-4 text-left transition-colors ${
-                  state.spotType === st.value ? 'border-amber bg-amber-50' : 'border-gray-200 hover:border-gray-300'
+                className={`group rounded-xl border-2 p-4 text-left transition-all duration-200 ${
+                  state.spotType === st.value
+                    ? 'border-[#004526] bg-[#004526] shadow-md shadow-[#004526]/20'
+                    : 'border-[#C8DDD2] bg-[#EBF7F1] hover:border-[#006B3C] hover:shadow-sm'
                 }`}
               >
-                <div className="mb-1 text-2xl">{st.icon}</div>
-                <p className="text-sm font-medium text-gray-900">{t(st.key)}</p>
+                <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg text-xl transition-colors ${
+                  state.spotType === st.value ? 'bg-white/20' : 'bg-white'
+                }`}>
+                  {st.icon}
+                </div>
+                <p className={`text-sm font-medium transition-colors ${state.spotType === st.value ? 'text-white' : 'text-[#004526]'}`}>{t(st.key)}</p>
               </button>
             ))}
           </div>
+
+          {/* Price input with brick left-border accent */}
           <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.net_price_label')}</label>
-            <input
-              type="number"
-              min={0.5}
-              step={0.5}
-              value={state.pricePerHour}
-              onChange={(e) => setState((p) => ({ ...p, pricePerHour: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
-              placeholder={t('create.price_placeholder')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
+            <label className="mb-1 block text-sm font-medium text-[#004526]">{t('create.net_price_label')}</label>
+            <div className="flex overflow-hidden rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] focus-within:border-[#006B3C] focus-within:ring-2 focus-within:ring-[#006B3C]/20 transition-all">
+              <span className="flex items-center border-r-2 border-[#AD3614] bg-[#AD3614]/10 px-3 text-sm font-semibold text-[#AD3614]">€</span>
+              <input
+                type="number"
+                min={0.5}
+                step={0.5}
+                value={state.pricePerHour}
+                onChange={(e) => setState((p) => ({ ...p, pricePerHour: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
+                placeholder={t('create.price_placeholder')}
+                className="flex-1 bg-transparent px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+              />
+            </div>
             {/* Earnings & Spotter price preview */}
             {state.pricePerHour !== '' && Number(state.pricePerHour) > 0 && (() => {
               const net = Number(state.pricePerHour);
               const feePct = 0.15;
               const vatRate = 0.21;
-              // Earnings ladder (NET = what host keeps)
               const daily = Math.round(net * 24 * 0.60 * 100) / 100;
               const weekly = Math.round(daily * 7 * 0.60 * 100) / 100;
               const monthly = Math.round(weekly * 4 * 0.60 * 100) / 100;
-              // Spotter-facing gross (EXEMPT_FRANCHISE host: hostVatRate = 0)
               const grossUp = (amount: number) => {
                 const fee = Math.round(amount * (feePct / (1 - feePct)) * 100) / 100;
                 const feeVat = Math.round(fee * vatRate * 100) / 100;
@@ -435,22 +461,22 @@ export default function ListingWizardPage() {
               };
               return (
                 <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-[#EBF7F1] bg-[#F8FBF9] p-3">
+                  <div className="rounded-xl border border-[#C8DDD2] bg-[#EBF7F1] p-3">
                     <p className="mb-2 text-xs font-semibold text-[#004526]">{t('create.earnings_ladder_title')}</p>
                     <div className="space-y-1 text-xs text-gray-600">
-                      <p>{t('create.rate_hourly')}: <span className="font-medium">{'\u20AC'}{net.toFixed(2)}</span></p>
-                      <p>{t('create.rate_daily')}: <span className="font-medium">{'\u20AC'}{daily.toFixed(2)}</span></p>
-                      <p>{t('create.rate_weekly')}: <span className="font-medium">{'\u20AC'}{weekly.toFixed(2)}</span></p>
-                      <p>{t('create.rate_monthly')}: <span className="font-medium">{'\u20AC'}{monthly.toFixed(2)}</span></p>
+                      <p>{t('create.rate_hourly')}: <span className="font-semibold text-[#004526]">{'\u20AC'}{net.toFixed(2)}</span></p>
+                      <p>{t('create.rate_daily')}: <span className="font-semibold text-[#004526]">{'\u20AC'}{daily.toFixed(2)}</span></p>
+                      <p>{t('create.rate_weekly')}: <span className="font-semibold text-[#004526]">{'\u20AC'}{weekly.toFixed(2)}</span></p>
+                      <p>{t('create.rate_monthly')}: <span className="font-semibold text-[#004526]">{'\u20AC'}{monthly.toFixed(2)}</span></p>
                     </div>
                   </div>
-                  <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
-                    <p className="mb-2 text-xs font-semibold text-amber-800">{t('create.spotter_pays_title')}</p>
+                  <div className="rounded-xl border border-[#AD3614]/20 bg-[#AD3614]/5 p-3">
+                    <p className="mb-2 text-xs font-semibold text-[#AD3614]">{t('create.spotter_pays_title')}</p>
                     <div className="space-y-1 text-xs text-gray-600">
-                      <p>{t('create.rate_hourly')}: <span className="font-medium">{'\u20AC'}{grossUp(net).toFixed(2)}</span></p>
-                      <p>{t('create.rate_daily')}: <span className="font-medium">{'\u20AC'}{grossUp(daily).toFixed(2)}</span></p>
-                      <p>{t('create.rate_weekly')}: <span className="font-medium">{'\u20AC'}{grossUp(weekly).toFixed(2)}</span></p>
-                      <p>{t('create.rate_monthly')}: <span className="font-medium">{'\u20AC'}{grossUp(monthly).toFixed(2)}</span></p>
+                      <p>{t('create.rate_hourly')}: <span className="font-semibold text-[#AD3614]">{'\u20AC'}{grossUp(net).toFixed(2)}</span></p>
+                      <p>{t('create.rate_daily')}: <span className="font-semibold text-[#AD3614]">{'\u20AC'}{grossUp(daily).toFixed(2)}</span></p>
+                      <p>{t('create.rate_weekly')}: <span className="font-semibold text-[#AD3614]">{'\u20AC'}{grossUp(weekly).toFixed(2)}</span></p>
+                      <p>{t('create.rate_monthly')}: <span className="font-semibold text-[#AD3614]">{'\u20AC'}{grossUp(monthly).toFixed(2)}</span></p>
                     </div>
                   </div>
                 </div>
@@ -458,33 +484,45 @@ export default function ListingWizardPage() {
             })()}
             <p className="mt-2 text-xs text-gray-400">{t('create.vat_status_hint')}</p>
           </div>
-          <div data-testid="ev-charging-toggle">
-            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.ev_label')}</label>
-            <div className="flex gap-3">
+
+          {/* EV charging pill toggle */}
+          <div data-testid="ev-charging-toggle" className="mb-4">
+            <label className="mb-2 block text-sm font-medium text-[#004526]">{t('create.ev_label')}</label>
+            <div className="flex gap-2">
               <button type="button" onClick={() => setState((p) => ({ ...p, evCharging: true }))}
-                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${state.evCharging ? 'border-[#059669] bg-[#EBF7F1] text-[#059669]' : 'border-gray-300 text-gray-600'}`}>
+                className={`flex-1 rounded-full border-2 py-2 text-sm font-medium transition-all duration-200 ${
+                  state.evCharging
+                    ? 'border-[#004526] bg-[#004526] text-white shadow-sm shadow-[#004526]/30'
+                    : 'border-[#C8DDD2] bg-[#EBF7F1] text-[#004526] hover:border-[#006B3C]'
+                }`}>
                 Yes
               </button>
               <button type="button" onClick={() => setState((p) => ({ ...p, evCharging: false }))}
-                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${!state.evCharging ? 'border-gray-400 bg-gray-50 text-gray-700' : 'border-gray-300 text-gray-600'}`}>
+                className={`flex-1 rounded-full border-2 py-2 text-sm font-medium transition-all duration-200 ${
+                  !state.evCharging
+                    ? 'border-[#004526] bg-[#004526] text-white shadow-sm shadow-[#004526]/30'
+                    : 'border-[#C8DDD2] bg-[#EBF7F1] text-[#004526] hover:border-[#006B3C]'
+                }`}>
                 No
               </button>
             </div>
             {state.evCharging && (
-              <div data-testid="ev-confirmed-icon" className="mt-2 flex items-center gap-1.5 text-sm text-[#059669]">
+              <div data-testid="ev-confirmed-icon" className="mt-2 flex items-center gap-1.5 text-sm text-[#006B3C]">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
                 {t('create.ev_confirmed')}
               </div>
             )}
           </div>
+
+          {/* Description */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">{t('create.description_label')} <span className="text-gray-400">{tCommon('labels.optional')}</span></label>
+            <label className="mb-1 block text-sm font-medium text-[#004526]">{t('create.description_label')} <span className="text-gray-400">{tCommon('labels.optional')}</span></label>
             <textarea
               rows={3}
               value={state.description}
               onChange={(e) => setState((p) => ({ ...p, description: e.target.value }))}
               placeholder={t('create.description_placeholder')}
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full resize-none rounded-lg border border-[#C8DDD2] bg-[#EBF7F1] px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 hover:border-[#006B3C] focus:border-[#006B3C] focus:outline-none focus:ring-2 focus:ring-[#006B3C]/20 transition-colors"
             />
           </div>
           {createError && <p className="mt-3 text-sm text-red-600">{createError}</p>}
@@ -494,7 +532,7 @@ export default function ListingWizardPage() {
       {/* Step 3 — Photos */}
       {step === 3 && (
         <section>
-          <h2 className="mb-2 text-xl font-bold text-gray-900">{t('create.photos_heading')}</h2>
+          <h2 className="mb-1 font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">{t('create.photos_heading')}</h2>
           <p className="mb-4 text-sm text-gray-500">{t('create.photos_description')}</p>
           <div className="grid grid-cols-2 gap-4">
             {([0, 1] as const).map((idx) => {
@@ -502,10 +540,14 @@ export default function ListingWizardPage() {
               const busy = slot.status === 'uploading' || slot.status === 'validating';
               return (
                 <label key={idx} data-testid="upload-zone"
-                  className={`relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
-                    slot.status === 'PASS' ? 'border-green-500 bg-green-50' :
-                    slot.status === 'FAIL' ? 'border-red-400 bg-red-50' :
-                    busy ? 'border-amber-400 bg-amber-50' : 'border-gray-300 hover:border-gray-400'
+                  className={`relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200 ${
+                    slot.status === 'PASS'
+                      ? 'border-[#004526] bg-[#EBF7F1]'
+                      : slot.status === 'FAIL'
+                      ? 'border-red-400 bg-red-50'
+                      : busy
+                      ? 'border-[#006B3C] bg-[#EBF7F1]'
+                      : 'border-[#C8DDD2] bg-white hover:border-[#006B3C] hover:bg-[#EBF7F1]'
                   }`}>
                   <input type="file" accept="image/*" className="sr-only" disabled={busy}
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) void handlePhotoUpload(idx, f); }} />
@@ -513,22 +555,28 @@ export default function ListingWizardPage() {
                     <img src={slot.thumbnail} alt="" className="h-full w-full rounded-xl object-cover" />
                   ) : (
                     <div className="text-center">
-                      <div className="text-3xl text-gray-400">📷</div>
-                      <p className="mt-1 text-xs text-gray-500">{t('create.photo_slot', { index: String(idx + 1) })}</p>
+                      <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full bg-[#EBF7F1] mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#004526" className="h-6 w-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                        </svg>
+                      </div>
+                      <p className="text-xs text-[#004526] font-medium">{t('create.photo_slot', { index: String(idx + 1) })}</p>
                     </div>
                   )}
                   {busy && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
-                      <span className="text-sm font-medium text-white">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl bg-[#004526]/70 backdrop-blur-sm">
+                      <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span className="text-xs font-medium text-white">
                         {slot.status === 'uploading' ? tCommon('status.uploading') : tCommon('status.validating')}
                       </span>
                     </div>
                   )}
                   {slot.status === 'PASS' && (
-                    <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-green-600 text-white text-xs">✓</div>
+                    <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#004526] text-white text-xs shadow-md">✓</div>
                   )}
                   {slot.status === 'FAIL' && (
-                    <div className="absolute bottom-2 left-2 right-2 rounded bg-red-600/80 px-2 py-1 text-center">
+                    <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-red-600/85 px-2 py-1.5 text-center backdrop-blur-sm">
                       <p className="text-xs text-white">✗ {slot.reason ?? 'Validation failed — try a clearer photo'}</p>
                     </div>
                   )}
@@ -542,11 +590,12 @@ export default function ListingWizardPage() {
       {/* Step 4 — Availability */}
       {step === 4 && (
         <section>
-          <h2 className="mb-1 text-xl font-bold text-gray-900">{t('create.availability_heading')}</h2>
+          <h2 className="mb-1 font-['DM_Sans',sans-serif] text-xl font-bold text-[#004526]">{t('create.availability_heading')}</h2>
           <p className="mb-4 text-sm text-gray-500">{t('create.availability_description')}</p>
 
           {availabilitySaved && (
-            <div className="mb-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">
+            <div className="mb-4 flex items-center gap-2 rounded-xl bg-[#EBF7F1] px-4 py-2.5 text-sm text-[#004526]">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#004526] text-white text-xs">✓</span>
               {t('create.availability_saved')}
             </div>
           )}
@@ -561,8 +610,9 @@ export default function ListingWizardPage() {
             <p className="mt-2 text-sm text-red-600">{availabilityError}</p>
           )}
 
-          <div className="mt-6 rounded-xl bg-green-50 p-4">
-            <p className="mb-2 text-sm font-semibold text-green-800">{t('create.prepublish_title')}</p>
+          {/* Pre-publish checklist */}
+          <div className="mt-6 rounded-xl border border-[#C8DDD2] bg-[#EBF7F1] p-4">
+            <p className="mb-3 text-sm font-semibold text-[#004526]">{t('create.prepublish_title')}</p>
             {[
               { label: t('create.checklist_address'), done: true },
               { label: t('create.checklist_type'), done: true },
@@ -570,8 +620,9 @@ export default function ListingWizardPage() {
               { label: t('create.checklist_photos'), done: true },
               { label: t('create.checklist_availability'), done: availabilitySaved },
             ].map((item) => (
-              <div key={item.label} className={`flex items-center gap-2 text-sm ${item.done ? 'text-green-700' : 'text-gray-400'}`}>
-                <span>{item.done ? '✓' : '○'}</span> {item.label}
+              <div key={item.label} className={`flex items-center gap-2 py-0.5 text-sm ${item.done ? 'text-[#004526]' : 'text-gray-400'}`}>
+                <span className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[10px] ${item.done ? 'bg-[#004526] text-white' : 'border border-gray-300 text-transparent'}`}>✓</span>
+                {item.label}
               </div>
             ))}
           </div>
@@ -579,8 +630,9 @@ export default function ListingWizardPage() {
           {publishError && (
             <p className="mt-4 text-sm text-red-600">{publishError}</p>
           )}
+          {/* Primary CTA — Forest green */}
           <button type="button" onClick={() => void handlePublish()} disabled={publishing || !availabilitySaved}
-            className="mt-6 w-full rounded-lg bg-[#006B3C] py-3 text-sm font-medium text-white disabled:opacity-40">
+            className="mt-6 w-full rounded-xl bg-[#004526] py-3 text-sm font-semibold text-white shadow-md shadow-[#004526]/30 transition-all hover:bg-[#006B3C] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none">
             {publishing ? tCommon('status.publishing') : t('create.publish_button')}
           </button>
         </section>
@@ -591,12 +643,12 @@ export default function ListingWizardPage() {
         <div className="mt-8 flex gap-3">
           {step > 1 && (
             <button type="button" onClick={handleBack}
-              className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700">
+              className="flex-1 rounded-xl border-2 border-[#004526] py-2.5 text-sm font-semibold text-[#004526] transition-all hover:bg-[#EBF7F1] active:scale-[0.98]">
               {tCommon('buttons.back')}
             </button>
           )}
           <button type="button" onClick={() => void handleNext()} disabled={!isStepValid() || creating}
-            className="flex-1 rounded-lg bg-[#006B3C] py-2.5 text-sm font-medium text-white disabled:opacity-40">
+            className="flex-1 rounded-xl bg-[#004526] py-2.5 text-sm font-semibold text-white shadow-md shadow-[#004526]/30 transition-all hover:bg-[#006B3C] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none">
             {creating ? tCommon('status.saving') : tCommon('buttons.next')}
           </button>
         </div>

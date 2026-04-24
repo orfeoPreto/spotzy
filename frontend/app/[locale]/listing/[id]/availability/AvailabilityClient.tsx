@@ -63,20 +63,25 @@ export default function AvailabilityClient() {
   if (!user) return null;
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto max-w-2xl p-8 animate-page-enter">
+      {/* Back link */}
       <button
         type="button"
         onClick={() => router.push('/dashboard/host')}
-        className="mb-6 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm font-medium text-[#006B3C] transition-colors hover:text-[#004526]"
       >
-        ← Back to dashboard
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to dashboard
       </button>
 
-      <h1 className="mb-1 text-2xl font-bold text-gray-900">Edit availability</h1>
+      <h1 className="mb-1 font-['DM_Sans',sans-serif] text-2xl font-bold text-[#004526]">Edit availability</h1>
       <p className="mb-6 text-sm text-gray-500">Define when your spot is open for booking.</p>
 
       {toast && (
-        <div className="mb-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">
+        <div className="mb-4 flex items-center gap-2 rounded-xl bg-[#EBF7F1] px-4 py-2.5 text-sm text-[#004526]">
+          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#004526] text-white text-xs">✓</span>
           {toast}
         </div>
       )}
@@ -84,7 +89,7 @@ export default function AvailabilityClient() {
       {loading ? (
         <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-xl bg-gray-200" />
+            <div key={i} className="h-12 animate-pulse rounded-xl bg-[#EBF7F1]" />
           ))}
         </div>
       ) : (

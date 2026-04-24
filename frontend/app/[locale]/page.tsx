@@ -1,9 +1,12 @@
 import dynamic from 'next/dynamic';
 
-const Client = dynamic(() => import('./PreLaunchPageClient'), { ssr: false });
+const HostLandingClient = dynamic(
+  () => import('../../components/landing-host/HostLandingClient'),
+  { ssr: false },
+);
 
 export function generateStaticParams() { return [{}]; }
 
 export default function Page() {
-  return <Client />;
+  return <HostLandingClient />;
 }

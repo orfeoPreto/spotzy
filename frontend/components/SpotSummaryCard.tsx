@@ -53,6 +53,16 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
     ? `${MEDIA_URL}/media/listings/${spot.listingId}/photos/${firstPhoto}.jpg`
     : null;
 
+  // Spotter-facing gross hourly rate
+  const net = spot.hostNetPricePerHourEur ?? spot.pricePerHour ?? 0;
+  const feePct = 0.15;
+  const vatRate = 0.21;
+  const fee = Math.round(net * (feePct / (1 - feePct)) * 100) / 100;
+  const feeVat = Math.round(fee * vatRate * 100) / 100;
+  const gross = Math.round((net + fee + feeVat) * 100) / 100;
+
+  const isActive = highlighted || cardHovered;
+
   return (
     <div
       data-testid="spot-summary-card"
@@ -60,27 +70,27 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       onClick={navigate}
       onMouseEnter={() => { setCardHovered(true); onHover?.(spot.listingId); }}
       onMouseLeave={() => { setCardHovered(false); onHover?.(null); }}
-      className="grow group flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden"
-      style={{
-        aspectRatio: '2 / 3.5',
-        transform: highlighted || cardHovered ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: highlighted || cardHovered ? '0 8px 24px rgba(0,69,38,0.25)' : '',
-        transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
-      }}
+      className={`group flex cursor-pointer flex-col rounded-xl border bg-white overflow-hidden transition-all duration-300 ${
+        isActive
+          ? 'border-[#006B3C] shadow-forest scale-[1.02]'
+          : 'border-[#C8DDD2] shadow-sm-spotzy hover:shadow-md-spotzy'
+      }`}
+      style={{ aspectRatio: '2 / 3.5' }}
       role="article"
     >
-      {/* Photo — 40% of card height */}
+      {/* Photo — 40% of card, Forest border, radius-md */}
       <div className="relative w-full shrink-0" style={{ flex: '0 0 40%' }}>
         {photoUrl ? (
           <img
             src={photoUrl}
             alt={spot.address}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover border-b border-[#004526]/10"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#F0F7F3]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10 text-[#004526]/30">
-              <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#004526] to-[#006B3C]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="h-10 w-10 opacity-40">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
             </svg>
           </div>
         )}
@@ -92,57 +102,49 @@ export default function SpotSummaryCard({ spot, walkingDistance, currentUserId, 
       </div>
 
       {/* Info */}
-      <div data-testid="listing-info" className="flex flex-col gap-3 p-3">
-        <p className="truncate text-sm font-medium text-gray-900">{spot.address}</p>
+      <div data-testid="listing-info" className="flex flex-1 flex-col gap-2 p-3">
+        {/* Address — Inter 500 14px Ink, 1 line truncated */}
+        <p className="truncate text-sm font-medium text-[#1C2B1A]">{spot.address}</p>
+
+        {/* Type + EV badge row */}
         <div className="flex items-center gap-2">
-          <span data-testid="spot-type" className="text-xs text-[#4B6354]">{spotTypeDisplay(spot.spotType)}</span>
+          <span data-testid="spot-type" className="text-[13px] text-[#4B6354]">{spotTypeDisplay(spot.spotType)}</span>
           {spot.evCharging && (
-            <span data-testid="ev-badge" className="inline-flex items-center gap-0.5 rounded-full bg-[#059669] px-1.5 py-0.5 text-[10px] font-semibold text-white">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
+            <span data-testid="ev-badge" className="inline-flex items-center gap-0.5 rounded-full bg-[#059669]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#004526]">
+              <svg viewBox="0 0 24 24" fill="#059669" className="h-3 w-3"><path d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" /></svg>
               {t('spot_card.ev_badge')}
             </span>
           )}
         </div>
 
-        {(() => {
-          // Compute spotter-facing gross hourly rate (EXEMPT_FRANCHISE default)
-          const net = spot.hostNetPricePerHourEur ?? spot.pricePerHour ?? 0;
-          const feePct = 0.15;
-          const vatRate = 0.21;
-          const fee = Math.round(net * (feePct / (1 - feePct)) * 100) / 100;
-          const feeVat = Math.round(fee * vatRate * 100) / 100;
-          const gross = Math.round((net + fee + feeVat) * 100) / 100;
-          return (
-            <div>
-              <p className="text-sm font-semibold text-[#004526]">{t('spot_card.from_price', { price: gross.toFixed(2) })}</p>
-              <p className="text-[10px] text-gray-400">{t('spot_card.incl_fees')}</p>
-            </div>
-          );
-        })()}
-        <div className="flex items-center gap-3 text-xs text-gray-500">
-          {spot.avgRating != null && (
+        {/* Stars + walking distance */}
+        <div className="flex items-center gap-3 text-xs text-[#4B6354]">
+          {spot.avgRating != null && spot.avgRating > 0 && (
             <span className="flex items-center gap-0.5">
-              <svg viewBox="0 0 20 20" fill="#AD3614" className="h-3.5 w-3.5">
+              <svg viewBox="0 0 20 20" fill="#059669" className="h-3.5 w-3.5">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
-              {(spot.avgRating ?? 0).toFixed(1)}
+              <span className="font-semibold text-[#004526]">{(spot.avgRating).toFixed(1)}</span>
             </span>
           )}
           {walkingDistance !== undefined && (
-            <span>{walkingDistance} {t('spot_card.walking_distance')}</span>
+            <span className="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#4B6354" className="h-3.5 w-3.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
+              </svg>
+              {walkingDistance} {t('spot_card.walking_distance')}
+            </span>
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); navigate(); }}
-          className="grow-btn mt-1 w-full rounded-lg bg-[#006B3C] py-2 text-sm font-medium text-white hover:bg-[#004526]"
-        >
-          {t('spot_card.book_button')}
-        </button>
+        {/* Price — "from €X.XX/hr" in Forest DM Sans 700 */}
+        <div className="mt-auto">
+          <p className="text-sm font-bold text-[#004526] font-head">{t('spot_card.from_price', { price: gross.toFixed(2) })}</p>
+          <p className="text-[10px] text-[#4B6354]">{t('spot_card.incl_fees')}</p>
+        </div>
       </div>
 
-      {/* Host footer — hidden on own listings */}
+      {/* Host footer — 28px avatar + "by Jean D." */}
       {spot.hostId && currentUserId !== spot.hostId && (
         <div data-testid="host-footer" className="border-t border-[#EBF7F1] px-3 py-2 flex items-center gap-2">
           <Link

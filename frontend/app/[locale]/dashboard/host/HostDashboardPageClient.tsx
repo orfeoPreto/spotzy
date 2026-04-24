@@ -15,9 +15,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 function MetricCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="grow rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-[#004526]">{value}</p>
+    <div className="grow group rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-forest">
+      <p className="text-xs font-semibold uppercase tracking-wide text-[#4B6354]">{label}</p>
+      <p className="mt-1 font-head text-2xl font-bold text-[#004526]">{value}</p>
     </div>
   );
 }
@@ -103,14 +103,14 @@ export default function HostDashboardPage() {
   }, [user?.userId]);
 
   return (
-    <main className="mx-auto max-w-6xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">{t('host.title')}</h1>
+    <main className="animate-page-enter mx-auto max-w-6xl p-8">
+      <h1 className="mb-6 font-head text-2xl font-bold text-[#004526]">{t('host.title')}</h1>
 
       {/* Metrics row */}
       {loadingMetrics ? (
         <div data-testid="metrics-skeleton" className="mb-6 grid grid-cols-4 gap-4">
           {[0,1,2,3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-200" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-[#EFF5F1]" />
           ))}
         </div>
       ) : metrics && (
@@ -125,18 +125,18 @@ export default function HostDashboardPage() {
       {/* Listings section */}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{t('host.my_listings')}</h2>
+          <h2 className="font-head text-lg font-semibold text-[#004526]">{t('host.my_listings')}</h2>
           <button type="button" onClick={() => router.push('/listings/new')}
-            className="grow-btn rounded-lg bg-[#006B3C] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#004526]">
+            className="grow-btn rounded-lg bg-[#006B3C] px-4 py-1.5 text-sm font-semibold text-white shadow-forest hover:bg-[#004526]">
             {t('host.add_listing')}
           </button>
         </div>
 
         {listings !== null && listings.length === 0 && (
-          <div className="rounded-xl border-2 border-dashed border-gray-300 p-8 text-center">
-            <p className="mb-3 text-gray-500">{t('host.no_listings')}</p>
+          <div className="rounded-xl border-2 border-dashed border-[#C8DDD2] bg-[#EFF5F1] p-8 text-center">
+            <p className="mb-3 text-[#4B6354]">{t('host.no_listings')}</p>
             <button type="button" onClick={() => router.push('/listings/new')}
-              className="grow-btn rounded-lg bg-[#006B3C] px-5 py-2 text-sm font-medium text-white hover:bg-[#004526]">
+              className="grow-btn rounded-lg bg-[#006B3C] px-5 py-2 text-sm font-semibold text-white shadow-forest hover:bg-[#004526]">
               {t('host.add_first_spot')}
             </button>
           </div>
@@ -145,25 +145,25 @@ export default function HostDashboardPage() {
         {listings && listings.length > 0 && (
           <div className="space-y-3">
             {listings.map((l) => (
-              <div key={l.listingId} className="grow flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
+              <div key={l.listingId} className="grow group flex items-center justify-between rounded-xl border border-[#C8DDD2] bg-white p-4 shadow-sm hover:shadow-forest">
                 <div>
                   {/* Issue #24: Link listing address to public listing page */}
-                  <Link href={lp(`/listing/${l.listingId}`)} className="font-medium text-[#004526] hover:underline">
+                  <Link href={lp(`/listing/${l.listingId}`)} className="font-semibold text-[#004526] hover:underline">
                     {l.address}
                   </Link>
-                  <p className="text-xs text-gray-500">{t('host.bookings_count', { count: String(l.bookingCount) })}</p>
+                  <p className="text-xs text-[#4B6354]">{t('host.bookings_count', { count: String(l.bookingCount) })}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {/* Issue #23: Add edit listing button */}
                   <Link
                     href={lp(`/listing/${l.listingId}/edit`)}
-                    className="text-xs text-[#004526] hover:underline"
+                    className="text-xs font-semibold text-[#006B3C] hover:underline"
                   >
                     {t('host.edit_listing')}
                   </Link>
                   <Link
                     href={lp(`/listing/${l.listingId}/availability`)}
-                    className="text-xs text-[#004526] hover:underline"
+                    className="text-xs font-semibold text-[#006B3C] hover:underline"
                   >
                     {t('host.edit_availability')}
                   </Link>
@@ -177,9 +177,9 @@ export default function HostDashboardPage() {
 
       {/* Upcoming bookings */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">{t('host.upcoming_bookings')}</h2>
+        <h2 className="mb-3 font-head text-lg font-semibold text-[#004526]">{t('host.upcoming_bookings')}</h2>
         {bookings.length === 0 && (
-          <p className="text-sm text-gray-400">{t('host.no_upcoming')}</p>
+          <p className="text-sm text-[#4B6354]">{t('host.no_upcoming')}</p>
         )}
         <div className="space-y-3">
           {bookings.map((b) => (
