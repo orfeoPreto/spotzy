@@ -1,0 +1,272 @@
+{
+  "generatedAt": "2026-04-27T10:14:22.456Z",
+  "stripeMode": "test",
+  "tableName": "spotzy-main",
+  "userPoolId": "eu-west-3_BkzpEu2CA",
+  "region": "eu-west-3",
+  "passwordForAllAccounts": "UAT-Test-2026!",
+  "accounts": [
+    {
+      "accountId": "spotter-fr-01",
+      "userId": "spotter-fr-01@uat.spotzy.test",
+      "email": "spotter-fr-01@uat.spotzy.test",
+      "persona": "Spotter",
+      "locale": "fr-BE",
+      "stripeConnectId": null,
+      "notes": "Fresh, no bookings"
+    },
+    {
+      "accountId": "spotter-fr-02",
+      "userId": "spotter-fr-02@uat.spotzy.test",
+      "email": "spotter-fr-02@uat.spotzy.test",
+      "persona": "Spotter",
+      "locale": "fr-BE",
+      "stripeConnectId": null,
+      "notes": "Has 2 completed + 1 PENDING_REVIEW booking"
+    },
+    {
+      "accountId": "spotter-nl-01",
+      "userId": "spotter-nl-01@uat.spotzy.test",
+      "email": "spotter-nl-01@uat.spotzy.test",
+      "persona": "Spotter",
+      "locale": "nl-BE",
+      "stripeConnectId": null,
+      "notes": "Fresh"
+    },
+    {
+      "accountId": "spotter-en-01",
+      "userId": "spotter-en-01@uat.spotzy.test",
+      "email": "spotter-en-01@uat.spotzy.test",
+      "persona": "Spotter",
+      "locale": null,
+      "stripeConnectId": null,
+      "notes": "preferredLocale not set (tourist)"
+    },
+    {
+      "accountId": "host-fr-01",
+      "userId": "host-fr-01@uat.spotzy.test",
+      "email": "host-fr-01@uat.spotzy.test",
+      "persona": "Host",
+      "locale": "fr-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0001",
+      "notes": "2 single listings"
+    },
+    {
+      "accountId": "host-fr-02",
+      "userId": "host-fr-02@uat.spotzy.test",
+      "email": "host-fr-02@uat.spotzy.test",
+      "persona": "Host",
+      "locale": "fr-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0002",
+      "notes": "Has draft listing; Stripe account created but not onboarded"
+    },
+    {
+      "accountId": "host-nl-01",
+      "userId": "host-nl-01@uat.spotzy.test",
+      "email": "host-nl-01@uat.spotzy.test",
+      "persona": "Host",
+      "locale": "nl-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0003",
+      "notes": "2 single listings"
+    },
+    {
+      "accountId": "sm-fr-01",
+      "userId": "sm-fr-01@uat.spotzy.test",
+      "email": "sm-fr-01@uat.spotzy.test",
+      "persona": "SpotManager",
+      "locale": "fr-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0004",
+      "notes": "1 pool (6 bays, blockOptedIn, MIN_BAYS_FLOOR=0.55) + 2 single listings"
+    },
+    {
+      "accountId": "sm-fr-02",
+      "userId": "sm-fr-02@uat.spotzy.test",
+      "email": "sm-fr-02@uat.spotzy.test",
+      "persona": "SpotManager",
+      "locale": "fr-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0005",
+      "notes": "Awaiting RC review; 1 single legacy listing"
+    },
+    {
+      "accountId": "sm-nl-01",
+      "userId": "sm-nl-01@uat.spotzy.test",
+      "email": "sm-nl-01@uat.spotzy.test",
+      "persona": "SpotManager",
+      "locale": "nl-BE",
+      "stripeConnectId": "acct_1ABCDEFGtest0006",
+      "notes": "1 pool (12 bays, blockOptedIn, PERCENTAGE=0.30) + 1 single listing"
+    },
+    {
+      "accountId": "sm-en-01",
+      "userId": "sm-en-01@uat.spotzy.test",
+      "email": "sm-en-01@uat.spotzy.test",
+      "persona": "SpotManager",
+      "locale": "en",
+      "stripeConnectId": "acct_1ABCDEFGtest0007",
+      "notes": "1 pool (4 bays, hidden from search because suspended)"
+    },
+    {
+      "accountId": "bs-corp-01",
+      "userId": "bs-corp-01@uat.spotzy.test",
+      "email": "bs-corp-01@uat.spotzy.test",
+      "persona": "BlockSpotter",
+      "locale": "fr-BE",
+      "stripeConnectId": null,
+      "notes": "Has 1 active block request (PLANS_PROPOSED state)"
+    },
+    {
+      "accountId": "bs-event-01",
+      "userId": "bs-event-01@uat.spotzy.test",
+      "email": "bs-event-01@uat.spotzy.test",
+      "persona": "BlockSpotter",
+      "locale": "nl-BE",
+      "stripeConnectId": null,
+      "notes": "Has 1 settled block reservation (history)"
+    },
+    {
+      "accountId": "admin-01",
+      "userId": "admin-01@uat.spotzy.test",
+      "email": "admin-01@uat.spotzy.test",
+      "persona": "Admin",
+      "locale": "en",
+      "stripeConnectId": null,
+      "notes": "Full admin scope; member of admins Cognito group"
+    }
+  ],
+  "listings": [
+    {
+      "listingId": "lst-uat-host-fr-01-a",
+      "owner": "host-fr-01",
+      "isPool": false,
+      "title": "Parking couvert — Quartier Ixelles",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-host-fr-01-b",
+      "owner": "host-fr-01",
+      "isPool": false,
+      "title": "Place extérieure — Etterbeek",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-host-fr-02-draft",
+      "owner": "host-fr-02",
+      "isPool": false,
+      "title": "Parking privé — Saint-Gilles (brouillon)",
+      "status": "draft"
+    },
+    {
+      "listingId": "lst-uat-host-nl-01-a",
+      "owner": "host-nl-01",
+      "isPool": false,
+      "title": "Overdekte garage — Schaarbeek",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-host-nl-01-b",
+      "owner": "host-nl-01",
+      "isPool": false,
+      "title": "Carport — Molenbeek",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-fr-01-single-a",
+      "owner": "sm-fr-01",
+      "isPool": false,
+      "title": "Parking ouvert — Anderlecht",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-fr-01-single-b",
+      "owner": "sm-fr-01",
+      "isPool": false,
+      "title": "Box fermé — Forest",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-fr-01-pool",
+      "owner": "sm-fr-01",
+      "isPool": true,
+      "title": "Pool de Stationnement UAT — Bruxelles Centre (6 bays)",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-fr-02-legacy",
+      "owner": "sm-fr-02",
+      "isPool": false,
+      "title": "Parking héritage — Uccle",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-nl-01-single",
+      "owner": "sm-nl-01",
+      "isPool": false,
+      "title": "Individuele parkeerplaats — Jette",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-nl-01-pool",
+      "owner": "sm-nl-01",
+      "isPool": true,
+      "title": "Parkeerpool UAT — Laeken (12 bays)",
+      "status": "live"
+    },
+    {
+      "listingId": "lst-uat-sm-en-01-pool",
+      "owner": "sm-en-01",
+      "isPool": true,
+      "title": "Suspended Pool UAT — Woluwe (4 bays)",
+      "status": "suspended"
+    }
+  ],
+  "bookings": [
+    {
+      "bookingId": "booking-uat-001",
+      "spotter": "spotter-fr-01",
+      "listingId": "lst-uat-host-fr-01-a",
+      "status": "CONFIRMED"
+    },
+    {
+      "bookingId": "booking-uat-002",
+      "spotter": "spotter-fr-02",
+      "listingId": "lst-uat-host-nl-01-a",
+      "status": "COMPLETED"
+    },
+    {
+      "bookingId": "booking-uat-003",
+      "spotter": "spotter-fr-02",
+      "listingId": "lst-uat-sm-fr-01-pool",
+      "status": "SETTLED"
+    },
+    {
+      "bookingId": "booking-uat-004",
+      "spotter": "spotter-nl-01",
+      "listingId": "lst-uat-host-nl-01-b",
+      "status": "CONFIRMED"
+    },
+    {
+      "bookingId": "booking-uat-005",
+      "spotter": "spotter-en-01",
+      "listingId": "lst-uat-host-fr-01-b",
+      "status": "CONFIRMED"
+    },
+    {
+      "bookingId": "booking-uat-006",
+      "spotter": "spotter-fr-01",
+      "listingId": "lst-uat-sm-nl-01-pool",
+      "status": "COMPLETED"
+    }
+  ],
+  "blockRequests": [
+    {
+      "reqId": "block-uat-001",
+      "owner": "bs-corp-01",
+      "status": "PLANS_PROPOSED"
+    },
+    {
+      "reqId": "block-uat-002",
+      "owner": "bs-event-01",
+      "status": "SETTLED"
+    }
+  ]
+}

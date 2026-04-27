@@ -5,7 +5,10 @@
     "build": "tsc",
     "test": "jest",
     "test:integration": "jest --config jest.integration.config.js",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "seed:uat": "ts-node scripts/seed-uat.ts",
+    "seed:uat:wipe": "ts-node scripts/seed-uat.ts --wipe-only",
+    "uat:reconcile": "ts-node scripts/uat-reconcile.ts"
   },
   "dependencies": {
     "@aws-sdk/client-apigatewaymanagementapi": "^3.0.0",
@@ -35,6 +38,7 @@
     "aws-sdk-client-mock": "^3.0.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
+    "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   }
 }

@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "types": ["jest", "node"]
   },
-  "include": ["functions/**/*.ts", "shared/**/*.ts", "__tests__/**/*.ts"],
+  "include": ["functions/**/*.ts", "shared/**/*.ts", "__tests__/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

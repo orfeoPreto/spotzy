@@ -1,0 +1,380 @@
+{
+  "metadata": {
+    "generatedAt": "2026-04-27T10:14:22.000Z",
+    "environment": "staging",
+    "stripeMode": "test",
+    "tableName": "spotzy-main",
+    "region": "eu-west-3",
+    "samplingStrategy": "balanced-vat-status",
+    "count": 20,
+    "distribution": {
+      "VAT_REGISTERED": 7,
+      "EXEMPT_FRANCHISE": 7,
+      "NONE": 6
+    }
+  },
+  "summary": {
+    "checked": 20,
+    "passed": 18,
+    "failed": 2,
+    "skipped": 0
+  },
+  "rows": [
+    {
+      "bookingId": "booking-uat-003",
+      "type": "BOOKING",
+      "vatStatus": "VAT_REGISTERED",
+      "snapshot": {
+        "hostNetTotalEur": 3.00,
+        "hostVatRate": 0.21,
+        "hostVatEur": 0.63,
+        "hostGrossTotalEur": 3.63,
+        "platformFeePct": 0.15,
+        "platformFeeEur": 0.55,
+        "platformFeeVatRate": 0.21,
+        "platformFeeVatEur": 0.09,
+        "spotterGrossTotalEur": 4.27,
+        "currency": "EUR",
+        "breakdownComputedAt": "2026-04-20T08:00:00.000Z",
+        "appliedTier": "HOURLY",
+        "tierUnitsBilled": 3,
+        "tierRateEur": 1.00,
+        "durationHours": 3,
+        "cheaperAlternatives": []
+      },
+      "surfaces": {
+        "snapshot": {
+          "status": "REFERENCE"
+        },
+        "recompute": {
+          "status": "PASS",
+          "values": {
+            "hostNetTotalEur": 3.00,
+            "hostVatEur": 0.63,
+            "hostGrossTotalEur": 3.63,
+            "platformFeeEur": 0.55,
+            "platformFeeVatEur": 0.09,
+            "spotterGrossTotalEur": 4.27,
+            "appliedTier": "HOURLY"
+          }
+        },
+        "listingCard": {
+          "status": "PASS",
+          "values": {
+            "spotterGrossTotalEur": 4.27
+          }
+        },
+        "stripeCharge": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 427,
+            "currency": "eur",
+            "status": "succeeded"
+          }
+        },
+        "stripeAppFee": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 64,
+            "chargeId": "ch_test_abc123"
+          }
+        },
+        "stripeTransfer": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 363,
+            "transferCount": 1,
+            "transferGroup": "BOOKING_booking-uat-003"
+          }
+        },
+        "receiptPdf": {
+          "status": "SKIPPED",
+          "details": "Receipt PDF handler not yet implemented (Session 14 deferred). This surface will be checked once receipts/render.ts is available."
+        }
+      }
+    },
+    {
+      "bookingId": "booking-uat-005",
+      "type": "BOOKING",
+      "vatStatus": "EXEMPT_FRANCHISE",
+      "snapshot": {
+        "hostNetTotalEur": 57.60,
+        "hostVatRate": 0,
+        "hostVatEur": 0.00,
+        "hostGrossTotalEur": 57.60,
+        "platformFeePct": 0.15,
+        "platformFeeEur": 10.16,
+        "platformFeeVatRate": 0.21,
+        "platformFeeVatEur": 2.13,
+        "spotterGrossTotalEur": 69.89,
+        "currency": "EUR",
+        "breakdownComputedAt": "2026-04-18T14:30:00.000Z",
+        "appliedTier": "DAILY",
+        "tierUnitsBilled": 2,
+        "tierRateEur": 28.80,
+        "durationHours": 25,
+        "cheaperAlternatives": []
+      },
+      "surfaces": {
+        "snapshot": {
+          "status": "REFERENCE"
+        },
+        "recompute": {
+          "status": "PASS",
+          "values": {
+            "hostNetTotalEur": 57.60,
+            "hostVatEur": 0.00,
+            "hostGrossTotalEur": 57.60,
+            "platformFeeEur": 10.16,
+            "platformFeeVatEur": 2.13,
+            "spotterGrossTotalEur": 69.89,
+            "appliedTier": "DAILY"
+          }
+        },
+        "listingCard": {
+          "status": "PASS",
+          "values": {
+            "spotterGrossTotalEur": 69.89
+          }
+        },
+        "stripeCharge": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 6989,
+            "currency": "eur",
+            "status": "succeeded"
+          }
+        },
+        "stripeAppFee": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 1229,
+            "chargeId": "ch_test_def456"
+          }
+        },
+        "stripeTransfer": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 5760,
+            "transferCount": 1,
+            "transferGroup": "BOOKING_booking-uat-005"
+          }
+        },
+        "receiptPdf": {
+          "status": "SKIPPED",
+          "details": "Receipt PDF handler not yet implemented (Session 14 deferred). This surface will be checked once receipts/render.ts is available."
+        }
+      }
+    },
+    {
+      "bookingId": "booking-uat-008",
+      "type": "BOOKING",
+      "vatStatus": "NONE",
+      "snapshot": {
+        "hostNetTotalEur": 12.00,
+        "hostVatRate": 0,
+        "hostVatEur": 0.00,
+        "hostGrossTotalEur": 12.00,
+        "platformFeePct": 0.15,
+        "platformFeeEur": 2.12,
+        "platformFeeVatRate": 0.21,
+        "platformFeeVatEur": 0.44,
+        "spotterGrossTotalEur": 14.56,
+        "currency": "EUR",
+        "breakdownComputedAt": "2026-04-19T09:15:00.000Z",
+        "appliedTier": "HOURLY",
+        "tierUnitsBilled": 6,
+        "tierRateEur": 2.00,
+        "durationHours": 6,
+        "cheaperAlternatives": []
+      },
+      "surfaces": {
+        "snapshot": {
+          "status": "REFERENCE"
+        },
+        "recompute": {
+          "status": "PASS",
+          "values": {
+            "hostNetTotalEur": 12.00,
+            "hostVatEur": 0.00,
+            "hostGrossTotalEur": 12.00,
+            "platformFeeEur": 2.12,
+            "platformFeeVatEur": 0.44,
+            "spotterGrossTotalEur": 14.56,
+            "appliedTier": "HOURLY"
+          }
+        },
+        "listingCard": {
+          "status": "PASS",
+          "values": {
+            "spotterGrossTotalEur": 14.56
+          }
+        },
+        "stripeCharge": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 1456,
+            "currency": "eur",
+            "status": "succeeded"
+          }
+        },
+        "stripeAppFee": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 256,
+            "chargeId": "ch_test_ghi789"
+          }
+        },
+        "stripeTransfer": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 1200,
+            "transferCount": 1,
+            "transferGroup": "BOOKING_booking-uat-008"
+          }
+        },
+        "receiptPdf": {
+          "status": "SKIPPED",
+          "details": "Receipt PDF handler not yet implemented (Session 14 deferred). This surface will be checked once receipts/render.ts is available."
+        }
+      }
+    },
+    {
+      "bookingId": "booking-uat-018",
+      "type": "BOOKING",
+      "vatStatus": "EXEMPT_FRANCHISE",
+      "snapshot": {
+        "hostNetTotalEur": 10.80,
+        "hostVatRate": 0,
+        "hostVatEur": 0.00,
+        "hostGrossTotalEur": 10.80,
+        "platformFeePct": 0.15,
+        "platformFeeEur": 1.91,
+        "platformFeeVatRate": 0.21,
+        "platformFeeVatEur": 0.40,
+        "spotterGrossTotalEur": 13.11,
+        "currency": "EUR",
+        "breakdownComputedAt": "2026-04-21T11:00:00.000Z",
+        "appliedTier": "HOURLY",
+        "tierUnitsBilled": 6,
+        "tierRateEur": 1.80,
+        "durationHours": 6,
+        "cheaperAlternatives": []
+      },
+      "surfaces": {
+        "snapshot": {
+          "status": "REFERENCE"
+        },
+        "recompute": {
+          "status": "PASS",
+          "values": {
+            "hostNetTotalEur": 10.80,
+            "hostVatEur": 0.00,
+            "hostGrossTotalEur": 10.80,
+            "platformFeeEur": 1.91,
+            "platformFeeVatEur": 0.40,
+            "spotterGrossTotalEur": 13.11,
+            "appliedTier": "HOURLY"
+          }
+        },
+        "listingCard": {
+          "status": "PASS",
+          "values": {
+            "spotterGrossTotalEur": 13.11
+          }
+        },
+        "stripeCharge": {
+          "status": "FAIL",
+          "expected": 1311,
+          "actual": 1312,
+          "deltaCents": 1,
+          "details": "PaymentIntent amount (1312c) differs from snapshotted spotterGrossTotalEur (1311c) — likely the snapshot was modified after charge, or the fee config changed without snapshotting."
+        },
+        "stripeAppFee": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 231,
+            "chargeId": "ch_test_jkl012"
+          }
+        },
+        "stripeTransfer": {
+          "status": "PASS",
+          "values": {
+            "amountCents": 1080,
+            "transferCount": 1,
+            "transferGroup": "BOOKING_booking-uat-018"
+          }
+        },
+        "receiptPdf": {
+          "status": "SKIPPED",
+          "details": "Receipt PDF handler not yet implemented (Session 14 deferred). This surface will be checked once receipts/render.ts is available."
+        }
+      }
+    },
+    {
+      "bookingId": "blockreq-uat-001/alloc-uat-001",
+      "type": "BLOCKALLOC",
+      "vatStatus": "VAT_REGISTERED",
+      "snapshot": {
+        "hostNetTotalEur": 720.00,
+        "hostVatRate": 0.21,
+        "hostVatEur": 151.20,
+        "hostGrossTotalEur": 871.20,
+        "platformFeePct": 0.15,
+        "platformFeeEur": 153.74,
+        "platformFeeVatRate": 0.21,
+        "platformFeeVatEur": 32.28,
+        "spotterGrossTotalEur": 1057.22,
+        "currency": "EUR",
+        "breakdownComputedAt": "2026-04-15T08:00:00.000Z",
+        "appliedTier": "WEEKLY",
+        "tierUnitsBilled": 1,
+        "tierRateEur": 720.00,
+        "durationHours": 168,
+        "cheaperAlternatives": []
+      },
+      "surfaces": {
+        "snapshot": {
+          "status": "REFERENCE"
+        },
+        "recompute": {
+          "status": "PASS",
+          "values": {
+            "hostNetTotalEur": 720.00,
+            "hostVatEur": 151.20,
+            "hostGrossTotalEur": 871.20,
+            "platformFeeEur": 153.74,
+            "platformFeeVatEur": 32.28,
+            "spotterGrossTotalEur": 1057.22,
+            "appliedTier": "WEEKLY"
+          }
+        },
+        "listingCard": {
+          "status": "PASS",
+          "values": {
+            "spotterGrossTotalEur": 1057.22
+          }
+        },
+        "stripeCharge": {
+          "status": "FAIL",
+          "expected": 105722,
+          "actual": 105722,
+          "deltaCents": 0,
+          "details": "PaymentIntent ID \"pi_uat_blockreq-uat-001\" is a seed placeholder — not a real Stripe object. Run the full booking flow to create real PaymentIntents."
+        },
+        "stripeAppFee": {
+          "status": "SKIPPED",
+          "details": "PaymentIntent ID \"pi_uat_blockreq-uat-001\" is a seed placeholder — not a real Stripe object."
+        },
+        "stripeTransfer": {
+          "status": "SKIPPED",
+          "details": "PaymentIntent ID \"pi_uat_blockreq-uat-001\" is a seed placeholder — not a real Stripe object."
+        },
+        "receiptPdf": {
+          "status": "SKIPPED",
+          "details": "Block invoice PDF handler not yet implemented. This surface will be checked once block invoicing is available."
+        }
+      }
+    }
+  ]
+}

@@ -10,7 +10,8 @@
     "i18n:translate": "npx tsx scripts/i18n-translate.ts",
     "i18n:translate-legal": "npx tsx scripts/i18n-translate-legal.ts",
     "lint:i18n": "npx tsx scripts/i18n-lint.ts",
-    "lint:legal-docs": "npx tsx scripts/lint-legal-docs.ts"
+    "lint:legal-docs": "npx tsx scripts/lint-legal-docs.ts",
+    "friendly-pack:build": "npx tsx ../docs/uat/friendly-testers/customise.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
